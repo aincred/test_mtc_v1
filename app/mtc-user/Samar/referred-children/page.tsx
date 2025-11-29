@@ -768,7 +768,7 @@ export default function MTCReferredChildListStandalone() {
       </header>
 
       {/* Filter Panel - Top */}
-      <div className={`${filterPanelOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"} overflow-hidden transition-all duration-300 ease-in-out bg-gradient-to-b from-indigo-50 to-white shadow-md z-30`}>
+      <div className={`${filterPanelOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"} overflow-hidden transition-all duration-300 ease-in-out bg-linear-to-b from-indigo-50 to-white shadow-md z-30`}>
         <div className="p-4 sm:p-6">
           <div className="justify-between items-center mb-6">
             <h2 className="text-lg font-semibold text-indigo-800 items-center">
@@ -793,7 +793,7 @@ export default function MTCReferredChildListStandalone() {
               <button
                 onClick={loadData}
                 disabled={loading}
-                className="w-full px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 disabled:from-indigo-300 disabled:to-purple-400 transition-all duration-200 justify-center shadow-md"
+                className="w-full px-4 py-2.5 bg-linear-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-600 hover:to-purple-700 disabled:from-indigo-300 disabled:to-purple-400 transition-all duration-200 justify-center shadow-md"
               >
                 {loading ? (
                   <>
