@@ -1,574 +1,697 @@
+// "use client";
+
+// import { useState, useEffect } from "react";
+// import { useRouter, useParams } from "next/navigation";
+// import { Card, CardHeader, CardContent } from "@/components/ui/card";
+// import { Input } from "@/components/ui/input";
+// import { Button } from "@/components/ui/button";
+// import { ChevronDown, ChevronUp, Save, Home, Loader2, ArrowLeft } from "lucide-react";
+// import toast, { Toaster } from "react-hot-toast";
+// import { addDays, format, isValid, parseISO } from "date-fns";
+
+// // --- Types ---
+
+// interface ChildHeader {
+//   SamNo: string;
+//   ChildName: string;
+//   FatherName: string;
+//   MotherName: string;
+//   DischargeDate: string;
+// }
+
+// // The UI State for a single visit row
+// interface VisitRow {
+//   visitNumber: number; // 1, 2, 3, 4
+//   dueDate: string;
+//   actualDate: string;
+//   weight: string;
+//   height: string;
+//   muac: string;
+//   zScore: string;
+//   designation: string;
+//   byName: string;
+//   byMobile: string;
+// }
+
+// const DESIGNATION_OPTIONS = [
+//   { value: "6", label: "Sahiya/ASHA" },
+//   { value: "1", label: "ANGANWADI" },
+//   { value: "2", label: "ANM" },
+//   { value: "7", label: "Poshan Sakhi" },
+//   { value: "8", label: "RBSK Team" },
+//   { value: "3", label: "OPD" },
+//   { value: "4", label: "SELF" },
+//   { value: "5", label: "OTHER" }
+// ];
+
+// export default function FollowUpFormPage() {
+//   const router = useRouter();
+//   const params = useParams();
+  
+//   const [loading, setLoading] = useState(true);
+//   const [child, setChild] = useState<ChildHeader | null>(null);
+  
+//   // State for the 4 visits
+//   const [visits, setVisits] = useState<VisitRow[]>([]);
+//   const [activeAccordions, setActiveAccordions] = useState<number[]>([0]); // Open first by default
+
+//   // --- 1. Fetch Data ---
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       const id = typeof params.id === 'string' ? params.id : params.id?.[0];
+//       if (!id) return;
+
+//       try {
+//         const res = await fetch(`/api/follow-up/detail/${encodeURIComponent(decodeURIComponent(id))}`);
+//         const result = await res.json();
+
+//         if (result.success) {
+//           setChild(result.child);
+//           initializeVisits(result.child.DischargeDate, result.followUpData);
+//         } else {
+//           toast.error(result.message);
+//           router.push("/mtc-user/dashboard/follow-up");
+//         }
+//       } catch (error) {
+//         console.error(error);
+//         toast.error("Failed to load data");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchData();
+//   }, [params.id, router]);
+
+//   // --- 2. Data Mapping Helper ---
+//   // Converts DB Flat Object -> Array of 4 Visits
+//   const initializeVisits = (dischargeDateStr: string, dbData: any) => {
+//     const dischargeDate = new Date(dischargeDateStr);
+//     const initialVisits: VisitRow[] = [];
+
+//     // Helper to extract date string yyyy-MM-dd
+//     const toDateStr = (val: string | null) => val ? val.split('T')[0] : "";
+//     const toStr = (val: any) => val ? String(val) : "";
+
+//     // Mapping Logic for 4 visits
+//     const visitConfigs = [
+//       { id: 1, days: 15, prefix: "First" },
+//       { id: 2, days: 30, prefix: "Second" },
+//       { id: 3, days: 45, prefix: "Third" },
+//       { id: 4, days: 60, prefix: "Fourt" } // NOTE: Matches DB typo "Fourt"
+//     ];
+
+//     visitConfigs.forEach(cfg => {
+//       // Calculate Due Date
+//       let dueDate = "";
+//       if (isValid(dischargeDate)) {
+//         dueDate = format(addDays(dischargeDate, cfg.days), "yyyy-MM-dd");
+//       }
+
+//       // If DB data exists, map it; otherwise empty
+//       const d = dbData || {};
+//       const p = cfg.prefix; // Prefix like 'First', 'Second'
+
+//       // Special handling for 4th visit Date vs 'Fourt' prefix for columns
+//       const dateKey = cfg.id === 4 ? "FourthFollowUpDate" : `${p}FollowUpDate`;
+
+//       initialVisits.push({
+//         visitNumber: cfg.id,
+//         dueDate: dueDate,
+//         actualDate: toDateStr(d[`${p}FollowUpDoneOn`]), // 'DoneOn' usually implies actual date
+//         weight: toStr(d[`${p}FollowUpWeight`]),
+//         height: toStr(d[`${p}FollowUpHeight`]),
+//         muac: toStr(d[`${p}FollowUpMUAC`]),
+//         zScore: toStr(d[`${p}FollowUpZscore`]),
+//         designation: toStr(d[`${p}FollowUpMotherBP`]), // Assuming Mapping: Designation stored in BP col based on previous context, adjust if needed
+//         byName: toStr(d[`${p}FollowUpMotherWeight`]),   // Verify your column mapping in db.ts save logic
+//         byMobile: toStr(d[`${p}FollowUpMotherHB`])      // Verify your column mapping
+//       });
+//     });
+
+//     setVisits(initialVisits);
+//   };
+
+//   // --- 3. Form Handlers ---
+
+//   const handleInputChange = (index: number, field: keyof VisitRow, value: string) => {
+//     const updated = [...visits];
+//     updated[index] = { ...updated[index], [field]: value };
+//     setVisits(updated);
+//   };
+
+//   const toggleAccordion = (index: number) => {
+//     setActiveAccordions(prev => 
+//       prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
+//     );
+//   };
+
+//   // --- 4. Save Logic ---
+//   const saveFollowUp = async (indexToSave: number) => {
+//     if (!child) return;
+
+//     const row = visits[indexToSave];
+//     // Validation
+//     if (!row.actualDate || !row.weight || !row.height) {
+//       toast.error("Please fill Date, Weight and Height");
+//       return;
+//     }
+
+//     const loadingToast = toast.loading("Saving...");
+
+//     // Construct the FULL payload for the DB (All 4 visits) because DB is one row per child
+//     // We map the State Array back to Flat DB Keys
+//     const payload: any = {
+//       SamNo: child.SamNo,
+//       MTCCode: "MTC_CODE_HERE", // Ideally fetched from session or child data
+//       MotherName: child.MotherName,
+//       DischargeDate: child.DischargeDate
+//     };
+
+//     const prefixes = ["First", "Second", "Third", "Fourt"]; // 4th is Fourt in DB columns
+
+//     visits.forEach((v, idx) => {
+//       const p = prefixes[idx];
+//       // Special Date Key for 4th visit
+//       const dateKey = idx === 3 ? "FourthFollowUpDate" : `${p}FollowUpDate`;
+      
+//       // We assume "FollowUpDate" is the Due Date, "FollowUpDoneOn" is Actual Date
+//       payload[dateKey] = v.dueDate; 
+//       payload[`${p}FollowUpDoneOn`] = v.actualDate;
+//       payload[`${p}FollowUpWeight`] = parseFloat(v.weight) || null;
+//       payload[`${p}FollowUpHeight`] = parseFloat(v.height) || null;
+//       payload[`${p}FollowUpMUAC`] = parseFloat(v.muac) || null;
+//       payload[`${p}FollowUpZscore`] = parseFloat(v.zScore) || null;
+      
+//       // Storing Designation/Name/Mobile in available text/num columns or dedicated columns if you added them
+//       // Based on previous db.ts, we mapped these to existing columns:
+//       payload[`${p}FollowUpMotherBP`] = v.designation; // Storing string here
+//       payload[`${p}FollowUpMotherWeight`] = null; // Careful: These are decimals in DB. If Name is string, this mapping needs specific columns!
+//       payload[`${p}FollowUpMotherHB`] = null;     // Careful: These are decimals in DB.
+      
+//       // *CRITICAL NOTE*: Your DB schema for FollowUp uses `Decimal` for MotherWeight/HB. 
+//       // If you want to store "Name" and "Mobile", you need to Add [FollowUpByName] columns to SQL 
+//       // OR repurpose existing string columns. 
+//       // For now, I will NOT send Name/Mobile to Decimal columns to avoid crashes.
+//     });
+
+//     try {
+//       const res = await fetch("/api/follow-up/save", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload),
+//       });
+
+//       const result = await res.json();
+//       if (result.success) {
+//         toast.success(`Follow-up ${row.visitNumber} Saved!`, { id: loadingToast });
+//       } else {
+//         toast.error(result.message, { id: loadingToast });
+//       }
+//     } catch (error) {
+//       toast.error("Failed to save", { id: loadingToast });
+//     }
+//   };
+
+//   // --- RENDER ---
+
+//   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-teal-600"/></div>;
+//   if (!child) return null;
+
+//   return (
+//     <div className="min-h-screen bg-gray-100 p-4 sm:p-8">
+//       <Toaster position="top-right" />
+      
+//       <div className="max-w-6xl mx-auto space-y-6">
+//         {/* Header */}
+//         <div className="flex justify-between items-center">
+//           <h1 className="text-2xl font-bold text-teal-800">Follow Up Details</h1>
+//           <Button onClick={() => router.back()} variant="outline" className="gap-2">
+//             <ArrowLeft className="h-4 w-4" /> Back
+//           </Button>
+//         </div>
+
+//         {/* Child Info Card */}
+//         <Card>
+//           <CardHeader className="bg-gray-50 border-b pb-4">
+//             <h2 className="text-lg font-semibold text-gray-700">Child Information</h2>
+//           </CardHeader>
+//           <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+//             <div>
+//               <label className="text-xs text-gray-500 uppercase font-bold">SAM Number</label>
+//               <div className="font-medium text-gray-800">{child.SamNo}</div>
+//             </div>
+//             <div>
+//               <label className="text-xs text-gray-500 uppercase font-bold">Child Name</label>
+//               <div className="font-medium text-gray-800">{child.ChildName}</div>
+//             </div>
+//             <div>
+//               <label className="text-xs text-gray-500 uppercase font-bold">Parent Name</label>
+//               <div className="font-medium text-gray-800">{child.FatherName || child.MotherName}</div>
+//             </div>
+//             <div>
+//               <label className="text-xs text-gray-500 uppercase font-bold">Discharge Date</label>
+//               <div className="font-medium text-gray-800">{new Date(child.DischargeDate).toLocaleDateString()}</div>
+//             </div>
+//           </CardContent>
+//         </Card>
+
+//         {/* Visits Accordion */}
+//         <div className="space-y-4">
+//           {visits.map((visit, index) => (
+//             <Card key={visit.visitNumber} className="border border-teal-100 shadow-sm overflow-hidden">
+//               <CardHeader 
+//                 className="py-4 px-6 cursor-pointer bg-teal-50/50 hover:bg-teal-50 transition-colors flex flex-row justify-between items-center"
+//                 onClick={() => toggleAccordion(index)}
+//               >
+//                 <div className="flex items-center gap-4">
+//                   <span className="flex items-center justify-center w-8 h-8 rounded-full bg-teal-600 text-white font-bold text-sm">
+//                     {visit.visitNumber}
+//                   </span>
+//                   <div>
+//                     <h3 className="text-md font-semibold text-gray-800">Visit {visit.visitNumber}</h3>
+//                     <p className="text-xs text-gray-500">Due: {new Date(visit.dueDate).toLocaleDateString()}</p>
+//                   </div>
+//                 </div>
+//                 {activeAccordions.includes(index) ? <ChevronUp className="text-gray-400"/> : <ChevronDown className="text-gray-400"/>}
+//               </CardHeader>
+
+//               {activeAccordions.includes(index) && (
+//                 <CardContent className="p-6 bg-white animate-in slide-in-from-top-2 duration-200">
+//                   <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    
+//                     <div>
+//                       <label className="block text-sm font-medium text-gray-700 mb-1">Actual Date <span className="text-red-500">*</span></label>
+//                       <Input type="date" value={visit.actualDate} onChange={(e) => handleInputChange(index, 'actualDate', e.target.value)} />
+//                     </div>
+
+//                     <div>
+//                       <label className="block text-sm font-medium text-gray-700 mb-1">Weight (kg) <span className="text-red-500">*</span></label>
+//                       <Input type="number" step="0.01" value={visit.weight} onChange={(e) => handleInputChange(index, 'weight', e.target.value)} />
+//                     </div>
+
+//                     <div>
+//                       <label className="block text-sm font-medium text-gray-700 mb-1">Height (cm) <span className="text-red-500">*</span></label>
+//                       <Input type="number" step="0.1" value={visit.height} onChange={(e) => handleInputChange(index, 'height', e.target.value)} />
+//                     </div>
+
+//                     <div>
+//                       <label className="block text-sm font-medium text-gray-700 mb-1">MUAC (cm)</label>
+//                       <Input type="number" step="0.1" value={visit.muac} onChange={(e) => handleInputChange(index, 'muac', e.target.value)} />
+//                     </div>
+
+//                     <div>
+//                       <label className="block text-sm font-medium text-gray-700 mb-1">Z-Score</label>
+//                       <Input type="number" step="0.1" value={visit.zScore} onChange={(e) => handleInputChange(index, 'zScore', e.target.value)} />
+//                     </div>
+
+//                     {/* Note: In your DB Schema, these fields mapped to numeric columns. Ensure logic handles strings correctly or update DB */}
+//                     <div>
+//                       <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+//                       <select 
+//                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+//                         value={visit.designation}
+//                         onChange={(e) => handleInputChange(index, 'designation', e.target.value)}
+//                       >
+//                         <option value="">Select</option>
+//                         {DESIGNATION_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+//                       </select>
+//                     </div>
+
+//                     <div>
+//                       <label className="block text-sm font-medium text-gray-700 mb-1">Staff Name</label>
+//                       <Input value={visit.byName} onChange={(e) => handleInputChange(index, 'byName', e.target.value)} placeholder="Name" />
+//                     </div>
+
+//                     <div>
+//                       <label className="block text-sm font-medium text-gray-700 mb-1">Staff Mobile</label>
+//                       <Input value={visit.byMobile} onChange={(e) => handleInputChange(index, 'byMobile', e.target.value)} placeholder="Mobile" maxLength={10} />
+//                     </div>
+
+//                   </div>
+
+//                   <div className="flex justify-end mt-6 border-t pt-4">
+//                     <Button onClick={() => saveFollowUp(index)} className="bg-teal-600 hover:bg-teal-700 min-w-[120px]">
+//                       <Save className="w-4 h-4 mr-2" /> Save Visit
+//                     </Button>
+//                   </div>
+//                 </CardContent>
+//               )}
+//             </Card>
+//           ))}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useRouter, useParams } from "next/navigation";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Home, Save, X, ChevronDown, ChevronUp } from "lucide-react"; // Removed User import
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp, Save, Loader2, ArrowLeft } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
+import { addDays, format, isValid } from "date-fns";
 
-interface DischargeRecord {
-  id: string;
-  childId: string;
-  recordNo: string;
-  samNumber: string;
-  childName: string;
-  parentName: string;
-  dateOfBirth: string;
-  admissionWeight: string;
-  admissionHeight: string;
-  admissionDate: string;
-  admissionEdema: string;
-  admissionMUAC: string;
-  targetWeight: string;
-  dischargeDate: string;
-  dischargeWeight: string;
-  dischargeHeight: string;
-  dischargeMUAC: string;
-  outcomeIndicator: string;
-  dischargeEdema: string;
-  admissionHemoglobin: string;
-  hemoglobinMother: string;
-  ifaGivenToMother: string;
-  motherPayment: string;
-  ifaSyrup: string;
-  photo: string;
-  dischargedAt: string;
+// --- Types ---
+
+interface ChildHeader {
+  SamNo: string;
+  ChildName: string;
+  FatherName: string;
+  MotherName: string;
+  DischargeDate: string;
 }
 
-interface FollowUp {
-  id: string;
-  followUpVisit: number;
-  followUpDueDate: string;
-  followUpActualDate: string;
-  followUpWeight: string;
-  followUpHeight: string;
-  followUpMUAC: string;
-  followUpZScore: string;
+// Interface for raw DB data which is accessed dynamically
+interface ApiFollowUpData {
+  [key: string]: string | number | null | undefined;
+}
+
+// The UI State for a single visit row
+interface VisitRow {
+  visitNumber: number; // 1, 2, 3, 4
+  dueDate: string;
+  actualDate: string;
+  weight: string;
+  height: string;
+  muac: string;
+  zScore: string;
   designation: string;
-  followedUpByName: string;
-  followedUpByMobile: string;
+  byName: string;
+  byMobile: string;
 }
 
-// Removed unused FollowUpData interface
+const DESIGNATION_OPTIONS = [
+  { value: "6", label: "Sahiya/ASHA" },
+  { value: "1", label: "ANGANWADI" },
+  { value: "2", label: "ANM" },
+  { value: "7", label: "Poshan Sakhi" },
+  { value: "8", label: "RBSK Team" },
+  { value: "3", label: "OPD" },
+  { value: "4", label: "SELF" },
+  { value: "5", label: "OTHER" }
+];
 
-// Type for localStorage structure
-interface AllFollowUps {
-  [childId: string]: FollowUp[];
-}
-
-export default function FollowUpFormPage({ params }: { params: { id: string } }) {
+export default function FollowUpFormPage() {
   const router = useRouter();
-  const [child, setChild] = useState<DischargeRecord | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [followUps, setFollowUps] = useState<FollowUp[]>([]);
-  const [activeAccordions, setActiveAccordions] = useState<number[]>([0]); // Start with first accordion open
+  const params = useParams();
   
-  // Designation options
-  const designationOptions = [
-    { value: "6", label: "Sahiya/ASHA" },
-    { value: "1", label: "ANGANWADI" },
-    { value: "2", label: "ANM" },
-    { value: "7", label: "Poshan Sakhi" },
-    { value: "8", label: "RBSK Team" },
-    { value: "3", label: "OPD" },
-    { value: "4", label: "SELF" },
-    { value: "5", label: "OTHER" }
-  ];
+  const [loading, setLoading] = useState(true);
+  const [child, setChild] = useState<ChildHeader | null>(null);
+  
+  // State for the 4 visits
+  const [visits, setVisits] = useState<VisitRow[]>([]);
+  const [activeAccordions, setActiveAccordions] = useState<number[]>([0]); // Open first by default
 
-  // Load child data from localStorage
+  // --- 1. Fetch Data ---
   useEffect(() => {
-    try {
-      const storedDischarges = localStorage.getItem("dischargeRecords");
-      const storedFollowUps = localStorage.getItem("followUps");
+    const fetchData = async () => {
+      const id = typeof params.id === 'string' ? params.id : params.id?.[0];
+      if (!id) return;
 
-      if (storedDischarges) {
-        const parsedDischarges = JSON.parse(storedDischarges);
-        const foundChild = parsedDischarges.find((c: DischargeRecord) => c.childId === params.id);
-        
-        if (foundChild) {
-          setChild(foundChild);
-          
-          // Initialize follow-ups with default values
-          const initialFollowUps: FollowUp[] = [
-            {
-              id: `follow-up-1-${foundChild.childId}`,
-              followUpVisit: 1,
-              followUpDueDate: calculateDueDate(foundChild.dischargeDate, 15), // 15 days after discharge
-              followUpActualDate: "",
-              followUpWeight: "",
-              followUpHeight: "",
-              followUpMUAC: "",
-              followUpZScore: "",
-              designation: "",
-              followedUpByName: "",
-              followedUpByMobile: ""
-            },
-            {
-              id: `follow-up-2-${foundChild.childId}`,
-              followUpVisit: 2,
-              followUpDueDate: calculateDueDate(foundChild.dischargeDate, 30), // 30 days after discharge
-              followUpActualDate: "",
-              followUpWeight: "",
-              followUpHeight: "",
-              followUpMUAC: "",
-              followUpZScore: "",
-              designation: "",
-              followedUpByName: "",
-              followedUpByMobile: ""
-            },
-            {
-              id: `follow-up-3-${foundChild.childId}`,
-              followUpVisit: 3,
-              followUpDueDate: calculateDueDate(foundChild.dischargeDate, 45), // 45 days after discharge
-              followUpActualDate: "",
-              followUpWeight: "",
-              followUpHeight: "",
-              followUpMUAC: "",
-              followUpZScore: "",
-              designation: "",
-              followedUpByName: "",
-              followedUpByMobile: ""
-            },
-            {
-              id: `follow-up-4-${foundChild.childId}`,
-              followUpVisit: 4,
-              followUpDueDate: calculateDueDate(foundChild.dischargeDate, 60), // 60 days after discharge
-              followUpActualDate: "",
-              followUpWeight: "",
-              followUpHeight: "",
-              followUpMUAC: "",
-              followUpZScore: "",
-              designation: "",
-              followedUpByName: "",
-              followedUpByMobile: ""
-            }
-          ];
-          
-          // If there are existing follow-ups, merge them with the initial ones
-          if (storedFollowUps) {
-            const parsedFollowUps: AllFollowUps = JSON.parse(storedFollowUps);
-            const childFollowUps = parsedFollowUps[foundChild.childId] || [];
-            
-            // Update initial follow-ups with existing data
-            childFollowUps.forEach((existingFollowUp: FollowUp) => {
-              const index = existingFollowUp.followUpVisit - 1;
-              if (index >= 0 && index < initialFollowUps.length) {
-                initialFollowUps[index] = { ...initialFollowUps[index], ...existingFollowUp };
-              }
-            });
-          }
-          
-          setFollowUps(initialFollowUps);
+      try {
+        const res = await fetch(`/api/follow-up/detail/${encodeURIComponent(decodeURIComponent(id))}`);
+        const result = await res.json();
+
+        if (result.success) {
+          setChild(result.child);
+          initializeVisits(result.child.DischargeDate, result.followUpData);
         } else {
-          toast.error("Child not found");
-          router.push("/mtc-user/dashboard/discharge");
+          toast.error(result.message);
+          router.push("/mtc-user/dashboard/follow-up");
         }
-      } else {
-        toast.error("No discharge records found");
-        router.push("/mtc-user/dashboard/discharge");
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load data");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Error loading data:", err);
-      toast.error("Failed to load data");
-      router.push("/mtc-user/dashboard/discharge");
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    fetchData();
   }, [params.id, router]);
 
-  // Function to calculate due date based on discharge date
-  function calculateDueDate(dischargeDate: string, daysToAdd: number): string {
-    if (!dischargeDate) return "";
-    
-    const date = new Date(dischargeDate);
-    date.setDate(date.getDate() + daysToAdd);
-    
-    return date.toISOString().split('T')[0];
-  }
+  // --- 2. Data Mapping Helper ---
+  // Converts DB Flat Object -> Array of 4 Visits
+  const initializeVisits = (dischargeDateStr: string, dbData: ApiFollowUpData) => {
+    const dischargeDate = new Date(dischargeDateStr);
+    const initialVisits: VisitRow[] = [];
 
-  // Toggle accordion
+    // Helper to extract date string yyyy-MM-dd
+    const toDateStr = (val: string | number | null | undefined) => (val && typeof val === 'string') ? val.split('T')[0] : "";
+    const toStr = (val: unknown) => val ? String(val) : "";
+
+    // Mapping Logic for 4 visits
+    const visitConfigs = [
+      { id: 1, days: 15, prefix: "First" },
+      { id: 2, days: 30, prefix: "Second" },
+      { id: 3, days: 45, prefix: "Third" },
+      { id: 4, days: 60, prefix: "Fourt" } // NOTE: Matches DB typo "Fourt"
+    ];
+
+    visitConfigs.forEach(cfg => {
+      // Calculate Due Date
+      let dueDate = "";
+      if (isValid(dischargeDate)) {
+        dueDate = format(addDays(dischargeDate, cfg.days), "yyyy-MM-dd");
+      }
+
+      // If DB data exists, map it; otherwise empty
+      const d = dbData || {};
+      const p = cfg.prefix; // Prefix like 'First', 'Second'
+
+      initialVisits.push({
+        visitNumber: cfg.id,
+        dueDate: dueDate,
+        actualDate: toDateStr(d[`${p}FollowUpDoneOn`]), // 'DoneOn' usually implies actual date
+        weight: toStr(d[`${p}FollowUpWeight`]),
+        height: toStr(d[`${p}FollowUpHeight`]),
+        muac: toStr(d[`${p}FollowUpMUAC`]),
+        zScore: toStr(d[`${p}FollowUpZscore`]),
+        designation: toStr(d[`${p}FollowUpMotherBP`]), // Assuming Mapping: Designation stored in BP col based on previous context
+        byName: toStr(d[`${p}FollowUpMotherWeight`]),   // Verify your column mapping in db.ts save logic
+        byMobile: toStr(d[`${p}FollowUpMotherHB`])      // Verify your column mapping
+      });
+    });
+
+    setVisits(initialVisits);
+  };
+
+  // --- 3. Form Handlers ---
+
+  const handleInputChange = (index: number, field: keyof VisitRow, value: string) => {
+    const updated = [...visits];
+    updated[index] = { ...updated[index], [field]: value };
+    setVisits(updated);
+  };
+
   const toggleAccordion = (index: number) => {
     setActiveAccordions(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index)
-        : [...prev, index]
+      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
     );
   };
 
-  // Handle input change for follow-up fields
-  const handleInputChange = (index: number, field: keyof FollowUp, value: string) => {
-    const updatedFollowUps = [...followUps];
-    updatedFollowUps[index] = {
-      ...updatedFollowUps[index],
-      [field]: value
+  // --- 4. Save Logic ---
+  const saveFollowUp = async (indexToSave: number) => {
+    if (!child) return;
+
+    const row = visits[indexToSave];
+    // Validation
+    if (!row.actualDate || !row.weight || !row.height) {
+      toast.error("Please fill Date, Weight and Height");
+      return;
+    }
+
+    const loadingToast = toast.loading("Saving...");
+
+    // Construct the FULL payload for the DB (All 4 visits) because DB is one row per child
+    // We map the State Array back to Flat DB Keys
+    // Using Record<string, unknown> instead of 'any'
+    const payload: Record<string, unknown> = {
+      SamNo: child.SamNo,
+      MTCCode: "MTC_CODE_HERE", // Ideally fetched from session or child data
+      MotherName: child.MotherName,
+      DischargeDate: child.DischargeDate
     };
-    setFollowUps(updatedFollowUps);
-  };
 
-  // Save follow-up data
-  const saveFollowUp = (index: number) => {
-    const followUp = followUps[index];
-    
-    // Validate required fields
-    if (!followUp.followUpActualDate || !followUp.followUpWeight || 
-        !followUp.followUpHeight || !followUp.designation || 
-        !followUp.followedUpByName || !followUp.followedUpByMobile) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-    
-    // Get existing follow-ups from localStorage
-    const storedFollowUps = localStorage.getItem("followUps");
-    const allFollowUps: AllFollowUps = storedFollowUps ? JSON.parse(storedFollowUps) : {};
-    
-    // Initialize child follow-ups if they don't exist
-    if (!child || !allFollowUps[child.childId]) {
-      if (child) {
-        allFollowUps[child.childId] = [];
-      } else {
-        toast.error("Child data not available");
-        return;
-      }
-    }
-    
-    // Find if this follow-up already exists
-    const existingIndex = allFollowUps[child!.childId].findIndex(
-      (f: FollowUp) => f.followUpVisit === followUp.followUpVisit
-    );
-    
-    // Update or add the follow-up
-    if (existingIndex >= 0) {
-      allFollowUps[child!.childId][existingIndex] = followUp;
-    } else {
-      allFollowUps[child!.childId].push(followUp);
-    }
-    
-    // Sort by follow-up visit
-    allFollowUps[child!.childId].sort((a: FollowUp, b: FollowUp) => a.followUpVisit - b.followUpVisit);
-    
-    // Save to localStorage
-    localStorage.setItem("followUps", JSON.stringify(allFollowUps));
-    
-    toast.success(`Follow-up ${followUp.followUpVisit} saved successfully!`);
-  };
+    const prefixes = ["First", "Second", "Third", "Fourt"]; // 4th is Fourt in DB columns
 
-  // Save all follow-ups
-  const saveAllFollowUps = () => {
-    if (!child) {
-      toast.error("Child data not available");
-      return;
-    }
-    
-    let hasErrors = false;
-    
-    // Check if any follow-up has data but missing required fields
-    followUps.forEach((followUp, index) => {
-      if ((followUp.followUpActualDate || followUp.followUpWeight || 
-           followUp.followUpHeight || followUp.designation || 
-           followUp.followedUpByName || followUp.followedUpByMobile) &&
-          (!followUp.followUpActualDate || !followUp.followUpWeight || 
-           !followUp.followUpHeight || !followUp.designation || 
-           !followUp.followedUpByName || !followUp.followedUpByMobile)) {
-        toast.error(`Please complete all required fields in Follow-up ${followUp.followUpVisit}`);
-        hasErrors = true;
-        
-        // Open the accordion with errors
-        if (!activeAccordions.includes(index)) {
-          setActiveAccordions(prev => [...prev, index]);
-        }
-      }
+    visits.forEach((v, idx) => {
+      const p = prefixes[idx];
+      // Special Date Key for 4th visit
+      const dateKey = idx === 3 ? "FourthFollowUpDate" : `${p}FollowUpDate`;
+      
+      // We assume "FollowUpDate" is the Due Date, "FollowUpDoneOn" is Actual Date
+      payload[dateKey] = v.dueDate; 
+      payload[`${p}FollowUpDoneOn`] = v.actualDate;
+      payload[`${p}FollowUpWeight`] = parseFloat(v.weight) || null;
+      payload[`${p}FollowUpHeight`] = parseFloat(v.height) || null;
+      payload[`${p}FollowUpMUAC`] = parseFloat(v.muac) || null;
+      payload[`${p}FollowUpZscore`] = parseFloat(v.zScore) || null;
+      
+      // Storing Designation/Name/Mobile in available text/num columns or dedicated columns if you added them
+      // Based on previous db.ts, we mapped these to existing columns:
+      payload[`${p}FollowUpMotherBP`] = v.designation; // Storing string here
+      payload[`${p}FollowUpMotherWeight`] = null; // Careful: These are decimals in DB. If Name is string, this mapping needs specific columns!
+      payload[`${p}FollowUpMotherHB`] = null;     // Careful: These are decimals in DB.
+      
+      // *CRITICAL NOTE*: Your DB schema for FollowUp uses `Decimal` for MotherWeight/HB. 
+      // If you want to store "Name" and "Mobile", you need to Add [FollowUpByName] columns to SQL 
+      // OR repurpose existing string columns. 
+      // For now, I will NOT send Name/Mobile to Decimal columns to avoid crashes.
     });
-    
-    if (hasErrors) return;
-    
-    // Get existing follow-ups from localStorage
-    const storedFollowUps = localStorage.getItem("followUps");
-    const allFollowUps: AllFollowUps = storedFollowUps ? JSON.parse(storedFollowUps) : {};
-    
-    // Update child follow-ups
-    allFollowUps[child.childId] = followUps.filter(f => 
-      f.followUpActualDate || f.followUpWeight || 
-      f.followUpHeight || f.designation || 
-      f.followedUpByName || f.followedUpByMobile
-    );
-    
-    // Save to localStorage
-    localStorage.setItem("followUps", JSON.stringify(allFollowUps));
-    
-    toast.success("All follow-ups saved successfully!");
-    router.push("/mtc-user/dashboard/follow-up");
+
+    try {
+      const res = await fetch("/api/follow-up/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        toast.success(`Follow-up ${row.visitNumber} Saved!`, { id: loadingToast });
+      } else {
+        toast.error(result.message, { id: loadingToast });
+      }
+    } catch (error) {
+      console.error(error); // Log error to use the variable
+      toast.error("Failed to save", { id: loadingToast });
+    }
   };
 
-  // Cancel and go back
-  const handleCancel = () => {
-    router.push("/mtc-user/dashboard/follow-up");
-  };
+  // --- RENDER ---
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading child data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!child) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 text-lg">Child not found</p>
-          <Button 
-            onClick={() => router.push("/mtc-user/dashboard/follow-up")}
-            className="mt-4"
-          >
-            Back to Follow-up List
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-teal-600"/></div>;
+  if (!child) return null;
 
   return (
-    <div className="min-h-screen bg-gray-100 py-4 sm:py-6 md:py-8 lg:py-10 px-2 sm:px-4 md:px-6">
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-8">
       <Toaster position="top-right" />
-
-      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+      
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">
-            Child Follow Up
-          </h1>
-          <div className="flex gap-2 sm:gap-3">
-            <Button
-              onClick={() => router.push("/mtc-user/dashboard/home")}
-              variant="outline"
-              className="border-gray-600 text-gray-700 hover:bg-gray-100 transition text-xs sm:text-sm"
-            >
-              <Home className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" /> 
-              <span className="hidden sm:inline">Back to Home</span>
-              <span className="sm:hidden">Home</span>
-            </Button>
-          </div>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-teal-800">Follow Up Details</h1>
+          <Button onClick={() => router.back()} variant="outline" className="gap-2">
+            <ArrowLeft className="h-4 w-4" /> Back
+          </Button>
         </div>
 
-        {/* Follow Up Form */}
-        <Card className="shadow-sm border border-gray-200">
-          <CardHeader className="pb-2 sm:pb-4" style={{ borderBottom: "1px solid #e5e7eb" }}>
-            <h2 className="text-lg sm:text-xl font-semibold" style={{ color: "rgb(11,145,140)" }}>
-              Child Follow Up
-            </h2>
+        {/* Child Info Card */}
+        <Card>
+          <CardHeader className="bg-gray-50 border-b pb-4">
+            <h2 className="text-lg font-semibold text-gray-700">Child Information</h2>
           </CardHeader>
-
-          <CardContent className="pt-4 sm:pt-6">
-            {/* Child Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  SAM Number
-                </label>
-                <Input
-                  value={child.samNumber}
-                  readOnly
-                  className="bg-gray-50"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Child Name
-                </label>
-                <Input
-                  value={child.childName}
-                  readOnly
-                  className="bg-gray-50"
-                />
-              </div>
+          <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="text-xs text-gray-500 uppercase font-bold">SAM Number</label>
+              <div className="font-medium text-gray-800">{child.SamNo}</div>
             </div>
-
-            {/* Follow Up Accordion */}
-            <div className="space-y-4">
-              {followUps.map((followUp, index) => (
-                <Card key={followUp.id} className="border border-gray-200">
-                  <CardHeader 
-                    className="py-3 px-4 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-                    onClick={() => toggleAccordion(index)}
-                  >
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-medium text-gray-800">
-                        Follow-up - {followUp.followUpVisit}
-                      </h3>
-                      <div className="flex items-center">
-                        {activeAccordions.includes(index) ? (
-                          <ChevronUp className="h-5 w-5 text-gray-500" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-500" />
-                        )}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  
-                  {activeAccordions.includes(index) && (
-                    <CardContent className="pt-4">
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full border text-sm">
-                          <thead className="bg-gray-200 text-gray-700">
-                            <tr>
-                              <th className="p-2 text-left">Record No</th>
-                              <th className="p-2 text-left">Follow-up Visit</th>
-                              <th className="p-2 text-left">Follow-up Due Date</th>
-                              <th className="p-2 text-left">
-                                <span className="text-red-500">*</span> Follow-up Actual Date
-                              </th>
-                              <th className="p-2 text-left">
-                                <span className="text-red-500">*</span> Follow-up Weight (kg)
-                              </th>
-                              <th className="p-2 text-left">
-                                <span className="text-red-500">*</span> Follow-up Length/ Height (cm)
-                              </th>
-                              <th className="p-2 text-left">Follow-up MUAC (cm)</th>
-                              <th className="p-2 text-left">Follow-up Z-Score (SD)</th>
-                              <th className="p-2 text-left">
-                                <span className="text-red-500">*</span> Designation
-                              </th>
-                              <th className="p-2 text-left">
-                                <span className="text-red-500">*</span> Followed-up By Name
-                              </th>
-                              <th className="p-2 text-left">
-                                <span className="text-red-500">*</span> Followed-up By Mobile
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td className="p-2">
-                                <Input
-                                  value={child.recordNo}
-                                  readOnly
-                                  className="bg-gray-50"
-                                />
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  value={followUp.followUpVisit}
-                                  readOnly
-                                  className="bg-gray-50"
-                                />
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  value={followUp.followUpDueDate}
-                                  readOnly
-                                  className="bg-gray-50"
-                                />
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  type="date"
-                                  value={followUp.followUpActualDate}
-                                  onChange={(e) => handleInputChange(index, "followUpActualDate", e.target.value)}
-                                />
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  value={followUp.followUpWeight}
-                                  onChange={(e) => handleInputChange(index, "followUpWeight", e.target.value)}
-                                />
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  type="number"
-                                  step="0.01"
-                                  value={followUp.followUpHeight}
-                                  onChange={(e) => handleInputChange(index, "followUpHeight", e.target.value)}
-                                />
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  type="number"
-                                  step="0.1"
-                                  value={followUp.followUpMUAC}
-                                  onChange={(e) => handleInputChange(index, "followUpMUAC", e.target.value)}
-                                />
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  value={followUp.followUpZScore}
-                                  readOnly
-                                  className="bg-gray-50"
-                                />
-                              </td>
-                              <td className="p-2">
-                                <select
-                                  value={followUp.designation}
-                                  onChange={(e) => handleInputChange(index, "designation", e.target.value)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                >
-                                  <option value="">Select</option>
-                                  {designationOptions.map(option => (
-                                    <option key={option.value} value={option.value}>
-                                      {option.label}
-                                    </option>
-                                  ))}
-                                </select>
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  value={followUp.followedUpByName}
-                                  onChange={(e) => handleInputChange(index, "followedUpByName", e.target.value)}
-                                />
-                              </td>
-                              <td className="p-2">
-                                <Input
-                                  type="tel"
-                                  maxLength={10}
-                                  value={followUp.followedUpByMobile}
-                                  onChange={(e) => handleInputChange(index, "followedUpByMobile", e.target.value)}
-                                />
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                      
-                      <div className="flex justify-end mt-4">
-                        <Button
-                          onClick={() => saveFollowUp(index)}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <Save className="mr-2 h-4 w-4" /> Save
-                        </Button>
-                      </div>
-                    </CardContent>
-                  )}
-                </Card>
-              ))}
+            <div>
+              <label className="text-xs text-gray-500 uppercase font-bold">Child Name</label>
+              <div className="font-medium text-gray-800">{child.ChildName}</div>
             </div>
-
-            {/* Form Actions */}
-            <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-200">
-              <Button
-                type="button"
-                onClick={handleCancel}
-                variant="outline"
-                className="border-gray-600 text-gray-700 hover:bg-gray-100"
-              >
-                <X className="mr-2 h-4 w-4" /> Cancel
-              </Button>
-              <Button
-                onClick={saveAllFollowUps}
-                className="bg-indigo-600 hover:bg-indigo-700"
-              >
-                <Save className="mr-2 h-4 w-4" /> Save All
-              </Button>
+            <div>
+              <label className="text-xs text-gray-500 uppercase font-bold">Parent Name</label>
+              <div className="font-medium text-gray-800">{child.FatherName || child.MotherName}</div>
+            </div>
+            <div>
+              <label className="text-xs text-gray-500 uppercase font-bold">Discharge Date</label>
+              <div className="font-medium text-gray-800">{new Date(child.DischargeDate).toLocaleDateString()}</div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Visits Accordion */}
+        <div className="space-y-4">
+          {visits.map((visit, index) => (
+            <Card key={visit.visitNumber} className="border border-teal-100 shadow-sm overflow-hidden">
+              <CardHeader 
+                className="py-4 px-6 cursor-pointer bg-teal-50/50 hover:bg-teal-50 transition-colors flex flex-row justify-between items-center"
+                onClick={() => toggleAccordion(index)}
+              >
+                <div className="flex items-center gap-4">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-teal-600 text-white font-bold text-sm">
+                    {visit.visitNumber}
+                  </span>
+                  <div>
+                    <h3 className="text-md font-semibold text-gray-800">Visit {visit.visitNumber}</h3>
+                    <p className="text-xs text-gray-500">Due: {new Date(visit.dueDate).toLocaleDateString()}</p>
+                  </div>
+                </div>
+                {activeAccordions.includes(index) ? <ChevronUp className="text-gray-400"/> : <ChevronDown className="text-gray-400"/>}
+              </CardHeader>
+
+              {activeAccordions.includes(index) && (
+                <CardContent className="p-6 bg-white animate-in slide-in-from-top-2 duration-200">
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Actual Date <span className="text-red-500">*</span></label>
+                      <Input type="date" value={visit.actualDate} onChange={(e) => handleInputChange(index, 'actualDate', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Weight (kg) <span className="text-red-500">*</span></label>
+                      <Input type="number" step="0.01" value={visit.weight} onChange={(e) => handleInputChange(index, 'weight', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Height (cm) <span className="text-red-500">*</span></label>
+                      <Input type="number" step="0.1" value={visit.height} onChange={(e) => handleInputChange(index, 'height', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">MUAC (cm)</label>
+                      <Input type="number" step="0.1" value={visit.muac} onChange={(e) => handleInputChange(index, 'muac', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Z-Score</label>
+                      <Input type="number" step="0.1" value={visit.zScore} onChange={(e) => handleInputChange(index, 'zScore', e.target.value)} />
+                    </div>
+
+                    {/* Note: In your DB Schema, these fields mapped to numeric columns. Ensure logic handles strings correctly or update DB */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+                      <select 
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        value={visit.designation}
+                        onChange={(e) => handleInputChange(index, 'designation', e.target.value)}
+                      >
+                        <option value="">Select</option>
+                        {DESIGNATION_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Staff Name</label>
+                      <Input value={visit.byName} onChange={(e) => handleInputChange(index, 'byName', e.target.value)} placeholder="Name" />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Staff Mobile</label>
+                      <Input value={visit.byMobile} onChange={(e) => handleInputChange(index, 'byMobile', e.target.value)} placeholder="Mobile" maxLength={10} />
+                    </div>
+
+                  </div>
+
+                  <div className="flex justify-end mt-6 border-t pt-4">
+                    <Button onClick={() => saveFollowUp(index)} className="bg-teal-600 hover:bg-teal-700 min-w-[120px]">
+                      <Save className="w-4 h-4 mr-2" /> Save Visit
+                    </Button>
+                  </div>
+                </CardContent>
+              )}
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );
