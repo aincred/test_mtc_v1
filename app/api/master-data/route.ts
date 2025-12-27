@@ -57,6 +57,8 @@
 //   }
 // }
 
+// app\api\master-data
+
 import { NextResponse } from 'next/server';
 import { 
   getGenderList, 
