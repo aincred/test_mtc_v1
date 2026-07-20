@@ -68,7 +68,7 @@ export default function FollowUpPage() {
         <div className="flex flex-col sm:flex-row gap-6 mt-8">
           {/* Follow-Up Card */}
           <Link
-            href="/mtc-user/dashboard/follow-up/${id}"
+            href="/mtc-user/dashboard/follow-up/follow-up"
             className="flex-1 group relative overflow-hidden  bg-linear-to-br from-orange-400 via-orange-500 to-orange-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
@@ -85,7 +85,7 @@ export default function FollowUpPage() {
 
           {/* SMS Follow-up Due Dates Card */}
           <Link
-            href="/sms-follow-up"
+            href="/mtc-user/dashboard/follow-up/sms-follow-up/${id}"
             className="flex-1 group relative overflow-hidden  bg-linear-to-br from-blue-500 via-blue-600 to-purple-600 text-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>

@@ -1,994 +1,2506 @@
+// // // // // "use client";
+
+// // // // // import React, { useState } from "react";
+// // // // // import Image from "next/image";
+// // // // // import { motion, type Variants } from "framer-motion";
+// // // // // import { Button } from "@/components/ui/button";
+// // // // // import { 
+// // // // //   ArrowRight, 
+// // // // //   ShieldCheck, 
+// // // // //   Users, 
+// // // // //   Activity, 
+// // // // //   LineChart, 
+// // // // //   Database, 
+// // // // //   MapPin, 
+// // // // //   HeartPulse, 
+// // // // //   Scale,
+// // // // //   Syringe,
+// // // // //   TrendingUp,
+// // // // //   Calculator
+// // // // // } from "lucide-react";
+
+// // // // // // ==========================================
+// // // // // // ANIMATION VARIANTS
+// // // // // // ==========================================
+// // // // // const staggerContainer: Variants = {
+// // // // //   hidden: { opacity: 0 },
+// // // // //   show: {
+// // // // //     opacity: 1,
+// // // // //     transition: { staggerChildren: 0.15 }
+// // // // //   }
+// // // // // };
+
+// // // // // const fadeUp: Variants = {
+// // // // //   hidden: { opacity: 0, y: 30 },
+// // // // //   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+// // // // // };
+
+// // // // // // ==========================================
+// // // // // // 1. HERO SECTION
+// // // // // // ==========================================
+// // // // // function Hero() {
+// // // // //   return (
+// // // // //     <section id="home" className="relative w-full overflow-hidden bg-slate-950 min-h-[90vh] flex items-center">
+// // // // //       {/* ====== BACKGROUND MESH ====== */}
+// // // // //       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+// // // // //         <Image
+// // // // //           src="/b1.jpg"
+// // // // //           alt="Background Texture"
+// // // // //           fill
+// // // // //           className="object-cover opacity-10 mix-blend-overlay grayscale"
+// // // // //           priority
+// // // // //         />
+// // // // //         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-violet-800/20 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }}></div>
+// // // // //         <div className="absolute bottom-[-20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-amber-500/15 blur-[120px] animate-pulse" style={{ animationDuration: '10s' }}></div>
+// // // // //       </div>
+
+// // // // //       <div className="container relative z-10 mx-auto px-6 lg:px-10 py-20">
+// // // // //         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+// // // // //           {/* LEFT: TYPOGRAPHY & ACTIONS */}
+// // // // //           <motion.div 
+// // // // //             variants={staggerContainer}
+// // // // //             initial="hidden"
+// // // // //             animate="show"
+// // // // //             className="lg:col-span-6 flex flex-col items-start space-y-8 z-20"
+// // // // //           >
+// // // // //             <motion.div variants={fadeUp} className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 shadow-xl">
+// // // // //               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400 to-orange-400 shadow-inner">
+// // // // //                 <ShieldCheck className="w-3.5 h-3.5 text-slate-950" />
+// // // // //               </span>
+// // // // //               <span className="text-sm font-semibold text-indigo-50 tracking-wide">
+// // // // //                 Govt. of Jharkhand • NHM Initiative
+// // // // //               </span>
+// // // // //             </motion.div>
+
+// // // // //             <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] tracking-tight">
+// // // // //               Tracking <span className="text-transparent bg-clip-text bg-gradient-to-br from-white to-white/40">Health.</span><br />
+// // // // //               Transforming <br />
+// // // // //               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500">Lives.</span>
+// // // // //             </motion.h1>
+
+// // // // //             <motion.p variants={fadeUp} className="text-lg text-indigo-100/70 max-w-lg leading-relaxed font-medium">
+// // // // //               A state-of-the-art digital portal for monitoring and managing Severe Acute Malnutrition (SAM) treatment centers across the state.
+// // // // //             </motion.p>
+
+// // // // //             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-4 pt-4 w-full sm:w-auto">
+// // // // //               <Button className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 text-lg font-bold shadow-[0_0_40px_-10px_rgba(245,158,11,0.4)] border-none transition-all hover:scale-105">
+// // // // //                 Access Portal
+// // // // //                 <ArrowRight className="ml-2 w-5 h-5" />
+// // // // //               </Button>
+// // // // //             </motion.div>
+// // // // //           </motion.div>
+
+// // // // //           {/* RIGHT: ANIMATED BENTO LAYOUT */}
+// // // // //           <motion.div 
+// // // // //             initial={{ opacity: 0, x: 50 }}
+// // // // //             animate={{ opacity: 1, x: 0 }}
+// // // // //             transition={{ duration: 0.8, delay: 0.2 }}
+// // // // //             className="lg:col-span-6 relative w-full h-[500px] sm:h-[600px] flex items-center justify-center z-10 mt-10 lg:mt-0"
+// // // // //           >
+// // // // //             <div className="absolute right-0 top-10 w-[80%] h-[75%] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] shadow-[0_0_50px_rgba(79,70,229,0.15)] rotate-6 transition-transform duration-700 hover:rotate-3 z-0"></div>
+
+// // // // //             <div className="absolute left-0 sm:left-10 z-10 w-[85%] h-[80%] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/10 transition-transform duration-700 hover:-translate-y-2 group">
+// // // // //               <Image
+// // // // //                 src="/b2.jpg"
+// // // // //                 alt="Child health care at MTC"
+// // // // //                 fill
+// // // // //                 className="object-cover transition-transform duration-700 group-hover:scale-105"
+// // // // //                 priority
+// // // // //               />
+// // // // //               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+// // // // //             </div>
+
+// // // // //             {/* Floating Stats */}
+// // // // //             <motion.div 
+// // // // //               animate={{ y: [0, -10, 0] }}
+// // // // //               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+// // // // //               className="absolute bottom-4 -right-4 sm:right-4 z-20 bg-indigo-950/80 backdrop-blur-xl border border-indigo-500/20 p-5 rounded-3xl shadow-2xl flex items-center gap-4"
+// // // // //             >
+// // // // //               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-inner">
+// // // // //                 <Activity className="w-6 h-6 text-slate-950" />
+// // // // //               </div>
+// // // // //               <div className="pr-2">
+// // // // //                 <p className="text-2xl font-black text-white leading-none">90+</p>
+// // // // //                 <p className="text-xs text-indigo-200/70 font-semibold uppercase mt-1">Active Centers</p>
+// // // // //               </div>
+// // // // //             </motion.div>
+// // // // //           </motion.div>
+// // // // //         </div>
+// // // // //       </div>
+// // // // //     </section>
+// // // // //   );
+// // // // // }
+
+// // // // // // ==========================================
+// // // // // // 2. CLINICAL TOOLS & CALCULATORS SECTION
+// // // // // // ==========================================
+// // // // // function ClinicalTools() {
+// // // // //   const [w1, setW1] = useState("");
+// // // // //   const [w2, setW2] = useState("");
+// // // // //   const [days, setDays] = useState("");
+// // // // //   const [rate, setRate] = useState<number | null>(null);
+
+// // // // //   const calculateWeightGain = () => {
+// // // // //     const weight1 = parseFloat(w1);
+// // // // //     const weight2 = parseFloat(w2);
+// // // // //     const d = parseFloat(days);
+// // // // //     if (weight1 && weight2 && d && d > 0) {
+// // // // //       // Formula: (W2 - W1) * 1000 / (W1 * days)
+// // // // //       const result = ((weight2 - weight1) * 1000) / (weight1 * d);
+// // // // //       setRate(parseFloat(result.toFixed(2)));
+// // // // //     } else {
+// // // // //       setRate(null);
+// // // // //     }
+// // // // //   };
+
+// // // // //   const tools = [
+// // // // //     {
+// // // // //       title: "Z-Score (SD) Calculator",
+// // // // //       desc: "Instantly calculate WHO standard deviations for weight-for-height and length-for-age.",
+// // // // //       icon: Scale,
+// // // // //       color: "text-blue-400",
+// // // // //       bg: "bg-blue-400/10 border-blue-400/20"
+// // // // //     },
+// // // // //     {
+// // // // //       title: "F-75 / F-100 Feed Planner",
+// // // // //       desc: "Automated therapeutic milk volume calculations based on current body weight.",
+// // // // //       icon: Calculator,
+// // // // //       color: "text-amber-400",
+// // // // //       bg: "bg-amber-400/10 border-amber-400/20"
+// // // // //     },
+// // // // //     {
+// // // // //       title: "Micronutrient Dosing",
+// // // // //       desc: "Generate accurate dosing schedules for Vitamin A, Iron, and Folic Acid.",
+// // // // //       icon: Syringe,
+// // // // //       color: "text-emerald-400",
+// // // // //       bg: "bg-emerald-400/10 border-emerald-400/20"
+// // // // //     }
+// // // // //   ];
+
+// // // // //   return (
+// // // // //     <section className="py-24 bg-slate-900 relative z-10 border-t border-white/5">
+// // // // //       <div className="container mx-auto px-6 lg:px-10">
+// // // // //         <motion.div 
+// // // // //           initial="hidden"
+// // // // //           whileInView="show"
+// // // // //           viewport={{ once: true, margin: "-100px" }}
+// // // // //           variants={fadeUp}
+// // // // //           className="mb-16"
+// // // // //         >
+// // // // //           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+// // // // //             Advanced <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Clinical Utilities</span>
+// // // // //           </h2>
+// // // // //           <p className="text-indigo-100/70 text-lg max-w-2xl">
+// // // // //             Built-in calculation tools designed to eliminate manual errors and speed up daily assessments for medical officers.
+// // // // //           </p>
+// // // // //         </motion.div>
+
+// // // // //         <div className="grid lg:grid-cols-12 gap-8">
+// // // // //           {/* STATIC FEATURE CARDS */}
+// // // // //           <div className="lg:col-span-7 grid sm:grid-cols-2 gap-6">
+// // // // //             {tools.map((tool, idx) => (
+// // // // //               <motion.div 
+// // // // //                 key={idx}
+// // // // //                 initial={{ opacity: 0, y: 20 }}
+// // // // //                 whileInView={{ opacity: 1, y: 0 }}
+// // // // //                 viewport={{ once: true }}
+// // // // //                 transition={{ delay: idx * 0.1 }}
+// // // // //                 className={`p-6 rounded-3xl border ${tool.bg} backdrop-blur-sm flex flex-col justify-between`}
+// // // // //               >
+// // // // //                 <div className="mb-4">
+// // // // //                   <tool.icon className={`w-8 h-8 ${tool.color} mb-4`} />
+// // // // //                   <h3 className="text-xl font-bold text-white mb-2">{tool.title}</h3>
+// // // // //                   <p className="text-sm text-indigo-100/60 leading-relaxed">{tool.desc}</p>
+// // // // //                 </div>
+// // // // //                 <div className="text-xs font-semibold text-white/40 uppercase tracking-widest mt-4">Module Integrated</div>
+// // // // //               </motion.div>
+// // // // //             ))}
+// // // // //           </div>
+
+// // // // //           {/* INTERACTIVE CALCULATOR */}
+// // // // //           <motion.div 
+// // // // //             initial={{ opacity: 0, scale: 0.95 }}
+// // // // //             whileInView={{ opacity: 1, scale: 1 }}
+// // // // //             viewport={{ once: true }}
+// // // // //             className="lg:col-span-5 bg-slate-800/50 border border-indigo-500/20 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden"
+// // // // //           >
+// // // // //             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
+            
+// // // // //             <div className="flex items-center gap-3 mb-6">
+// // // // //               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-lg">
+// // // // //                 <TrendingUp className="w-5 h-5 text-white" />
+// // // // //               </div>
+// // // // //               <h3 className="text-2xl font-bold text-white">Weight Gain Rate</h3>
+// // // // //             </div>
+
+// // // // //             <div className="space-y-4 relative z-10">
+// // // // //               <div className="grid grid-cols-2 gap-4">
+// // // // //                 <div>
+// // // // //                   <label className="text-xs font-medium text-indigo-200/70 mb-1 block">W1 (Initial kg)</label>
+// // // // //                   <input 
+// // // // //                     type="number" 
+// // // // //                     value={w1} onChange={(e) => setW1(e.target.value)}
+// // // // //                     className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400/50 transition-colors"
+// // // // //                     placeholder="e.g. 5.2"
+// // // // //                   />
+// // // // //                 </div>
+// // // // //                 <div>
+// // // // //                   <label className="text-xs font-medium text-indigo-200/70 mb-1 block">W2 (Current kg)</label>
+// // // // //                   <input 
+// // // // //                     type="number" 
+// // // // //                     value={w2} onChange={(e) => setW2(e.target.value)}
+// // // // //                     className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400/50 transition-colors"
+// // // // //                     placeholder="e.g. 5.8"
+// // // // //                   />
+// // // // //                 </div>
+// // // // //               </div>
+// // // // //               <div>
+// // // // //                 <label className="text-xs font-medium text-indigo-200/70 mb-1 block">Days between measurements</label>
+// // // // //                 <input 
+// // // // //                   type="number" 
+// // // // //                   value={days} onChange={(e) => setDays(e.target.value)}
+// // // // //                   className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400/50 transition-colors"
+// // // // //                   placeholder="e.g. 7"
+// // // // //                 />
+// // // // //               </div>
+
+// // // // //               <Button 
+// // // // //                 onClick={calculateWeightGain}
+// // // // //                 className="w-full mt-2 h-12 bg-white/10 hover:bg-white/20 text-white rounded-xl border border-white/10 transition-colors"
+// // // // //               >
+// // // // //                 Calculate Rate
+// // // // //               </Button>
+
+// // // // //               {rate !== null && (
+// // // // //                 <motion.div 
+// // // // //                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+// // // // //                   className="mt-4 p-4 bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-amber-500/30 rounded-xl text-center"
+// // // // //                 >
+// // // // //                   <p className="text-sm text-amber-200/80 font-medium mb-1">Rate of Weight Gain</p>
+// // // // //                   <p className="text-3xl font-black text-amber-400">{rate} <span className="text-sm font-medium text-amber-200/60">g/kg/day</span></p>
+// // // // //                   {rate >= 5 ? (
+// // // // //                     <p className="text-xs text-emerald-400 mt-2 font-semibold flex items-center justify-center gap-1">Target Met (≥ 5g/kg/day)</p>
+// // // // //                   ) : (
+// // // // //                     <p className="text-xs text-red-400 mt-2 font-semibold">Below Target Range</p>
+// // // // //                   )}
+// // // // //                 </motion.div>
+// // // // //               )}
+// // // // //             </div>
+// // // // //           </motion.div>
+// // // // //         </div>
+// // // // //       </div>
+// // // // //     </section>
+// // // // //   );
+// // // // // }
+
+// // // // // // ==========================================
+// // // // // // 3. FEATURES SECTION
+// // // // // // ==========================================
+// // // // // function Features() {
+// // // // //   const features = [
+// // // // //     { title: "Real-time Bed Tracking", description: "Monitor bed availability across all 90+ MTCs with live updates.", icon: MapPin, color: "from-blue-500 to-cyan-400" },
+// // // // //     { title: "Patient Monitoring", description: "Track treatment progress and recovery metrics for every admitted child.", icon: HeartPulse, color: "from-amber-400 to-orange-500" },
+// // // // //     { title: "Automated Reporting", description: "Generate district-wise, automated compliance reports.", icon: LineChart, color: "from-emerald-400 to-teal-500" },
+// // // // //     { title: "Centralized Database", description: "Secure, encrypted storage of patient history and follow-up schedules.", icon: Database, color: "from-violet-400 to-indigo-500" }
+// // // // //   ];
+
+// // // // //   return (
+// // // // //     <section className="py-24 bg-slate-950 relative z-10">
+// // // // //       <div className="container mx-auto px-6 lg:px-10">
+// // // // //         <motion.div 
+// // // // //           initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}
+// // // // //           className="text-center max-w-2xl mx-auto mb-16"
+// // // // //         >
+// // // // //           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+// // // // //             Empowering Health Officials with <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Actionable Data</span>
+// // // // //           </h2>
+// // // // //         </motion.div>
+
+// // // // //         <motion.div 
+// // // // //           variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true }}
+// // // // //           className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
+// // // // //         >
+// // // // //           {features.map((feature, idx) => (
+// // // // //             <motion.div key={idx} variants={fadeUp} className="bg-white/5 border border-white/10 p-6 rounded-3xl hover:bg-white/10 transition-colors group cursor-default">
+// // // // //               <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+// // // // //                 <feature.icon className="w-6 h-6 text-slate-950" />
+// // // // //               </div>
+// // // // //               <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
+// // // // //               <p className="text-sm text-indigo-100/60 leading-relaxed">{feature.description}</p>
+// // // // //             </motion.div>
+// // // // //           ))}
+// // // // //         </motion.div>
+// // // // //       </div>
+// // // // //     </section>
+// // // // //   );
+// // // // // }
+
+// // // // // // ==========================================
+// // // // // // 4. IMPACT STATS SECTION
+// // // // // // ==========================================
+// // // // // function ImpactStats() {
+// // // // //   return (
+// // // // //     <section className="py-20 bg-slate-900 relative z-10 border-y border-white/5">
+// // // // //       <div className="container relative mx-auto px-6 lg:px-10 z-10">
+// // // // //         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-x divide-white/10">
+// // // // //           <div className="text-center px-4">
+// // // // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">24</h4>
+// // // // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Districts</p>
+// // // // //           </div>
+// // // // //           <div className="text-center px-4">
+// // // // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">1.2k+</h4>
+// // // // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Total Beds</p>
+// // // // //           </div>
+// // // // //           <div className="text-center px-4">
+// // // // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">85%</h4>
+// // // // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Recovery</p>
+// // // // //           </div>
+// // // // //           <div className="text-center px-4">
+// // // // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">10k+</h4>
+// // // // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Lives Saved</p>
+// // // // //           </div>
+// // // // //         </div>
+// // // // //       </div>
+// // // // //     </section>
+// // // // //   );
+// // // // // }
+
+// // // // // // ==========================================
+// // // // // // MAIN PAGE EXPORT
+// // // // // // ==========================================
+// // // // // export default function Home() {
+// // // // //   return (
+// // // // //     <main className="min-h-screen bg-slate-950 font-sans selection:bg-amber-400/30">
+// // // // //       <Hero />
+// // // // //       <ClinicalTools />
+// // // // //       <Features />
+// // // // //       <ImpactStats />
+// // // // //     </main>
+// // // // //   );
+// // // // // }
+
+// // // // "use client";
+
+// // // // import React, { useState } from "react";
+// // // // import Image from "next/image";
+// // // // import { motion, type Variants } from "framer-motion";
+// // // // import { Button } from "@/components/ui/button";
+// // // // import { 
+// // // //   ArrowRight, 
+// // // //   ShieldCheck, 
+// // // //   Activity, 
+// // // //   LineChart, 
+// // // //   Database, 
+// // // //   MapPin, 
+// // // //   HeartPulse, 
+// // // //   Scale,
+// // // //   Syringe,
+// // // //   TrendingUp,
+// // // //   Calculator,
+// // // //   ArrowRightCircle,
+// // // //   ChevronRight
+// // // // } from "lucide-react";
+
+// // // // // ==========================================
+// // // // // ANIMATION VARIANTS
+// // // // // ==========================================
+// // // // const staggerContainer: Variants = {
+// // // //   hidden: { opacity: 0 },
+// // // //   show: {
+// // // //     opacity: 1,
+// // // //     transition: { staggerChildren: 0.15 }
+// // // //   }
+// // // // };
+
+// // // // const fadeUp: Variants = {
+// // // //   hidden: { opacity: 0, y: 30 },
+// // // //   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+// // // // };
+
+// // // // // ==========================================
+// // // // // 1. HERO SECTION
+// // // // // ==========================================
+// // // // function Hero() {
+// // // //   return (
+// // // //     <section id="home" className="relative w-full overflow-hidden bg-slate-950 min-h-[90vh] flex items-center">
+// // // //       {/* ====== BACKGROUND MESH ====== */}
+// // // //       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+// // // //         <Image
+// // // //           src="/b1.jpg"
+// // // //           alt="Background Texture"
+// // // //           fill
+// // // //           className="object-cover opacity-10 mix-blend-overlay grayscale"
+// // // //           priority
+// // // //         />
+// // // //         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-violet-800/20 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }}></div>
+// // // //         <div className="absolute bottom-[-20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-amber-500/15 blur-[120px] animate-pulse" style={{ animationDuration: '10s' }}></div>
+// // // //       </div>
+
+// // // //       <div className="container relative z-10 mx-auto px-6 lg:px-10 py-20">
+// // // //         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+// // // //           {/* LEFT: TYPOGRAPHY & ACTIONS */}
+// // // //           <motion.div 
+// // // //             variants={staggerContainer}
+// // // //             initial="hidden"
+// // // //             animate="show"
+// // // //             className="lg:col-span-6 flex flex-col items-start space-y-8 z-20"
+// // // //           >
+// // // //             <motion.div variants={fadeUp} className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 shadow-xl">
+// // // //               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400 to-orange-400 shadow-inner">
+// // // //                 <ShieldCheck className="w-3.5 h-3.5 text-slate-950" />
+// // // //               </span>
+// // // //               <span className="text-sm font-semibold text-indigo-50 tracking-wide">
+// // // //                 Govt. of Jharkhand • NHM Initiative
+// // // //               </span>
+// // // //             </motion.div>
+
+// // // //             <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] tracking-tight">
+// // // //               Tracking <span className="text-transparent bg-clip-text bg-gradient-to-br from-white to-white/40">Health.</span><br />
+// // // //               Transforming <br />
+// // // //               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500">Lives.</span>
+// // // //             </motion.h1>
+
+// // // //             <motion.p variants={fadeUp} className="text-lg text-indigo-100/70 max-w-lg leading-relaxed font-medium">
+// // // //               A state-of-the-art digital portal for monitoring and managing Severe Acute Malnutrition (SAM) treatment centers across the state.
+// // // //             </motion.p>
+
+// // // //             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-4 pt-4 w-full sm:w-auto">
+// // // //               <Button className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 text-lg font-bold shadow-[0_0_40px_-10px_rgba(245,158,11,0.4)] border-none transition-all hover:scale-105">
+// // // //                 Access Portal
+// // // //                 <ArrowRight className="ml-2 w-5 h-5" />
+// // // //               </Button>
+// // // //             </motion.div>
+// // // //           </motion.div>
+
+// // // //           {/* RIGHT: ANIMATED BENTO LAYOUT */}
+// // // //           <motion.div 
+// // // //             initial={{ opacity: 0, x: 50 }}
+// // // //             animate={{ opacity: 1, x: 0 }}
+// // // //             transition={{ duration: 0.8, delay: 0.2 }}
+// // // //             className="lg:col-span-6 relative w-full h-[500px] sm:h-[600px] flex items-center justify-center z-10 mt-10 lg:mt-0"
+// // // //           >
+// // // //             <div className="absolute right-0 top-10 w-[80%] h-[75%] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] shadow-[0_0_50px_rgba(79,70,229,0.15)] rotate-6 transition-transform duration-700 hover:rotate-3 z-0"></div>
+
+// // // //             <div className="absolute left-0 sm:left-10 z-10 w-[85%] h-[80%] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/10 transition-transform duration-700 hover:-translate-y-2 group">
+// // // //               <Image
+// // // //                 src="/b2.jpg"
+// // // //                 alt="Child health care at MTC"
+// // // //                 fill
+// // // //                 className="object-cover transition-transform duration-700 group-hover:scale-105"
+// // // //                 priority
+// // // //               />
+// // // //               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+// // // //             </div>
+
+// // // //             {/* Floating Stats */}
+// // // //             <motion.div 
+// // // //               animate={{ y: [0, -10, 0] }}
+// // // //               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+// // // //               className="absolute bottom-4 -right-4 sm:right-4 z-20 bg-indigo-950/80 backdrop-blur-xl border border-indigo-500/20 p-5 rounded-3xl shadow-2xl flex items-center gap-4"
+// // // //             >
+// // // //               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-inner">
+// // // //                 <Activity className="w-6 h-6 text-slate-950" />
+// // // //               </div>
+// // // //               <div className="pr-2">
+// // // //                 <p className="text-2xl font-black text-white leading-none">90+</p>
+// // // //                 <p className="text-xs text-indigo-200/70 font-semibold uppercase mt-1">Active Centers</p>
+// // // //               </div>
+// // // //             </motion.div>
+// // // //           </motion.div>
+// // // //         </div>
+// // // //       </div>
+// // // //     </section>
+// // // //   );
+// // // // }
+
+// // // // // ==========================================
+// // // // // 2. CLINICAL TOOLS & CALCULATORS SECTION
+// // // // // ==========================================
+// // // // function ClinicalTools() {
+// // // //   const [w1, setW1] = useState("");
+// // // //   const [w2, setW2] = useState("");
+// // // //   const [days, setDays] = useState("");
+// // // //   const [rate, setRate] = useState<number | null>(null);
+
+// // // //   const calculateWeightGain = () => {
+// // // //     const weight1 = parseFloat(w1);
+// // // //     const weight2 = parseFloat(w2);
+// // // //     const d = parseFloat(days);
+// // // //     if (weight1 && weight2 && d && d > 0) {
+// // // //       const result = ((weight2 - weight1) * 1000) / (weight1 * d);
+// // // //       setRate(parseFloat(result.toFixed(2)));
+// // // //     } else {
+// // // //       setRate(null);
+// // // //     }
+// // // //   };
+
+// // // //   const tools = [
+// // // //     { title: "Z-Score (SD) Calculator", desc: "Instantly calculate WHO standard deviations for weight-for-height and length-for-age.", icon: Scale, color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
+// // // //     { title: "F-75 / F-100 Feed Planner", desc: "Automated therapeutic milk volume calculations based on current body weight.", icon: Calculator, color: "text-amber-400", bg: "bg-amber-400/10 border-amber-400/20" },
+// // // //     { title: "Micronutrient Dosing", desc: "Generate accurate dosing schedules for Vitamin A, Iron, and Folic Acid.", icon: Syringe, color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/20" }
+// // // //   ];
+
+// // // //   return (
+// // // //     <section className="py-24 bg-slate-900 relative z-10 border-t border-white/5">
+// // // //       <div className="container mx-auto px-6 lg:px-10">
+// // // //         <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="mb-16">
+// // // //           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+// // // //             Advanced <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Clinical Utilities</span>
+// // // //           </h2>
+// // // //           <p className="text-indigo-100/70 text-lg max-w-2xl">
+// // // //             Built-in calculation tools designed to eliminate manual errors and speed up daily assessments for medical officers.
+// // // //           </p>
+// // // //         </motion.div>
+
+// // // //         <div className="grid lg:grid-cols-12 gap-8">
+// // // //           <div className="lg:col-span-7 grid sm:grid-cols-2 gap-6">
+// // // //             {tools.map((tool, idx) => (
+// // // //               <motion.div key={idx} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }} className={`p-6 rounded-3xl border ${tool.bg} backdrop-blur-sm flex flex-col justify-between`}>
+// // // //                 <div className="mb-4">
+// // // //                   <tool.icon className={`w-8 h-8 ${tool.color} mb-4`} />
+// // // //                   <h3 className="text-xl font-bold text-white mb-2">{tool.title}</h3>
+// // // //                   <p className="text-sm text-indigo-100/60 leading-relaxed">{tool.desc}</p>
+// // // //                 </div>
+// // // //                 <div className="text-xs font-semibold text-white/40 uppercase tracking-widest mt-4">Module Integrated</div>
+// // // //               </motion.div>
+// // // //             ))}
+// // // //           </div>
+
+// // // //           <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="lg:col-span-5 bg-slate-800/50 border border-indigo-500/20 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden">
+// // // //             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
+// // // //             <div className="flex items-center gap-3 mb-6">
+// // // //               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-lg">
+// // // //                 <TrendingUp className="w-5 h-5 text-white" />
+// // // //               </div>
+// // // //               <h3 className="text-2xl font-bold text-white">Weight Gain Rate</h3>
+// // // //             </div>
+
+// // // //             <div className="space-y-4 relative z-10">
+// // // //               <div className="grid grid-cols-2 gap-4">
+// // // //                 <div>
+// // // //                   <label className="text-xs font-medium text-indigo-200/70 mb-1 block">W1 (Initial kg)</label>
+// // // //                   <input type="number" value={w1} onChange={(e) => setW1(e.target.value)} className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400/50 transition-colors" placeholder="e.g. 5.2" />
+// // // //                 </div>
+// // // //                 <div>
+// // // //                   <label className="text-xs font-medium text-indigo-200/70 mb-1 block">W2 (Current kg)</label>
+// // // //                   <input type="number" value={w2} onChange={(e) => setW2(e.target.value)} className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400/50 transition-colors" placeholder="e.g. 5.8" />
+// // // //                 </div>
+// // // //               </div>
+// // // //               <div>
+// // // //                 <label className="text-xs font-medium text-indigo-200/70 mb-1 block">Days between measurements</label>
+// // // //                 <input type="number" value={days} onChange={(e) => setDays(e.target.value)} className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400/50 transition-colors" placeholder="e.g. 7" />
+// // // //               </div>
+
+// // // //               <Button onClick={calculateWeightGain} className="w-full mt-2 h-12 bg-white/10 hover:bg-white/20 text-white rounded-xl border border-white/10 transition-colors">
+// // // //                 Calculate Rate
+// // // //               </Button>
+
+// // // //               {rate !== null && (
+// // // //                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 p-4 bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-amber-500/30 rounded-xl text-center">
+// // // //                   <p className="text-sm text-amber-200/80 font-medium mb-1">Rate of Weight Gain</p>
+// // // //                   <p className="text-3xl font-black text-amber-400">{rate} <span className="text-sm font-medium text-amber-200/60">g/kg/day</span></p>
+// // // //                   {rate >= 5 ? (
+// // // //                     <p className="text-xs text-emerald-400 mt-2 font-semibold flex items-center justify-center gap-1">Target Met (≥ 5g/kg/day)</p>
+// // // //                   ) : (
+// // // //                     <p className="text-xs text-red-400 mt-2 font-semibold">Below Target Range</p>
+// // // //                   )}
+// // // //                 </motion.div>
+// // // //               )}
+// // // //             </div>
+// // // //           </motion.div>
+// // // //         </div>
+// // // //       </div>
+// // // //     </section>
+// // // //   );
+// // // // }
+
+// // // // // ==========================================
+// // // // // 3. FEATURES SECTION
+// // // // // ==========================================
+// // // // function Features() {
+// // // //   const features = [
+// // // //     { title: "Real-time Bed Tracking", description: "Monitor bed availability across all 90+ MTCs with live updates.", icon: MapPin, color: "from-blue-500 to-cyan-400" },
+// // // //     { title: "Patient Monitoring", description: "Track treatment progress and recovery metrics for every admitted child.", icon: HeartPulse, color: "from-amber-400 to-orange-500" },
+// // // //     { title: "Automated Reporting", description: "Generate district-wise, automated compliance reports.", icon: LineChart, color: "from-emerald-400 to-teal-500" },
+// // // //     { title: "Centralized Database", description: "Secure, encrypted storage of patient history and follow-up schedules.", icon: Database, color: "from-violet-400 to-indigo-500" }
+// // // //   ];
+
+// // // //   return (
+// // // //     <section className="py-24 bg-slate-950 relative z-10">
+// // // //       <div className="container mx-auto px-6 lg:px-10">
+// // // //         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center max-w-2xl mx-auto mb-16">
+// // // //           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+// // // //             Empowering Health Officials with <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Actionable Data</span>
+// // // //           </h2>
+// // // //         </motion.div>
+
+// // // //         <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true }} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // // //           {features.map((feature, idx) => (
+// // // //             <motion.div key={idx} variants={fadeUp} className="bg-white/5 border border-white/10 p-6 rounded-3xl hover:bg-white/10 transition-colors group cursor-default">
+// // // //               <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+// // // //                 <feature.icon className="w-6 h-6 text-slate-950" />
+// // // //               </div>
+// // // //               <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
+// // // //               <p className="text-sm text-indigo-100/60 leading-relaxed">{feature.description}</p>
+// // // //             </motion.div>
+// // // //           ))}
+// // // //         </motion.div>
+// // // //       </div>
+// // // //     </section>
+// // // //   );
+// // // // }
+
+// // // // // ==========================================
+// // // // // 4. SPOTLIGHT SECTION (News & Updates)
+// // // // // ==========================================
+// // // // function Spotlight() {
+// // // //   return (
+// // // //     <section className="py-24 bg-slate-900 relative z-10 border-t border-white/5">
+// // // //       <div className="container mx-auto px-6 lg:px-10">
+// // // //         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="mb-12">
+// // // //           <h2 className="text-3xl md:text-4xl font-bold text-white">
+// // // //             Information <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">Spotlight</span>
+// // // //           </h2>
+// // // //         </motion.div>
+
+// // // //         <motion.div 
+// // // //           variants={staggerContainer} 
+// // // //           initial="hidden" 
+// // // //           whileInView="show" 
+// // // //           viewport={{ once: true }} 
+// // // //           className="grid md:grid-cols-3 gap-6"
+// // // //         >
+// // // //           {/* Spotlight Main Accent Card */}
+// // // //           <motion.div variants={fadeUp} className="bg-gradient-to-br from-teal-600 to-emerald-800 rounded-[2rem] p-8 flex flex-col justify-center relative overflow-hidden group cursor-pointer shadow-xl">
+// // // //             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+// // // //             <div className="relative z-10 flex flex-col items-center text-center">
+// // // //               <h3 className="text-4xl font-black text-white mb-2">Spotlight</h3>
+// // // //               <p className="text-teal-100 font-medium mb-8">The Latest Updates</p>
+// // // //               <div className="flex items-center gap-2 text-white font-bold tracking-wide group-hover:translate-x-2 transition-transform">
+// // // //                 Explore All <ArrowRightCircle className="w-6 h-6" />
+// // // //               </div>
+// // // //             </div>
+// // // //           </motion.div>
+
+// // // //           {/* Article Card 1 */}
+// // // //           <motion.div variants={fadeUp} className="bg-slate-950 border border-white/10 rounded-[2rem] overflow-hidden group cursor-pointer hover:border-teal-500/50 transition-colors shadow-lg flex flex-col">
+// // // //             <div className="relative h-48 w-full overflow-hidden">
+// // // //               <Image 
+// // // //                 src="/b1.jpg" 
+// // // //                 alt="Anthropometry Measurement" 
+// // // //                 fill 
+// // // //                 className="object-cover group-hover:scale-105 transition-transform duration-700" 
+// // // //               />
+// // // //             </div>
+// // // //             <div className="p-6 flex flex-col flex-1 relative">
+// // // //               <h4 className="text-lg font-bold text-teal-400 mb-3 line-clamp-2">
+// // // //                 Treatment at Malnutrition Treatment Centre
+// // // //               </h4>
+// // // //               <p className="text-sm text-indigo-100/60 line-clamp-3 mb-4">
+// // // //                 Once the child is diagnosed through anthropometry examination as SAM, the child gets admitted to MTC ...
+// // // //               </p>
+// // // //               <div className="mt-auto flex items-center justify-between text-xs font-semibold text-slate-500">
+// // // //                 <span>11-Jun-2021 10:00 AM</span>
+// // // //                 <ChevronRight className="w-5 h-5 text-teal-500" />
+// // // //               </div>
+// // // //             </div>
+// // // //           </motion.div>
+
+// // // //           {/* Article Card 2 */}
+// // // //           <motion.div variants={fadeUp} className="bg-slate-950 border border-white/10 rounded-[2rem] overflow-hidden group cursor-pointer hover:border-teal-500/50 transition-colors shadow-lg flex flex-col">
+// // // //             <div className="relative h-48 w-full overflow-hidden">
+// // // //               <Image 
+// // // //                 src="/b2.jpg" 
+// // // //                 alt="Mother and Child" 
+// // // //                 fill 
+// // // //                 className="object-cover group-hover:scale-105 transition-transform duration-700" 
+// // // //               />
+// // // //             </div>
+// // // //             <div className="p-6 flex flex-col flex-1 relative">
+// // // //               <h4 className="text-lg font-bold text-teal-400 mb-3 line-clamp-2">
+// // // //                 What is Malnutrition Treatment Centre?
+// // // //               </h4>
+// // // //               <p className="text-sm text-indigo-100/60 line-clamp-3 mb-4">
+// // // //                 A facility-based unit providing medical and nutritional therapeutic care for children suffering from severe acute malnutrition...
+// // // //               </p>
+// // // //               <div className="mt-auto flex items-center justify-between text-xs font-semibold text-slate-500">
+// // // //                 <span>Information Guide</span>
+// // // //                 <ChevronRight className="w-5 h-5 text-teal-500" />
+// // // //               </div>
+// // // //             </div>
+// // // //           </motion.div>
+
+// // // //         </motion.div>
+// // // //       </div>
+// // // //     </section>
+// // // //   );
+// // // // }
+
+// // // // // ==========================================
+// // // // // 5. IMPACT STATS SECTION
+// // // // // ==========================================
+// // // // function ImpactStats() {
+// // // //   return (
+// // // //     <section className="py-20 bg-slate-900 relative z-10 border-y border-white/5">
+// // // //       <div className="container relative mx-auto px-6 lg:px-10 z-10">
+// // // //         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-x divide-white/10">
+// // // //           <div className="text-center px-4">
+// // // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">24</h4>
+// // // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Districts</p>
+// // // //           </div>
+// // // //           <div className="text-center px-4">
+// // // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">1.2k+</h4>
+// // // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Total Beds</p>
+// // // //           </div>
+// // // //           <div className="text-center px-4">
+// // // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">85%</h4>
+// // // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Recovery</p>
+// // // //           </div>
+// // // //           <div className="text-center px-4">
+// // // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">10k+</h4>
+// // // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Lives Saved</p>
+// // // //           </div>
+// // // //         </div>
+// // // //       </div>
+// // // //     </section>
+// // // //   );
+// // // // }
+
+// // // // // ==========================================
+// // // // // 6. ANIMATED PARTNERS MARQUEE SECTION (From image_20bf06.png)
+// // // // // ==========================================
+// // // // function Partners() {
+// // // //   // Repeating the array to ensure smooth seamless loop coverage on ultra-wide monitors
+// // // //   const baseLogos = [
+// // // //     { src: "/logo-jharkhand-govt.png", alt: "Government of Jharkhand", width: 75, height: 75 },
+// // // //     { src: "/logo_1.png", alt: "Centre of Excellence for Management of Severe Acute Malnutrition (CoE-SAM) Network", width: 340, height: 75, isWide: true },
+// // // //     { src: "/logo_2.png", alt: "National Centre of Excellence and Advanced Research on Diets", width: 310, height: 75, isWide: true },
+// // // //     { src: "/logo_3.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true }
+// // // //     { src: "/logo_4.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true }
+// // // //     { src: "/logo_5.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true }
+// // // //     { src: "/logo_6.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true }
+// // // //     { src: "/logo_7.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true }
+// // // //     { src: "/logo_8.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true }
+// // // //     { src: "/logo_9.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true }
+// // // //     { src: "/logo_10.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true }
+// // // //   ];
+
+// // // //   const marqueeLogos = [...baseLogos, ...baseLogos, ...baseLogos];
+
+// // // //   return (
+// // // //     <section className="bg-white py-12 border-t border-slate-200 relative z-20 overflow-hidden select-none">
+// // // //       <div className="container mx-auto px-6 lg:px-10 mb-4 hidden">
+// // // //         <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest text-center">In Collaboration With</h4>
+// // // //       </div>
+      
+// // // //       {/* Marquee Wrapper Container */}
+// // // //       <div className="flex w-full relative">
+// // // //         {/* Soft edge gradients for a fading enterprise look */}
+// // // //         <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+// // // //         <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+
+// // // //         <motion.div 
+// // // //           className="flex items-center gap-16 md:gap-24 flex-nowrap"
+// // // //           animate={{ x: [0, -1200] }}
+// // // //           transition={{
+// // // //             ease: "linear",
+// // // //             duration: 25,
+// // // //             repeat: Infinity,
+// // // //           }}
+// // // //         >
+// // // //           {marqueeLogos.map((logo, index) => (
+// // // //             <div 
+// // // //               key={index} 
+// // // //               className={`relative h-16 flex-shrink-0 flex items-center justify-center transition-all duration-300 ${
+// // // //                 logo.isWide ? "w-64 md:w-80" : "w-16 md:w-20"
+// // // //               }`}
+// // // //             >
+// // // //               <Image 
+// // // //                 src={logo.src} 
+// // // //                 alt={logo.alt} 
+// // // //                 fill 
+// // // //                 className="object-contain" 
+// // // //               />
+// // // //             </div>
+// // // //           ))}
+// // // //         </motion.div>
+// // // //       </div>
+// // // //     </section>
+// // // //   );
+// // // // }
+
+// // // // // ==========================================
+// // // // // MAIN PAGE EXPORT
+// // // // // ==========================================
+// // // // export default function Home() {
+// // // //   return (
+// // // //     <main className="min-h-screen bg-slate-950 font-sans selection:bg-amber-400/30">
+// // // //       <Hero />
+// // // //       <ClinicalTools />
+// // // //       <Features />
+// // // //       <Spotlight />
+// // // //       <ImpactStats />
+// // // //       <Partners />
+// // // //     </main>
+// // // //   );
+// // // // }
+
+
+// // // "use client";
+
+// // // import React, { useState } from "react";
+// // // import Image from "next/image";
+// // // import { motion, type Variants } from "framer-motion";
+// // // import { Button } from "@/components/ui/button";
+// // // import { 
+// // //   ArrowRight, 
+// // //   ShieldCheck, 
+// // //   Activity, 
+// // //   LineChart, 
+// // //   Database, 
+// // //   MapPin, 
+// // //   HeartPulse, 
+// // //   Scale,
+// // //   Syringe,
+// // //   TrendingUp,
+// // //   Calculator,
+// // //   ArrowRightCircle,
+// // //   ChevronRight
+// // // } from "lucide-react";
+
+// // // // ==========================================
+// // // // ANIMATION VARIANTS
+// // // // ==========================================
+// // // const staggerContainer: Variants = {
+// // //   hidden: { opacity: 0 },
+// // //   show: {
+// // //     opacity: 1,
+// // //     transition: { staggerChildren: 0.15 }
+// // //   }
+// // // };
+
+// // // const fadeUp: Variants = {
+// // //   hidden: { opacity: 0, y: 30 },
+// // //   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+// // // };
+
+// // // // ==========================================
+// // // // 1. HERO SECTION
+// // // // ==========================================
+// // // function Hero() {
+// // //   return (
+// // //     <section id="home" className="relative w-full overflow-hidden bg-slate-950 min-h-[90vh] flex items-center">
+// // //       {/* ====== BACKGROUND MESH ====== */}
+// // //       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+// // //         <Image
+// // //           src="/b1.jpg"
+// // //           alt="Background Texture"
+// // //           fill
+// // //           className="object-cover opacity-10 mix-blend-overlay grayscale"
+// // //           priority
+// // //         />
+// // //         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-violet-800/20 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }}></div>
+// // //         <div className="absolute bottom-[-20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-amber-500/15 blur-[120px] animate-pulse" style={{ animationDuration: '10s' }}></div>
+// // //       </div>
+
+// // //       <div className="container relative z-10 mx-auto px-6 lg:px-10 py-20">
+// // //         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+// // //           {/* LEFT: TYPOGRAPHY & ACTIONS */}
+// // //           <motion.div 
+// // //             variants={staggerContainer}
+// // //             initial="hidden"
+// // //             animate="show"
+// // //             className="lg:col-span-6 flex flex-col items-start space-y-8 z-20"
+// // //           >
+// // //             <motion.div variants={fadeUp} className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 shadow-xl">
+// // //               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400 to-orange-400 shadow-inner">
+// // //                 <ShieldCheck className="w-3.5 h-3.5 text-slate-950" />
+// // //               </span>
+// // //               <span className="text-sm font-semibold text-indigo-50 tracking-wide">
+// // //                 Govt. of Jharkhand • NHM Initiative
+// // //               </span>
+// // //             </motion.div>
+
+// // //             <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.1] tracking-tight">
+// // //               Tracking <span className="text-transparent bg-clip-text bg-gradient-to-br from-white to-white/40">Health.</span><br />
+// // //               Transforming <br />
+// // //               <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500">Lives.</span>
+// // //             </motion.h1>
+
+// // //             <motion.p variants={fadeUp} className="text-lg text-indigo-100/70 max-w-lg leading-relaxed font-medium">
+// // //               A state-of-the-art digital portal for monitoring and managing Severe Acute Malnutrition (SAM) treatment centers across the state.
+// // //             </motion.p>
+
+// // //             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-4 pt-4 w-full sm:w-auto">
+// // //               <Button className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 text-lg font-bold shadow-[0_0_40px_-10px_rgba(245,158,11,0.4)] border-none transition-all hover:scale-105">
+// // //                 Access Portal
+// // //                 <ArrowRight className="ml-2 w-5 h-5" />
+// // //               </Button>
+// // //             </motion.div>
+// // //           </motion.div>
+
+// // //           {/* RIGHT: ANIMATED BENTO LAYOUT */}
+// // //           <motion.div 
+// // //             initial={{ opacity: 0, x: 50 }}
+// // //             animate={{ opacity: 1, x: 0 }}
+// // //             transition={{ duration: 0.8, delay: 0.2 }}
+// // //             className="lg:col-span-6 relative w-full h-[500px] sm:h-[600px] flex items-center justify-center z-10 mt-10 lg:mt-0"
+// // //           >
+// // //             <div className="absolute right-0 top-10 w-[80%] h-[75%] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2.5rem] shadow-[0_0_50px_rgba(79,70,229,0.15)] rotate-6 transition-transform duration-700 hover:rotate-3 z-0"></div>
+
+// // //             <div className="absolute left-0 sm:left-10 z-10 w-[85%] h-[80%] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] border border-white/10 transition-transform duration-700 hover:-translate-y-2 group">
+// // //               <Image
+// // //                 src="/b2.jpg"
+// // //                 alt="Child health care at MTC"
+// // //                 fill
+// // //                 className="object-cover transition-transform duration-700 group-hover:scale-105"
+// // //                 priority
+// // //               />
+// // //               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+// // //             </div>
+
+// // //             {/* Floating Stats */}
+// // //             <motion.div 
+// // //               animate={{ y: [0, -10, 0] }}
+// // //               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+// // //               className="absolute bottom-4 -right-4 sm:right-4 z-20 bg-indigo-950/80 backdrop-blur-xl border border-indigo-500/20 p-5 rounded-3xl shadow-2xl flex items-center gap-4"
+// // //             >
+// // //               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-inner">
+// // //                 <Activity className="w-6 h-6 text-slate-950" />
+// // //               </div>
+// // //               <div className="pr-2">
+// // //                 <p className="text-2xl font-black text-white leading-none">90+</p>
+// // //                 <p className="text-xs text-indigo-200/70 font-semibold uppercase mt-1">Active Centers</p>
+// // //               </div>
+// // //             </motion.div>
+// // //           </motion.div>
+// // //         </div>
+// // //       </div>
+// // //     </section>
+// // //   );
+// // // }
+
+// // // // ==========================================
+// // // // 2. CLINICAL TOOLS & CALCULATORS SECTION
+// // // // ==========================================
+// // // function ClinicalTools() {
+// // //   const [w1, setW1] = useState("");
+// // //   const [w2, setW2] = useState("");
+// // //   const [days, setDays] = useState("");
+// // //   const [rate, setRate] = useState<number | null>(null);
+
+// // //   const calculateWeightGain = () => {
+// // //     const weight1 = parseFloat(w1);
+// // //     const weight2 = parseFloat(w2);
+// // //     const d = parseFloat(days);
+// // //     if (weight1 && weight2 && d && d > 0) {
+// // //       const result = ((weight2 - weight1) * 1000) / (weight1 * d);
+// // //       setRate(parseFloat(result.toFixed(2)));
+// // //     } else {
+// // //       setRate(null);
+// // //     }
+// // //   };
+
+// // //   const tools = [
+// // //     { title: "Z-Score (SD) Calculator", desc: "Instantly calculate WHO standard deviations for weight-for-height and length-for-age.", icon: Scale, color: "text-blue-400", bg: "bg-blue-400/10 border-blue-400/20" },
+// // //     { title: "F-75 / F-100 Feed Planner", desc: "Automated therapeutic milk volume calculations based on current body weight.", icon: Calculator, color: "text-amber-400", bg: "bg-amber-400/10 border-amber-400/20" },
+// // //     { title: "Micronutrient Dosing", desc: "Generate accurate dosing schedules for Vitamin A, Iron, and Folic Acid.", icon: Syringe, color: "text-emerald-400", bg: "bg-emerald-400/10 border-emerald-400/20" }
+// // //   ];
+
+// // //   return (
+// // //     <section className="py-24 bg-slate-900 relative z-10 border-t border-white/5">
+// // //       <div className="container mx-auto px-6 lg:px-10">
+// // //         <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="mb-16">
+// // //           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+// // //             Advanced <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Clinical Utilities</span>
+// // //           </h2>
+// // //           <p className="text-indigo-100/70 text-lg max-w-2xl">
+// // //             Built-in calculation tools designed to eliminate manual errors and speed up daily assessments for medical officers.
+// // //           </p>
+// // //         </motion.div>
+
+// // //         <div className="grid lg:grid-cols-12 gap-8">
+// // //           <div className="lg:col-span-7 grid sm:grid-cols-2 gap-6">
+// // //             {tools.map((tool, idx) => (
+// // //               <motion.div key={idx} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }} className={`p-6 rounded-3xl border ${tool.bg} backdrop-blur-sm flex flex-col justify-between`}>
+// // //                 <div className="mb-4">
+// // //                   <tool.icon className={`w-8 h-8 ${tool.color} mb-4`} />
+// // //                   <h3 className="text-xl font-bold text-white mb-2">{tool.title}</h3>
+// // //                   <p className="text-sm text-indigo-100/60 leading-relaxed">{tool.desc}</p>
+// // //                 </div>
+// // //                 <div className="text-xs font-semibold text-white/40 uppercase tracking-widest mt-4">Module Integrated</div>
+// // //               </motion.div>
+// // //             ))}
+// // //           </div>
+
+// // //           <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="lg:col-span-5 bg-slate-800/50 border border-indigo-500/20 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden">
+// // //             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none"></div>
+// // //             <div className="flex items-center gap-3 mb-6">
+// // //               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center shadow-lg">
+// // //                 <TrendingUp className="w-5 h-5 text-white" />
+// // //               </div>
+// // //               <h3 className="text-2xl font-bold text-white">Weight Gain Rate</h3>
+// // //             </div>
+
+// // //             <div className="space-y-4 relative z-10">
+// // //               <div className="grid grid-cols-2 gap-4">
+// // //                 <div>
+// // //                   <label className="text-xs font-medium text-indigo-200/70 mb-1 block">W1 (Initial kg)</label>
+// // //                   <input type="number" value={w1} onChange={(e) => setW1(e.target.value)} className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400/50 transition-colors" placeholder="e.g. 5.2" />
+// // //                 </div>
+// // //                 <div>
+// // //                   <label className="text-xs font-medium text-indigo-200/70 mb-1 block">W2 (Current kg)</label>
+// // //                   <input type="number" value={w2} onChange={(e) => setW2(e.target.value)} className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400/50 transition-colors" placeholder="e.g. 5.8" />
+// // //                 </div>
+// // //               </div>
+// // //               <div>
+// // //                 <label className="text-xs font-medium text-indigo-200/70 mb-1 block">Days between measurements</label>
+// // //                 <input type="number" value={days} onChange={(e) => setDays(e.target.value)} className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-400/50 transition-colors" placeholder="e.g. 7" />
+// // //               </div>
+
+// // //               <Button onClick={calculateWeightGain} className="w-full mt-2 h-12 bg-white/10 hover:bg-white/20 text-white rounded-xl border border-white/10 transition-colors">
+// // //                 Calculate Rate
+// // //               </Button>
+
+// // //               {rate !== null && (
+// // //                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 p-4 bg-gradient-to-br from-amber-500/20 to-orange-600/20 border border-amber-500/30 rounded-xl text-center">
+// // //                   <p className="text-sm text-amber-200/80 font-medium mb-1">Rate of Weight Gain</p>
+// // //                   <p className="text-3xl font-black text-amber-400">{rate} <span className="text-sm font-medium text-amber-200/60">g/kg/day</span></p>
+// // //                   {rate >= 5 ? (
+// // //                     <p className="text-xs text-emerald-400 mt-2 font-semibold flex items-center justify-center gap-1">Target Met (≥ 5g/kg/day)</p>
+// // //                   ) : (
+// // //                     <p className="text-xs text-red-400 mt-2 font-semibold">Below Target Range</p>
+// // //                   )}
+// // //                 </motion.div>
+// // //               )}
+// // //             </div>
+// // //           </motion.div>
+// // //         </div>
+// // //       </div>
+// // //     </section>
+// // //   );
+// // // }
+
+// // // // ==========================================
+// // // // 3. FEATURES SECTION
+// // // // ==========================================
+// // // function Features() {
+// // //   const features = [
+// // //     { title: "Real-time Bed Tracking", description: "Monitor bed availability across all 90+ MTCs with live updates.", icon: MapPin, color: "from-blue-500 to-cyan-400" },
+// // //     { title: "Patient Monitoring", description: "Track treatment progress and recovery metrics for every admitted child.", icon: HeartPulse, color: "from-amber-400 to-orange-500" },
+// // //     { title: "Automated Reporting", description: "Generate district-wise, automated compliance reports.", icon: LineChart, color: "from-emerald-400 to-teal-500" },
+// // //     { title: "Centralized Database", description: "Secure, encrypted storage of patient history and follow-up schedules.", icon: Database, color: "from-violet-400 to-indigo-500" }
+// // //   ];
+
+// // //   return (
+// // //     <section className="py-24 bg-slate-950 relative z-10">
+// // //       <div className="container mx-auto px-6 lg:px-10">
+// // //         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center max-w-2xl mx-auto mb-16">
+// // //           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+// // //             Empowering Health Officials with <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500">Actionable Data</span>
+// // //           </h2>
+// // //         </motion.div>
+
+// // //         <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true }} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // //           {features.map((feature, idx) => (
+// // //             <motion.div key={idx} variants={fadeUp} className="bg-white/5 border border-white/10 p-6 rounded-3xl hover:bg-white/10 transition-colors group cursor-default">
+// // //               <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+// // //                 <feature.icon className="w-6 h-6 text-slate-950" />
+// // //               </div>
+// // //               <h3 className="text-xl font-semibold text-white mb-3">{feature.title}</h3>
+// // //               <p className="text-sm text-indigo-100/60 leading-relaxed">{feature.description}</p>
+// // //             </motion.div>
+// // //           ))}
+// // //         </motion.div>
+// // //       </div>
+// // //     </section>
+// // //   );
+// // // }
+
+// // // // ==========================================
+// // // // 4. SPOTLIGHT SECTION (News & Updates)
+// // // // ==========================================
+// // // function Spotlight() {
+// // //   return (
+// // //     <section className="py-24 bg-slate-900 relative z-10 border-t border-white/5">
+// // //       <div className="container mx-auto px-6 lg:px-10">
+// // //         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="mb-12">
+// // //           <h2 className="text-3xl md:text-4xl font-bold text-white">
+// // //             Information <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-500">Spotlight</span>
+// // //           </h2>
+// // //         </motion.div>
+
+// // //         <motion.div 
+// // //           variants={staggerContainer} 
+// // //           initial="hidden" 
+// // //           whileInView="show" 
+// // //           viewport={{ once: true }} 
+// // //           className="grid md:grid-cols-3 gap-6"
+// // //         >
+// // //           {/* Spotlight Main Accent Card */}
+// // //           <motion.div variants={fadeUp} className="bg-gradient-to-br from-teal-600 to-emerald-800 rounded-[2rem] p-8 flex flex-col justify-center relative overflow-hidden group cursor-pointer shadow-xl">
+// // //             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+// // //             <div className="relative z-10 flex flex-col items-center text-center">
+// // //               <h3 className="text-4xl font-black text-white mb-2">Spotlight</h3>
+// // //               <p className="text-teal-100 font-medium mb-8">The Latest Updates</p>
+// // //               <div className="flex items-center gap-2 text-white font-bold tracking-wide group-hover:translate-x-2 transition-transform">
+// // //                 Explore All <ArrowRightCircle className="w-6 h-6" />
+// // //               </div>
+// // //             </div>
+// // //           </motion.div>
+
+// // //           {/* Article Card 1 */}
+// // //           <motion.div variants={fadeUp} className="bg-slate-950 border border-white/10 rounded-[2rem] overflow-hidden group cursor-pointer hover:border-teal-500/50 transition-colors shadow-lg flex flex-col">
+// // //             <div className="relative h-48 w-full overflow-hidden">
+// // //               <Image 
+// // //                 src="/b1.jpg" 
+// // //                 alt="Anthropometry Measurement" 
+// // //                 fill 
+// // //                 className="object-cover group-hover:scale-105 transition-transform duration-700" 
+// // //               />
+// // //             </div>
+// // //             <div className="p-6 flex flex-col flex-1 relative">
+// // //               <h4 className="text-lg font-bold text-teal-400 mb-3 line-clamp-2">
+// // //                 Treatment at Malnutrition Treatment Centre
+// // //               </h4>
+// // //               <p className="text-sm text-indigo-100/60 line-clamp-3 mb-4">
+// // //                 Once the child is diagnosed through anthropometry examination as SAM, the child gets admitted to MTC ...
+// // //               </p>
+// // //               <div className="mt-auto flex items-center justify-between text-xs font-semibold text-slate-500">
+// // //                 <span>11-Jun-2021 10:00 AM</span>
+// // //                 <ChevronRight className="w-5 h-5 text-teal-500" />
+// // //               </div>
+// // //             </div>
+// // //           </motion.div>
+
+// // //           {/* Article Card 2 */}
+// // //           <motion.div variants={fadeUp} className="bg-slate-950 border border-white/10 rounded-[2rem] overflow-hidden group cursor-pointer hover:border-teal-500/50 transition-colors shadow-lg flex flex-col">
+// // //             <div className="relative h-48 w-full overflow-hidden">
+// // //               <Image 
+// // //                 src="/b2.jpg" 
+// // //                 alt="Mother and Child" 
+// // //                 fill 
+// // //                 className="object-cover group-hover:scale-105 transition-transform duration-700" 
+// // //               />
+// // //             </div>
+// // //             <div className="p-6 flex flex-col flex-1 relative">
+// // //               <h4 className="text-lg font-bold text-teal-400 mb-3 line-clamp-2">
+// // //                 What is Malnutrition Treatment Centre?
+// // //               </h4>
+// // //               <p className="text-sm text-indigo-100/60 line-clamp-3 mb-4">
+// // //                 A facility-based unit providing medical and nutritional therapeutic care for children suffering from severe acute malnutrition...
+// // //               </p>
+// // //               <div className="mt-auto flex items-center justify-between text-xs font-semibold text-slate-500">
+// // //                 <span>Information Guide</span>
+// // //                 <ChevronRight className="w-5 h-5 text-teal-500" />
+// // //               </div>
+// // //             </div>
+// // //           </motion.div>
+
+// // //         </motion.div>
+// // //       </div>
+// // //     </section>
+// // //   );
+// // // }
+
+// // // // ==========================================
+// // // // 5. IMPACT STATS SECTION
+// // // // ==========================================
+// // // function ImpactStats() {
+// // //   return (
+// // //     <section className="py-20 bg-slate-900 relative z-10 border-y border-white/5">
+// // //       <div className="container relative mx-auto px-6 lg:px-10 z-10">
+// // //         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-x divide-white/10">
+// // //           <div className="text-center px-4">
+// // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">24</h4>
+// // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Districts</p>
+// // //           </div>
+// // //           <div className="text-center px-4">
+// // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">1.2k+</h4>
+// // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Total Beds</p>
+// // //           </div>
+// // //           <div className="text-center px-4">
+// // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">85%</h4>
+// // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Recovery</p>
+// // //           </div>
+// // //           <div className="text-center px-4">
+// // //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">10k+</h4>
+// // //             <p className="text-amber-400 font-semibold uppercase tracking-wider text-sm">Lives Saved</p>
+// // //           </div>
+// // //         </div>
+// // //       </div>
+// // //     </section>
+// // //   );
+// // // }
+
+// // // // ==========================================
+// // // // 6. ANIMATED PARTNERS MARQUEE SECTION
+// // // // ==========================================
+// // // function Partners() {
+// // //   const baseLogos = [
+// // //     { src: "/logo-jharkhand-govt.png", alt: "Government of Jharkhand", width: 75, height: 75 },
+// // //     { src: "/logo_1.png", alt: "Centre of Excellence for Management of Severe Acute Malnutrition (CoE-SAM) Network", width: 340, height: 75, isWide: true },
+// // //     { src: "/logo_2.png", alt: "National Centre of Excellence and Advanced Research on Diets", width: 310, height: 75, isWide: true },
+// // //     { src: "/logo_3.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true },
+// // //     { src: "/logo_4.png", alt: "Partner 4", width: 240, height: 75, isWide: true },
+// // //     { src: "/logo_5.png", alt: "Partner 5", width: 240, height: 75, isWide: true },
+// // //     { src: "/logo_6.png", alt: "Partner 6", width: 240, height: 75, isWide: true },
+// // //     { src: "/logo_7.png", alt: "Partner 7", width: 240, height: 75, isWide: true },
+// // //     { src: "/logo_8.png", alt: "Partner 8", width: 240, height: 75, isWide: true },
+// // //     { src: "/logo_9.png", alt: "Partner 9", width: 240, height: 75, isWide: true },
+// // //     { src: "/logo_10.png", alt: "Partner 10", width: 240, height: 75, isWide: true }
+// // //   ];
+
+// // //   // We only need two sets for a perfect 0% to -50% seamless loop
+// // //   const marqueeLogos = [...baseLogos, ...baseLogos];
+
+// // //   return (
+// // //     <section className="bg-white py-12 border-t border-slate-200 relative z-20 overflow-hidden select-none">
+// // //       <div className="container mx-auto px-6 lg:px-10 mb-4 hidden">
+// // //         <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest text-center">In Collaboration With</h4>
+// // //       </div>
+      
+// // //       {/* Marquee Wrapper Container */}
+// // //       <div className="flex w-full relative">
+// // //         {/* Soft edge gradients for a fading enterprise look */}
+// // //         <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+// // //         <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+
+// // //         <motion.div 
+// // //           className="flex items-center gap-16 md:gap-24 flex-nowrap w-max"
+// // //           animate={{ x: ["0%", "-50%"] }}
+// // //           transition={{
+// // //             ease: "linear",
+// // //             duration: 40, // Slower duration because the list is much longer now
+// // //             repeat: Infinity,
+// // //           }}
+// // //         >
+// // //           {marqueeLogos.map((logo, index) => (
+// // //             <div 
+// // //               key={index} 
+// // //               className={`relative h-16 flex-shrink-0 flex items-center justify-center transition-all duration-300 ${
+// // //                 logo.isWide ? "w-64 md:w-80" : "w-16 md:w-20"
+// // //               }`}
+// // //             >
+// // //               <Image 
+// // //                 src={logo.src} 
+// // //                 alt={logo.alt} 
+// // //                 fill 
+// // //                 className="object-contain" 
+// // //               />
+// // //             </div>
+// // //           ))}
+// // //         </motion.div>
+// // //       </div>
+// // //     </section>
+// // //   );
+// // // }
+
+// // // // ==========================================
+// // // // MAIN PAGE EXPORT
+// // // // ==========================================
+// // // export default function Home() {
+// // //   return (
+// // //     <main className="min-h-screen bg-slate-950 font-sans selection:bg-amber-400/30">
+// // //       <Hero />
+// // //       <ClinicalTools />
+// // //       <Features />
+// // //       <Spotlight />
+// // //       <ImpactStats />
+// // //       <Partners />
+// // //     </main>
+// // //   );
+// // // }
+
+// // "use client";
+
+// // import React, { useState } from "react";
+// // import Image from "next/image";
+// // import { motion, type Variants } from "framer-motion";
+// // import { Button } from "@/components/ui/button";
+// // import { 
+// //   ArrowRight, 
+// //   ShieldCheck, 
+// //   Activity, 
+// //   LineChart, 
+// //   Database, 
+// //   MapPin, 
+// //   HeartPulse, 
+// //   Scale,
+// //   Syringe,
+// //   TrendingUp,
+// //   Calculator,
+// //   ArrowRightCircle,
+// //   ChevronRight
+// // } from "lucide-react";
+
+// // // ==========================================
+// // // ANIMATION VARIANTS
+// // // ==========================================
+// // const staggerContainer: Variants = {
+// //   hidden: { opacity: 0 },
+// //   show: {
+// //     opacity: 1,
+// //     transition: { staggerChildren: 0.15 }
+// //   }
+// // };
+
+// // const fadeUp: Variants = {
+// //   hidden: { opacity: 0, y: 30 },
+// //   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+// // };
+
+// // // ==========================================
+// // // 1. HERO SECTION
+// // // ==========================================
+// // function Hero() {
+// //   return (
+// //     <section id="home" className="relative w-full overflow-hidden bg-sky-50 min-h-[90vh] flex items-center">
+// //       {/* ====== BACKGROUND MESH ====== */}
+// //       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+// //         <Image
+// //           src="/b1.jpg"
+// //           alt="Background Texture"
+// //           fill
+// //           className="object-cover opacity-5 mix-blend-overlay grayscale"
+// //           priority
+// //         />
+// //         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-sky-300/40 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }}></div>
+// //         <div className="absolute bottom-[-20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-white/60 blur-[120px] animate-pulse" style={{ animationDuration: '10s' }}></div>
+// //       </div>
+
+// //       <div className="container relative z-10 mx-auto px-6 lg:px-10 py-20">
+// //         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+// //           {/* LEFT: TYPOGRAPHY & ACTIONS */}
+// //           <motion.div 
+// //             variants={staggerContainer}
+// //             initial="hidden"
+// //             animate="show"
+// //             className="lg:col-span-6 flex flex-col items-start space-y-8 z-20"
+// //           >
+// //             <motion.div variants={fadeUp} className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-sky-200 shadow-xl">
+// //               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-tr from-sky-400 to-sky-500 shadow-inner">
+// //                 <ShieldCheck className="w-3.5 h-3.5 text-white" />
+// //               </span>
+// //               <span className="text-sm font-semibold text-sky-800 tracking-wide">
+// //                 Govt. of Jharkhand • NHM Initiative
+// //               </span>
+// //             </motion.div>
+
+// //             <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-sky-900 leading-[1.1] tracking-tight">
+// //               Tracking <span className="text-transparent bg-clip-text bg-gradient-to-br from-sky-600 to-sky-400">Health.</span><br />
+// //               Transforming <br />
+// //               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-sky-500 to-blue-500">Lives.</span>
+// //             </motion.h1>
+
+// //             <motion.p variants={fadeUp} className="text-lg text-sky-700 max-w-lg leading-relaxed font-medium">
+// //               A state-of-the-art digital portal for monitoring and managing Severe Acute Malnutrition (SAM) treatment centers across the state.
+// //             </motion.p>
+
+// //             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-4 pt-4 w-full sm:w-auto">
+// //               <Button className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-600 text-white text-lg font-bold shadow-[0_0_40px_-10px_rgba(56,189,248,0.4)] border-none transition-all hover:scale-105">
+// //                 Access Portal
+// //                 <ArrowRight className="ml-2 w-5 h-5" />
+// //               </Button>
+// //             </motion.div>
+// //           </motion.div>
+
+// //           {/* RIGHT: ANIMATED BENTO LAYOUT */}
+// //           <motion.div 
+// //             initial={{ opacity: 0, x: 50 }}
+// //             animate={{ opacity: 1, x: 0 }}
+// //             transition={{ duration: 0.8, delay: 0.2 }}
+// //             className="lg:col-span-6 relative w-full h-[500px] sm:h-[600px] flex items-center justify-center z-10 mt-10 lg:mt-0"
+// //           >
+// //             <div className="absolute right-0 top-10 w-[80%] h-[75%] bg-white/60 backdrop-blur-xl border border-sky-200 rounded-[2.5rem] shadow-[0_0_50px_rgba(56,189,248,0.15)] rotate-6 transition-transform duration-700 hover:rotate-3 z-0"></div>
+
+// //             <div className="absolute left-0 sm:left-10 z-10 w-[85%] h-[80%] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(2,132,199,0.2)] border border-sky-100 transition-transform duration-700 hover:-translate-y-2 group">
+// //               <Image
+// //                 src="/b2.jpg"
+// //                 alt="Child health care at MTC"
+// //                 fill
+// //                 className="object-cover transition-transform duration-700 group-hover:scale-105"
+// //                 priority
+// //               />
+// //               <div className="absolute inset-0 bg-gradient-to-t from-sky-100/80 via-sky-100/10 to-transparent"></div>
+// //             </div>
+
+// //             {/* Floating Stats */}
+// //             <motion.div 
+// //               animate={{ y: [0, -10, 0] }}
+// //               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+// //               className="absolute bottom-4 -right-4 sm:right-4 z-20 bg-white/95 backdrop-blur-xl border border-sky-200 p-5 rounded-3xl shadow-2xl flex items-center gap-4"
+// //             >
+// //               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-400 to-sky-500 flex items-center justify-center flex-shrink-0 shadow-inner">
+// //                 <Activity className="w-6 h-6 text-white" />
+// //               </div>
+// //               <div className="pr-2">
+// //                 <p className="text-2xl font-black text-sky-900 leading-none">90+</p>
+// //                 <p className="text-xs text-sky-600 font-semibold uppercase mt-1">Active Centers</p>
+// //               </div>
+// //             </motion.div>
+// //           </motion.div>
+// //         </div>
+// //       </div>
+// //     </section>
+// //   );
+// // }
+
+// // // ==========================================
+// // // 2. CLINICAL TOOLS & CALCULATORS SECTION
+// // // ==========================================
+// // function ClinicalTools() {
+// //   const [w1, setW1] = useState("");
+// //   const [w2, setW2] = useState("");
+// //   const [days, setDays] = useState("");
+// //   const [rate, setRate] = useState<number | null>(null);
+
+// //   const calculateWeightGain = () => {
+// //     const weight1 = parseFloat(w1);
+// //     const weight2 = parseFloat(w2);
+// //     const d = parseFloat(days);
+// //     if (weight1 && weight2 && d && d > 0) {
+// //       const result = ((weight2 - weight1) * 1000) / (weight1 * d);
+// //       setRate(parseFloat(result.toFixed(2)));
+// //     } else {
+// //       setRate(null);
+// //     }
+// //   };
+
+// //   const tools = [
+// //     { title: "Z-Score (SD) Calculator", desc: "Instantly calculate WHO standard deviations for weight-for-height and length-for-age.", icon: Scale, color: "text-sky-600", bg: "bg-sky-50 border-sky-200" },
+// //     { title: "F-75 / F-100 Feed Planner", desc: "Automated therapeutic milk volume calculations based on current body weight.", icon: Calculator, color: "text-blue-600", bg: "bg-blue-50 border-blue-200" },
+// //     { title: "Micronutrient Dosing", desc: "Generate accurate dosing schedules for Vitamin A, Iron, and Folic Acid.", icon: Syringe, color: "text-cyan-600", bg: "bg-cyan-50 border-cyan-200" }
+// //   ];
+
+// //   return (
+// //     <section className="py-24 bg-white relative z-10 border-t border-sky-100">
+// //       <div className="container mx-auto px-6 lg:px-10">
+// //         <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="mb-16">
+// //           <h2 className="text-3xl md:text-4xl font-bold text-sky-900 mb-4">
+// //             Advanced <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-sky-600">Clinical Utilities</span>
+// //           </h2>
+// //           <p className="text-sky-600 text-lg max-w-2xl">
+// //             Built-in calculation tools designed to eliminate manual errors and speed up daily assessments for medical officers.
+// //           </p>
+// //         </motion.div>
+
+// //         <div className="grid lg:grid-cols-12 gap-8">
+// //           <div className="lg:col-span-7 grid sm:grid-cols-2 gap-6">
+// //             {tools.map((tool, idx) => (
+// //               <motion.div key={idx} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }} className={`p-6 rounded-3xl border ${tool.bg} backdrop-blur-sm flex flex-col justify-between`}>
+// //                 <div className="mb-4">
+// //                   <tool.icon className={`w-8 h-8 ${tool.color} mb-4`} />
+// //                   <h3 className="text-xl font-bold text-sky-900 mb-2">{tool.title}</h3>
+// //                   <p className="text-sm text-sky-700/80 leading-relaxed">{tool.desc}</p>
+// //                 </div>
+// //                 <div className="text-xs font-semibold text-sky-500 uppercase tracking-widest mt-4">Module Integrated</div>
+// //               </motion.div>
+// //             ))}
+// //           </div>
+
+// //           <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="lg:col-span-5 bg-sky-50/50 border border-sky-200 p-8 rounded-[2rem] shadow-xl relative overflow-hidden">
+// //             <div className="absolute top-0 right-0 w-32 h-32 bg-sky-400/10 blur-3xl rounded-full pointer-events-none"></div>
+// //             <div className="flex items-center gap-3 mb-6">
+// //               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center shadow-lg">
+// //                 <TrendingUp className="w-5 h-5 text-white" />
+// //               </div>
+// //               <h3 className="text-2xl font-bold text-sky-900">Weight Gain Rate</h3>
+// //             </div>
+
+// //             <div className="space-y-4 relative z-10">
+// //               <div className="grid grid-cols-2 gap-4">
+// //                 <div>
+// //                   <label className="text-xs font-medium text-sky-700 mb-1 block">W1 (Initial kg)</label>
+// //                   <input type="number" value={w1} onChange={(e) => setW1(e.target.value)} className="w-full bg-white border border-sky-200 rounded-xl px-4 py-3 text-sky-900 focus:outline-none focus:border-sky-400 transition-colors shadow-sm" placeholder="e.g. 5.2" />
+// //                 </div>
+// //                 <div>
+// //                   <label className="text-xs font-medium text-sky-700 mb-1 block">W2 (Current kg)</label>
+// //                   <input type="number" value={w2} onChange={(e) => setW2(e.target.value)} className="w-full bg-white border border-sky-200 rounded-xl px-4 py-3 text-sky-900 focus:outline-none focus:border-sky-400 transition-colors shadow-sm" placeholder="e.g. 5.8" />
+// //                 </div>
+// //               </div>
+// //               <div>
+// //                 <label className="text-xs font-medium text-sky-700 mb-1 block">Days between measurements</label>
+// //                 <input type="number" value={days} onChange={(e) => setDays(e.target.value)} className="w-full bg-white border border-sky-200 rounded-xl px-4 py-3 text-sky-900 focus:outline-none focus:border-sky-400 transition-colors shadow-sm" placeholder="e.g. 7" />
+// //               </div>
+
+// //               <Button onClick={calculateWeightGain} className="w-full mt-2 h-12 bg-sky-100 hover:bg-sky-200 text-sky-800 rounded-xl border border-sky-200 transition-colors shadow-sm">
+// //                 Calculate Rate
+// //               </Button>
+
+// //               {rate !== null && (
+// //                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-4 p-4 bg-gradient-to-br from-sky-100 to-blue-100 border border-sky-300 rounded-xl text-center shadow-inner">
+// //                   <p className="text-sm text-sky-700 font-medium mb-1">Rate of Weight Gain</p>
+// //                   <p className="text-3xl font-black text-sky-600">{rate} <span className="text-sm font-medium text-sky-500">g/kg/day</span></p>
+// //                   {rate >= 5 ? (
+// //                     <p className="text-xs text-emerald-600 mt-2 font-semibold flex items-center justify-center gap-1">Target Met (≥ 5g/kg/day)</p>
+// //                   ) : (
+// //                     <p className="text-xs text-red-500 mt-2 font-semibold">Below Target Range</p>
+// //                   )}
+// //                 </motion.div>
+// //               )}
+// //             </div>
+// //           </motion.div>
+// //         </div>
+// //       </div>
+// //     </section>
+// //   );
+// // }
+
+// // // ==========================================
+// // // 3. FEATURES SECTION
+// // // ==========================================
+// // function Features() {
+// //   const features = [
+// //     { title: "Real-time Bed Tracking", description: "Monitor bed availability across all 90+ MTCs with live updates.", icon: MapPin, color: "from-sky-400 to-blue-500" },
+// //     { title: "Patient Monitoring", description: "Track treatment progress and recovery metrics for every admitted child.", icon: HeartPulse, color: "from-cyan-400 to-sky-500" },
+// //     { title: "Automated Reporting", description: "Generate district-wise, automated compliance reports.", icon: LineChart, color: "from-blue-400 to-indigo-500" },
+// //     { title: "Centralized Database", description: "Secure, encrypted storage of patient history and follow-up schedules.", icon: Database, color: "from-sky-300 to-cyan-500" }
+// //   ];
+
+// //   return (
+// //     <section className="py-24 bg-sky-50 relative z-10">
+// //       <div className="container mx-auto px-6 lg:px-10">
+// //         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center max-w-2xl mx-auto mb-16">
+// //           <h2 className="text-3xl md:text-4xl font-bold text-sky-900 mb-4">
+// //             Empowering Health Officials with <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">Actionable Data</span>
+// //           </h2>
+// //         </motion.div>
+
+// //         <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true }} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+// //           {features.map((feature, idx) => (
+// //             <motion.div key={idx} variants={fadeUp} className="bg-white/80 border border-sky-100 p-6 rounded-3xl hover:bg-white transition-colors group cursor-default shadow-sm hover:shadow-md">
+// //               <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+// //                 <feature.icon className="w-6 h-6 text-white" />
+// //               </div>
+// //               <h3 className="text-xl font-semibold text-sky-900 mb-3">{feature.title}</h3>
+// //               <p className="text-sm text-sky-700/80 leading-relaxed">{feature.description}</p>
+// //             </motion.div>
+// //           ))}
+// //         </motion.div>
+// //       </div>
+// //     </section>
+// //   );
+// // }
+
+// // // ==========================================
+// // // 4. SPOTLIGHT SECTION (News & Updates)
+// // // ==========================================
+// // function Spotlight() {
+// //   return (
+// //     <section className="py-24 bg-white relative z-10 border-t border-sky-100">
+// //       <div className="container mx-auto px-6 lg:px-10">
+// //         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="mb-12">
+// //           <h2 className="text-3xl md:text-4xl font-bold text-sky-900">
+// //             Information <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500">Spotlight</span>
+// //           </h2>
+// //         </motion.div>
+
+// //         <motion.div 
+// //           variants={staggerContainer} 
+// //           initial="hidden" 
+// //           whileInView="show" 
+// //           viewport={{ once: true }} 
+// //           className="grid md:grid-cols-3 gap-6"
+// //         >
+// //           {/* Spotlight Main Accent Card */}
+// //           <motion.div variants={fadeUp} className="bg-gradient-to-br from-sky-500 to-blue-600 rounded-[2rem] p-8 flex flex-col justify-center relative overflow-hidden group cursor-pointer shadow-xl">
+// //             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+// //             <div className="relative z-10 flex flex-col items-center text-center">
+// //               <h3 className="text-4xl font-black text-white mb-2">Spotlight</h3>
+// //               <p className="text-sky-100 font-medium mb-8">The Latest Updates</p>
+// //               <div className="flex items-center gap-2 text-white font-bold tracking-wide group-hover:translate-x-2 transition-transform">
+// //                 Explore All <ArrowRightCircle className="w-6 h-6" />
+// //               </div>
+// //             </div>
+// //           </motion.div>
+
+// //           {/* Article Card 1 */}
+// //           <motion.div variants={fadeUp} className="bg-sky-50 border border-sky-100 rounded-[2rem] overflow-hidden group cursor-pointer hover:border-sky-400 transition-colors shadow-sm hover:shadow-lg flex flex-col">
+// //             <div className="relative h-48 w-full overflow-hidden">
+// //               <Image 
+// //                 src="/b1.jpg" 
+// //                 alt="Anthropometry Measurement" 
+// //                 fill 
+// //                 className="object-cover group-hover:scale-105 transition-transform duration-700" 
+// //               />
+// //             </div>
+// //             <div className="p-6 flex flex-col flex-1 relative">
+// //               <h4 className="text-lg font-bold text-sky-700 mb-3 line-clamp-2">
+// //                 Treatment at Malnutrition Treatment Centre
+// //               </h4>
+// //               <p className="text-sm text-sky-600 line-clamp-3 mb-4">
+// //                 Once the child is diagnosed through anthropometry examination as SAM, the child gets admitted to MTC ...
+// //               </p>
+// //               <div className="mt-auto flex items-center justify-between text-xs font-semibold text-sky-500/80">
+// //                 <span>11-Jun-2021 10:00 AM</span>
+// //                 <ChevronRight className="w-5 h-5 text-sky-500" />
+// //               </div>
+// //             </div>
+// //           </motion.div>
+
+// //           {/* Article Card 2 */}
+// //           <motion.div variants={fadeUp} className="bg-sky-50 border border-sky-100 rounded-[2rem] overflow-hidden group cursor-pointer hover:border-sky-400 transition-colors shadow-sm hover:shadow-lg flex flex-col">
+// //             <div className="relative h-48 w-full overflow-hidden">
+// //               <Image 
+// //                 src="/b2.jpg" 
+// //                 alt="Mother and Child" 
+// //                 fill 
+// //                 className="object-cover group-hover:scale-105 transition-transform duration-700" 
+// //               />
+// //             </div>
+// //             <div className="p-6 flex flex-col flex-1 relative">
+// //               <h4 className="text-lg font-bold text-sky-700 mb-3 line-clamp-2">
+// //                 What is Malnutrition Treatment Centre?
+// //               </h4>
+// //               <p className="text-sm text-sky-600 line-clamp-3 mb-4">
+// //                 A facility-based unit providing medical and nutritional therapeutic care for children suffering from severe acute malnutrition...
+// //               </p>
+// //               <div className="mt-auto flex items-center justify-between text-xs font-semibold text-sky-500/80">
+// //                 <span>Information Guide</span>
+// //                 <ChevronRight className="w-5 h-5 text-sky-500" />
+// //               </div>
+// //             </div>
+// //           </motion.div>
+
+// //         </motion.div>
+// //       </div>
+// //     </section>
+// //   );
+// // }
+
+// // // ==========================================
+// // // 5. IMPACT STATS SECTION
+// // // ==========================================
+// // function ImpactStats() {
+// //   return (
+// //     <section className="py-20 bg-sky-500 relative z-10 border-y border-sky-400">
+// //       <div className="container relative mx-auto px-6 lg:px-10 z-10">
+// //         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-x divide-sky-400">
+// //           <div className="text-center px-4">
+// //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">24</h4>
+// //             <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Districts</p>
+// //           </div>
+// //           <div className="text-center px-4">
+// //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">1.2k+</h4>
+// //             <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Total Beds</p>
+// //           </div>
+// //           <div className="text-center px-4">
+// //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">85%</h4>
+// //             <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Recovery</p>
+// //           </div>
+// //           <div className="text-center px-4">
+// //             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">10k+</h4>
+// //             <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Lives Saved</p>
+// //           </div>
+// //         </div>
+// //       </div>
+// //     </section>
+// //   );
+// // }
+
+// // // ==========================================
+// // // 6. ANIMATED PARTNERS MARQUEE SECTION
+// // // ==========================================
+// // function Partners() {
+// //   const baseLogos = [
+// //     { src: "/logo-jharkhand-govt.png", alt: "Government of Jharkhand", width: 75, height: 75 },
+// //     { src: "/logo_1.png", alt: "Centre of Excellence for Management of Severe Acute Malnutrition (CoE-SAM) Network", width: 340, height: 75, isWide: true },
+// //     { src: "/logo_2.png", alt: "National Centre of Excellence and Advanced Research on Diets", width: 310, height: 75, isWide: true },
+// //     { src: "/logo_3.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true },
+// //     { src: "/logo_4.png", alt: "Partner 4", width: 240, height: 75, isWide: true },
+// //     { src: "/logo_5.png", alt: "Partner 5", width: 240, height: 75, isWide: true },
+// //     { src: "/logo_6.png", alt: "Partner 6", width: 240, height: 75, isWide: true },
+// //     { src: "/logo_7.png", alt: "Partner 7", width: 240, height: 75, isWide: true },
+// //     { src: "/logo_8.png", alt: "Partner 8", width: 240, height: 75, isWide: true },
+// //     { src: "/logo_9.png", alt: "Partner 9", width: 240, height: 75, isWide: true },
+// //     { src: "/logo_10.png", alt: "Partner 10", width: 240, height: 75, isWide: true }
+// //   ];
+
+// //   // We only need two sets for a perfect 0% to -50% seamless loop
+// //   const marqueeLogos = [...baseLogos, ...baseLogos];
+
+// //   return (
+// //     <section className="bg-white py-12 border-t border-sky-100 relative z-20 overflow-hidden select-none">
+// //       <div className="container mx-auto px-6 lg:px-10 mb-4 hidden">
+// //         <h4 className="text-xs font-bold text-sky-400 uppercase tracking-widest text-center">In Collaboration With</h4>
+// //       </div>
+      
+// //       {/* Marquee Wrapper Container */}
+// //       <div className="flex w-full relative">
+// //         {/* Soft edge gradients for a fading enterprise look */}
+// //         <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+// //         <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+
+// //         <motion.div 
+// //           className="flex items-center gap-16 md:gap-24 flex-nowrap w-max"
+// //           animate={{ x: ["0%", "-50%"] }}
+// //           transition={{
+// //             ease: "linear",
+// //             duration: 40, 
+// //             repeat: Infinity,
+// //           }}
+// //         >
+// //           {marqueeLogos.map((logo, index) => (
+// //             <div 
+// //               key={index} 
+// //               className={`relative h-16 flex-shrink-0 flex items-center justify-center transition-all duration-300 ${
+// //                 logo.isWide ? "w-64 md:w-80" : "w-16 md:w-20"
+// //               }`}
+// //             >
+// //               <Image 
+// //                 src={logo.src} 
+// //                 alt={logo.alt} 
+// //                 fill 
+// //                 className="object-contain" 
+// //               />
+// //             </div>
+// //           ))}
+// //         </motion.div>
+// //       </div>
+// //     </section>
+// //   );
+// // }
+
+// // // ==========================================
+// // // MAIN PAGE EXPORT
+// // // ==========================================
+// // export default function Home() {
+// //   return (
+// //     <main className="min-h-screen bg-sky-50 font-sans selection:bg-sky-400/30">
+// //       <Hero />
+// //       <ClinicalTools />
+// //       <Features />
+// //       <Spotlight />
+// //       <ImpactStats />
+// //       <Partners />
+// //     </main>
+// //   );
+// // }
+
+// "use client";
+
+// import React from "react";
+// import Image from "next/image";
+// import { motion, type Variants } from "framer-motion";
+// import { Button } from "@/components/ui/button";
+// import { 
+//   ArrowRight, 
+//   ShieldCheck, 
+//   Activity, 
+//   LineChart, 
+//   Database, 
+//   MapPin, 
+//   HeartPulse, 
+//   ArrowRightCircle,
+//   ChevronRight
+// } from "lucide-react";
+
+// // ==========================================
+// // ANIMATION VARIANTS
+// // ==========================================
+// const staggerContainer: Variants = {
+//   hidden: { opacity: 0 },
+//   show: {
+//     opacity: 1,
+//     transition: { staggerChildren: 0.15 }
+//   }
+// };
+
+// const fadeUp: Variants = {
+//   hidden: { opacity: 0, y: 30 },
+//   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+// };
+
+// // ==========================================
+// // 1. HERO SECTION
+// // ==========================================
+// function Hero() {
+//   return (
+//     <section id="home" className="relative w-full overflow-hidden bg-sky-50 min-h-[90vh] flex items-center">
+//       {/* ====== BACKGROUND MESH ====== */}
+//       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+//         <Image
+//           src="/b1.jpg"
+//           alt="Background Texture"
+//           fill
+//           className="object-cover opacity-5 mix-blend-overlay grayscale"
+//           priority
+//         />
+//         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-sky-300/40 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }}></div>
+//         <div className="absolute bottom-[-20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-white/60 blur-[120px] animate-pulse" style={{ animationDuration: '10s' }}></div>
+//       </div>
+
+//       <div className="container relative z-10 mx-auto px-6 lg:px-10 py-20">
+//         <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+//           {/* LEFT: TYPOGRAPHY & ACTIONS */}
+//           <motion.div 
+//             variants={staggerContainer}
+//             initial="hidden"
+//             animate="show"
+//             className="lg:col-span-6 flex flex-col items-start space-y-8 z-20"
+//           >
+//             <motion.div variants={fadeUp} className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-sky-200 shadow-xl">
+//               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-tr from-sky-400 to-sky-500 shadow-inner">
+//                 <ShieldCheck className="w-3.5 h-3.5 text-white" />
+//               </span>
+//               <span className="text-sm font-semibold text-sky-800 tracking-wide">
+//                 Govt. of Jharkhand • NHM Initiative
+//               </span>
+//             </motion.div>
+
+//             <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-sky-900 leading-[1.1] tracking-tight">
+//               Tracking <span className="text-transparent bg-clip-text bg-gradient-to-br from-sky-600 to-sky-400">Health.</span><br />
+//               Transforming <br />
+//               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-sky-500 to-blue-500">Lives.</span>
+//             </motion.h1>
+
+//             <motion.p variants={fadeUp} className="text-lg text-sky-700 max-w-lg leading-relaxed font-medium">
+//               A state-of-the-art digital portal for monitoring and managing Severe Acute Malnutrition (SAM) treatment centers across the state.
+//             </motion.p>
+
+//             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-4 pt-4 w-full sm:w-auto">
+//               <Button className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-600 text-white text-lg font-bold shadow-[0_0_40px_-10px_rgba(56,189,248,0.4)] border-none transition-all hover:scale-105">
+//                 Access Portal
+//                 <ArrowRight className="ml-2 w-5 h-5" />
+//               </Button>
+//             </motion.div>
+//           </motion.div>
+
+//           {/* RIGHT: ANIMATED BENTO LAYOUT */}
+//           <motion.div 
+//             initial={{ opacity: 0, x: 50 }}
+//             animate={{ opacity: 1, x: 0 }}
+//             transition={{ duration: 0.8, delay: 0.2 }}
+//             className="lg:col-span-6 relative w-full h-[500px] sm:h-[600px] flex items-center justify-center z-10 mt-10 lg:mt-0"
+//           >
+//             <div className="absolute right-0 top-10 w-[80%] h-[75%] bg-white/60 backdrop-blur-xl border border-sky-200 rounded-[2.5rem] shadow-[0_0_50px_rgba(56,189,248,0.15)] rotate-6 transition-transform duration-700 hover:rotate-3 z-0"></div>
+
+//             <div className="absolute left-0 sm:left-10 z-10 w-[85%] h-[80%] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(2,132,199,0.2)] border border-sky-100 transition-transform duration-700 hover:-translate-y-2 group">
+//               <Image
+//                 src="/b2.jpg"
+//                 alt="Child health care at MTC"
+//                 fill
+//                 className="object-cover transition-transform duration-700 group-hover:scale-105"
+//                 priority
+//               />
+//               <div className="absolute inset-0 bg-gradient-to-t from-sky-100/80 via-sky-100/10 to-transparent"></div>
+//             </div>
+
+//             {/* Floating Stats */}
+//             <motion.div 
+//               animate={{ y: [0, -10, 0] }}
+//               transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+//               className="absolute bottom-4 -right-4 sm:right-4 z-20 bg-white/95 backdrop-blur-xl border border-sky-200 p-5 rounded-3xl shadow-2xl flex items-center gap-4"
+//             >
+//               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-400 to-sky-500 flex items-center justify-center flex-shrink-0 shadow-inner">
+//                 <Activity className="w-6 h-6 text-white" />
+//               </div>
+//               <div className="pr-2">
+//                 <p className="text-2xl font-black text-sky-900 leading-none">90+</p>
+//                 <p className="text-xs text-sky-600 font-semibold uppercase mt-1">Active Centers</p>
+//               </div>
+//             </motion.div>
+//           </motion.div>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// }
+
+// // ==========================================
+// // 2. FEATURES SECTION
+// // ==========================================
+// function Features() {
+//   const features = [
+//     { title: "Real-time Bed Tracking", description: "Monitor bed availability across all 90+ MTCs with live updates.", icon: MapPin, color: "from-sky-400 to-blue-500" },
+//     { title: "Patient Monitoring", description: "Track treatment progress and recovery metrics for every admitted child.", icon: HeartPulse, color: "from-cyan-400 to-sky-500" },
+//     { title: "Automated Reporting", description: "Generate district-wise, automated compliance reports.", icon: LineChart, color: "from-blue-400 to-indigo-500" },
+//     { title: "Centralized Database", description: "Secure, encrypted storage of patient history and follow-up schedules.", icon: Database, color: "from-sky-300 to-cyan-500" }
+//   ];
+
+//   return (
+//     <section className="py-24 bg-sky-50 relative z-10 border-t border-sky-100">
+//       <div className="container mx-auto px-6 lg:px-10">
+//         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center max-w-2xl mx-auto mb-16">
+//           <h2 className="text-3xl md:text-4xl font-bold text-sky-900 mb-4">
+//             Empowering Health Officials with <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">Actionable Data</span>
+//           </h2>
+//         </motion.div>
+
+//         <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true }} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+//           {features.map((feature, idx) => (
+//             <motion.div key={idx} variants={fadeUp} className="bg-white/80 border border-sky-100 p-6 rounded-3xl hover:bg-white transition-colors group cursor-default shadow-sm hover:shadow-md">
+//               <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+//                 <feature.icon className="w-6 h-6 text-white" />
+//               </div>
+//               <h3 className="text-xl font-semibold text-sky-900 mb-3">{feature.title}</h3>
+//               <p className="text-sm text-sky-700/80 leading-relaxed">{feature.description}</p>
+//             </motion.div>
+//           ))}
+//         </motion.div>
+//       </div>
+//     </section>
+//   );
+// }
+
+// // ==========================================
+// // 3. SPOTLIGHT SECTION (News & Updates)
+// // ==========================================
+// function Spotlight() {
+//   return (
+//     <section className="py-24 bg-white relative z-10 border-t border-sky-100">
+//       <div className="container mx-auto px-6 lg:px-10">
+//         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="mb-12">
+//           <h2 className="text-3xl md:text-4xl font-bold text-sky-900">
+//             Information <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500">Spotlight</span>
+//           </h2>
+//         </motion.div>
+
+//         <motion.div 
+//           variants={staggerContainer} 
+//           initial="hidden" 
+//           whileInView="show" 
+//           viewport={{ once: true }} 
+//           className="grid md:grid-cols-3 gap-6"
+//         >
+//           {/* Spotlight Main Accent Card */}
+//           <motion.div variants={fadeUp} className="bg-gradient-to-br from-sky-500 to-blue-600 rounded-[2rem] p-8 flex flex-col justify-center relative overflow-hidden group cursor-pointer shadow-xl">
+//             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+//             <div className="relative z-10 flex flex-col items-center text-center">
+//               <h3 className="text-4xl font-black text-white mb-2">Spotlight</h3>
+//               <p className="text-sky-100 font-medium mb-8">The Latest Updates</p>
+//               <div className="flex items-center gap-2 text-white font-bold tracking-wide group-hover:translate-x-2 transition-transform">
+//                 Explore All <ArrowRightCircle className="w-6 h-6" />
+//               </div>
+//             </div>
+//           </motion.div>
+
+//           {/* Article Card 1 */}
+//           <motion.div variants={fadeUp} className="bg-sky-50 border border-sky-100 rounded-[2rem] overflow-hidden group cursor-pointer hover:border-sky-400 transition-colors shadow-sm hover:shadow-lg flex flex-col">
+//             <div className="relative h-48 w-full overflow-hidden">
+//               <Image 
+//                 src="/b1.jpg" 
+//                 alt="Anthropometry Measurement" 
+//                 fill 
+//                 className="object-cover group-hover:scale-105 transition-transform duration-700" 
+//               />
+//             </div>
+//             <div className="p-6 flex flex-col flex-1 relative">
+//               <h4 className="text-lg font-bold text-sky-700 mb-3 line-clamp-2">
+//                 Treatment at Malnutrition Treatment Centre
+//               </h4>
+//               <p className="text-sm text-sky-600 line-clamp-3 mb-4">
+//                 Once the child is diagnosed through anthropometry examination as SAM, the child gets admitted to MTC ...
+//               </p>
+//               <div className="mt-auto flex items-center justify-between text-xs font-semibold text-sky-500/80">
+//                 <span>11-Jun-2021 10:00 AM</span>
+//                 <ChevronRight className="w-5 h-5 text-sky-500" />
+//               </div>
+//             </div>
+//           </motion.div>
+
+//           {/* Article Card 2 */}
+//           <motion.div variants={fadeUp} className="bg-sky-50 border border-sky-100 rounded-[2rem] overflow-hidden group cursor-pointer hover:border-sky-400 transition-colors shadow-sm hover:shadow-lg flex flex-col">
+//             <div className="relative h-48 w-full overflow-hidden">
+//               <Image 
+//                 src="/b2.jpg" 
+//                 alt="Mother and Child" 
+//                 fill 
+//                 className="object-cover group-hover:scale-105 transition-transform duration-700" 
+//               />
+//             </div>
+//             <div className="p-6 flex flex-col flex-1 relative">
+//               <h4 className="text-lg font-bold text-sky-700 mb-3 line-clamp-2">
+//                 What is Malnutrition Treatment Centre?
+//               </h4>
+//               <p className="text-sm text-sky-600 line-clamp-3 mb-4">
+//                 A facility-based unit providing medical and nutritional therapeutic care for children suffering from severe acute malnutrition...
+//               </p>
+//               <div className="mt-auto flex items-center justify-between text-xs font-semibold text-sky-500/80">
+//                 <span>Information Guide</span>
+//                 <ChevronRight className="w-5 h-5 text-sky-500" />
+//               </div>
+//             </div>
+//           </motion.div>
+
+//         </motion.div>
+//       </div>
+//     </section>
+//   );
+// }
+
+// // ==========================================
+// // 4. IMPACT STATS SECTION
+// // ==========================================
+// function ImpactStats() {
+//   return (
+//     <section className="py-20 bg-sky-500 relative z-10 border-y border-sky-400">
+//       <div className="container relative mx-auto px-6 lg:px-10 z-10">
+//         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-x divide-sky-400">
+//           <div className="text-center px-4">
+//             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">24</h4>
+//             <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Districts</p>
+//           </div>
+//           <div className="text-center px-4">
+//             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">1.2k+</h4>
+//             <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Total Beds</p>
+//           </div>
+//           <div className="text-center px-4">
+//             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">85%</h4>
+//             <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Recovery</p>
+//           </div>
+//           <div className="text-center px-4">
+//             <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">10k+</h4>
+//             <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Lives Saved</p>
+//           </div>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// }
+
+// // ==========================================
+// // 5. ANIMATED PARTNERS MARQUEE SECTION
+// // ==========================================
+// function Partners() {
+//   const baseLogos = [
+//     { src: "/logo-jharkhand-govt.png", alt: "Government of Jharkhand", width: 75, height: 75 },
+//     { src: "/logo_1.png", alt: "Centre of Excellence for Management of Severe Acute Malnutrition (CoE-SAM) Network", width: 340, height: 75, isWide: true },
+//     { src: "/logo_2.png", alt: "National Centre of Excellence and Advanced Research on Diets", width: 310, height: 75, isWide: true },
+//     { src: "/logo_3.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true },
+//     { src: "/logo_4.png", alt: "Partner 4", width: 240, height: 75, isWide: true },
+//     { src: "/logo_5.png", alt: "Partner 5", width: 240, height: 75, isWide: true },
+//     { src: "/logo_6.png", alt: "Partner 6", width: 240, height: 75, isWide: true },
+//     { src: "/logo_7.png", alt: "Partner 7", width: 240, height: 75, isWide: true },
+//     { src: "/logo_8.png", alt: "Partner 8", width: 240, height: 75, isWide: true },
+//     { src: "/logo_9.png", alt: "Partner 9", width: 240, height: 75, isWide: true },
+//     { src: "/logo_10.png", alt: "Partner 10", width: 240, height: 75, isWide: true }
+//   ];
+
+//   // We only need two sets for a perfect 0% to -50% seamless loop
+//   const marqueeLogos = [...baseLogos, ...baseLogos];
+
+//   return (
+//     <section className="bg-white py-12 border-t border-sky-100 relative z-20 overflow-hidden select-none">
+//       <div className="container mx-auto px-6 lg:px-10 mb-4 hidden">
+//         <h4 className="text-xs font-bold text-sky-400 uppercase tracking-widest text-center">In Collaboration With</h4>
+//       </div>
+      
+//       {/* Marquee Wrapper Container */}
+//       <div className="flex w-full relative">
+//         {/* Soft edge gradients for a fading enterprise look */}
+//         <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+//         <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+
+//         <motion.div 
+//           className="flex items-center gap-16 md:gap-24 flex-nowrap w-max"
+//           animate={{ x: ["0%", "-50%"] }}
+//           transition={{
+//             ease: "linear",
+//             duration: 40, 
+//             repeat: Infinity,
+//           }}
+//         >
+//           {marqueeLogos.map((logo, index) => (
+//             <div 
+//               key={index} 
+//               className={`relative h-16 flex-shrink-0 flex items-center justify-center transition-all duration-300 ${
+//                 logo.isWide ? "w-64 md:w-80" : "w-16 md:w-20"
+//               }`}
+//             >
+//               <Image 
+//                 src={logo.src} 
+//                 alt={logo.alt} 
+//                 fill 
+//                 className="object-contain" 
+//               />
+//             </div>
+//           ))}
+//         </motion.div>
+//       </div>
+//     </section>
+//   );
+// }
+
+// // ==========================================
+// // MAIN PAGE EXPORT
+// // ==========================================
+// export default function Home() {
+//   return (
+//     <main className="min-h-screen bg-sky-50 font-sans selection:bg-sky-400/30">
+//       <Hero />
+//       <Features />
+//       <Spotlight />
+//       <ImpactStats />
+//       <Partners />
+//     </main>
+//   );
+// }
+
+
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { motion, type Variants } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { 
+  ArrowRight, 
+  ShieldCheck, 
+  Activity, 
+  LineChart, 
+  Database, 
+  MapPin, 
+  HeartPulse, 
+  ArrowRightCircle,
+  ChevronRight
+} from "lucide-react";
 
-export default function MalnutritionTreatmentCenter() {
-  const [activeTab, setActiveTab] = useState("feeding");
-  
-  // Feed Planner State
-  const [feedPlannerOpen, setFeedPlannerOpen] = useState(false);
-  const [feedType, setFeedType] = useState("F100");
-  const [childWeight, setChildWeight] = useState("");
-  const [feedResults, setFeedResults] = useState<{
-    minFeed: number;
-    maxFeed: number;
-    minDaily: number;
-    maxDaily: number;
-  } | null>(null);
-  
-  // Z-Score Calculator State
-  const [zScoreOpen, setZScoreOpen] = useState(false);
-  const [zScoreInput, setZScoreInput] = useState({
-    gender: "",
-    height: "",
-    weight: ""
-  });
-  const [zScoreResult, setZScoreResult] = useState<string | null>(null);
-  
-  // Micronutrient Planner State
-  const [micronutrientOpen, setMicronutrientOpen] = useState(false);
-  const [micronutrientWeight, setMicronutrientWeight] = useState("");
-  const [micronutrientResults, setMicronutrientResults] = useState<{
-    folicAcidDay1: string;
-    folicAcidDay2: string;
-    zinc: string;
-    ifa: string;
-    magnesiumDay1: string;
-    magnesiumDay2: string;
-    potassium: string;
-  } | null>(null);
-  
-  // Weight Gain Calculator State
-  const [weightGainOpen, setWeightGainOpen] = useState(false);
-  const [weightGainInput, setWeightGainInput] = useState({
-    dischargeWeight: "",
-    minimumWeight: "",
-    numberOfDays: ""
-  });
-  const [weightGainResult, setWeightGainResult] = useState<string | null>(null);
-
-  // Contact Form State
-  const [contactForm, setContactForm] = useState({
-    subject: "",
-    name: "",
-    email: "",
-    queryType: "",
-    message: "",
-    organization: "",
-    contactNo: ""
-  });
-  const [captchaCode, setCaptchaCode] = useState("");
-  const [captcha, setCaptcha] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
-
-  // Generate random CAPTCHA code
-  function generateCaptcha() {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+// ==========================================
+// ANIMATION VARIANTS
+// ==========================================
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 }
   }
+};
 
-  // Refresh CAPTCHA - wrapped in useCallback to fix the useEffect dependency warning
-  const handleRefreshCaptcha = useCallback(() => {
-    setCaptchaCode(generateCaptcha());
-    setCaptcha("");
-  }, []);
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+};
 
-  // Generate CAPTCHA on component mount
-  useEffect(() => {
-    handleRefreshCaptcha();
-  }, [handleRefreshCaptcha]);
-
-  // Calculate Feed Planner Results
-  const calculateFeedPlanner = () => {
-    if (!childWeight) return;
-    
-    const weight = parseFloat(childWeight);
-    const minFeed = Math.round(weight * 25);
-    const maxFeed = Math.round(weight * 36.5);
-    const minDaily = Math.round(weight * 150);
-    const maxDaily = Math.round(weight * 220);
-    
-    setFeedResults({
-      minFeed,
-      maxFeed,
-      minDaily,
-      maxDaily
-    });
-  };
-
-  // Calculate Z-Score
-  const calculateZScore = () => {
-    if (!zScoreInput.gender || !zScoreInput.height || !zScoreInput.weight) return;
-    
-    // Simplified calculation for demonstration
-    const height = parseFloat(zScoreInput.height);
-    const weight = parseFloat(zScoreInput.weight);
-    const bmi = weight / ((height / 100) ** 2);
-    
-    let zScore = 0;
-    if (zScoreInput.gender === "male") {
-      zScore = (bmi - 15.5) / 1.5;
-    } else {
-      zScore = (bmi - 15) / 1.5;
-    }
-    
-    setZScoreResult(zScore.toFixed(2));
-  };
-
-  // Calculate Micronutrient Plan
-  const calculateMicronutrient = () => {
-    if (!micronutrientWeight) return;
-    
-    const weight = parseFloat(micronutrientWeight);
-    
-    setMicronutrientResults({
-      folicAcidDay1: "5",
-      folicAcidDay2: "1",
-      zinc: "1",
-      ifa: (weight * 0.5).toFixed(1),
-      magnesiumDay1: (weight * 0.3).toFixed(1),
-      magnesiumDay2: (weight * 0.2).toFixed(1),
-      potassium: (weight * 0.3).toFixed(1)
-    });
-  };
-
-  // Calculate Weight Gain
-  const calculateWeightGain = () => {
-    if (!weightGainInput.dischargeWeight || !weightGainInput.minimumWeight || !weightGainInput.numberOfDays) return;
-    
-    const dischargeWeight = parseFloat(weightGainInput.dischargeWeight);
-    const minimumWeight = parseFloat(weightGainInput.minimumWeight);
-    const numberOfDays = parseFloat(weightGainInput.numberOfDays);
-    
-    const weightGain = ((dischargeWeight - minimumWeight) / minimumWeight / numberOfDays) * 1000;
-    
-    setWeightGainResult(weightGain.toFixed(3));
-  };
-
-  // Handle contact form submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validate CAPTCHA
-    if (captcha.trim() !== captchaCode) {
-      setSubmitMessage("Invalid CAPTCHA. Please try again.");
-      handleRefreshCaptcha();
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setSubmitMessage(null);
-    
-    try {
-      // Here you would normally send the form data to your backend
-      // For demonstration, we'll just simulate a successful submission
-      setTimeout(() => {
-        setSubmitMessage("Thank you for your message! We'll get back to you soon.");
-        setContactForm({
-          subject: "",
-          name: "",
-          email: "",
-          queryType: "",
-          message: "",
-          organization: "",
-          contactNo: ""
-        });
-        handleRefreshCaptcha();
-        setIsSubmitting(false);
-      }, 1000);
-    } catch {
-      // Removed unused error parameter
-      setSubmitMessage("An error occurred. Please try again later.");
-      setIsSubmitting(false);
-    }
-  };
-
-  // Rest of the component remains the same...
+// ==========================================
+// 1. HERO SECTION
+// ==========================================
+function Hero() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-teal-50 via-cyan-50 to-blue-50">
-      {/* Background Pattern */}
-      <div className="fixed inset-0 opacity-5 pointer-events-none">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300ACC1' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
+    <section id="home" className="relative w-full overflow-hidden bg-sky-50 min-h-[90vh] flex items-center">
+      {/* ====== BACKGROUND MESH ====== */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <Image
+          src="/b1.jpg"
+          alt="Background Texture"
+          fill
+          className="object-cover opacity-5 mix-blend-overlay grayscale"
+          priority
+        />
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-sky-300/40 blur-[120px] animate-pulse" style={{ animationDuration: '8s' }}></div>
+        <div className="absolute bottom-[-20%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-white/60 blur-[120px] animate-pulse" style={{ animationDuration: '10s' }}></div>
       </div>
 
-      {/* ====== HERO SECTION ====== */}
-      <section id="home" className="relative overflow-hidden">
-        {/* Background with gradient overlay */}
-        <div className="absolute inset-0 bg-linear-to-br from-teal-600 via-cyan-600 to-blue-700"></div>
-        <div className="absolute inset-0">
-          <Image
-            src="/b1.jpg"
-            alt="Malnutrition Treatment Center background"
-            fill
-            className="object-cover opacity-30"
-            priority
-          />
-        </div>
-        
-        {/* Decorative elements */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-teal-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-
-        {/* Content */}
-        <div className="relative z-10 container mx-auto px-6 py-20 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-white">
-              <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
-                <span className="bg-white/30 rounded-full w-2 h-2 mr-2"></span>
-                <span className="text-sm font-medium">National Health Mission Initiative</span>
-              </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                Malnutrition Treatment Center
-              </h1>
-              <p className="text-lg md:text-xl mb-8 text-white/90 max-w-lg">
-                A Statewide Initiative dedicated to managing and improving the health of children suffering from Severe Acute Malnutrition (SAM) in Jharkhand.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  href="#about"
-                  className="bg-white text-teal-700 font-semibold px-8 py-3 rounded-full hover:bg-gray-100 transition transform hover:scale-105 shadow-lg"
-                >
-                  Learn More
-                </Link>
-                <Link
-                  href="#statistics"
-                  className="border-2 border-white text-white font-semibold px-8 py-3 rounded-full hover:bg-white hover:text-teal-700 transition transform hover:scale-105"
-                >
-                  View Statistics
-                </Link>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="relative w-full max-w-md mx-auto">
-                <div className="absolute inset-0 bg-linear-to-r from-teal-400 to-cyan-400 rounded-3xl transform rotate-6"></div>
-                <div className="relative bg-white rounded-3xl p-2 shadow-2xl">
-                  <div className="relative h-96 rounded-2xl overflow-hidden">
-                    <Image
-                      src="/b4.jpg"
-                      alt="Child health care at MTC"
-                      fill
-                      className="object-cover"
-                      priority
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ====== STATISTICS SECTION ====== */}
-      <section id="statistics" className="py-16 relative">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Child Nutrition Statistics</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Understanding the current state of child nutrition in Jharkhand</p>
-          </div>
+      <div className="container relative z-10 mx-auto px-6 lg:px-10 py-20">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
-          <div className="bg-white rounded-3xl shadow-xl p-8">
-            <div className="flex flex-wrap justify-center mb-8">
-              <button
-                className={`px-6 py-3 m-2 rounded-full font-medium transition-all ${
-                  activeTab === "feeding" 
-                    ? "bg-linear-to-r from-teal-500 to-cyan-600 text-white shadow-lg transform scale-105" 
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-                onClick={() => setActiveTab("feeding")}
-              >
-                Infant & Young Child Feeding
-              </button>
-              <button
-                className={`px-6 py-3 m-2 rounded-full font-medium transition-all ${
-                  activeTab === "undernutrition" 
-                    ? "bg-linear-to-r from-teal-500 to-cyan-600 text-white shadow-lg transform scale-105" 
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-                onClick={() => setActiveTab("undernutrition")}
-              >
-                Undernutrition Prevalence
-              </button>
-            </div>
-            
-            {activeTab === "feeding" && (
-              <div>
-                <p className="text-center text-gray-600 mb-8">Source: NFHS 5 (2019-21)</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {[
-                    { label: "Breastfed within 1 hour of birth", value: "22%", color: "teal" },
-                    { label: "Exclusive breastfed", value: "76%", color: "cyan" },
-                    { label: "Timely introduction of complementary feeding", value: "39%", color: "blue" },
-                    { label: "Children receiving adequate diet", value: "11%", color: "indigo" }
-                  ].map((stat, index) => (
-                    <div key={index} className="bg-linear-to-br from-gray-50 to-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-gray-700 font-medium">{stat.label}</span>
-                        <span className={`text-3xl font-bold bg-linear-to-br from-${stat.color}-500 to-${stat.color}-600 bg-clip-text text-transparent`}>
-                          {stat.value}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div 
-                          className={`h-3 rounded-full bg-linear-to-br from-${stat.color}-500 to-${stat.color}-600 transition-all duration-1000 ease-out`}
-                          style={{width: stat.value}}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {activeTab === "undernutrition" && (
-              <div>
-                <p className="text-center text-gray-600 mb-8">Source: NFHS 5 (2019-21)</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {[
-                    { label: "Wasting (weight-for-length/height)", value: "22%", color: "orange" },
-                    { label: "Severe wasting (weight-for-length/height)", value: "9%", color: "red" },
-                    { label: "Stunting (length/height-for-age)", value: "40%", color: "yellow" },
-                    { label: "Underweight (weight-for-age)", value: "39%", color: "amber" }
-                  ].map((stat, index) => (
-                    <div key={index} className="bg-linear-to-br from-gray-50 to-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow">
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-gray-700 font-medium">{stat.label}</span>
-                        <span className={`text-3xl font-bold text-${stat.color}-600`}>
-                          {stat.value}
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div 
-                          className={`h-3 rounded-full bg-${stat.color}-500 transition-all duration-1000 ease-out`}
-                          style={{width: stat.value}}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+          {/* LEFT: TYPOGRAPHY & ACTIONS */}
+          <motion.div 
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="lg:col-span-6 flex flex-col items-start space-y-8 z-20"
+          >
+            <motion.div variants={fadeUp} className="flex items-center gap-3 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-sky-200 shadow-xl">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-tr from-sky-400 to-sky-500 shadow-inner">
+                <ShieldCheck className="w-3.5 h-3.5 text-white" />
+              </span>
+              <span className="text-sm font-semibold text-sky-800 tracking-wide">
+                Govt. of Jharkhand • NHM Initiative
+              </span>
+            </motion.div>
 
-      {/* ====== TOOLS SECTION ====== */}
-      <section id="resources" className="py-16">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Tools & Resources</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Interactive tools to support child nutrition management</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {/* Feed Planner */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all">
-              <div className="w-16 h-16 bg-linear-to-r from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Feed Planner</h3>
-              <p className="text-gray-600 mb-4">
-                Calculate feeding volumes for children with SAM
-              </p>
-              <button 
-                className="w-full bg-linear-to-r from-teal-500 to-cyan-600 text-white py-2 rounded-lg hover:shadow-lg transition"
-                onClick={() => setFeedPlannerOpen(true)}
-              >
-                Open Tool
-              </button>
-            </div>
-            
-            {/* Z-Score Calculator */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all">
-              <div className="w-16 h-16 bg-linear-to-r from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Z-Score Calculator</h3>
-              <p className="text-gray-600 mb-4">
-                Calculate Z-Score for nutritional assessment
-              </p>
-              <button 
-                className="w-full bg-linear-to-r from-teal-500 to-cyan-600 text-white py-2 rounded-lg hover:shadow-lg transition"
-                onClick={() => setZScoreOpen(true)}
-              >
-                Open Tool
-              </button>
-            </div>
-            
-            {/* Micronutrient Planner */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all">
-              <div className="w-16 h-16 bg-linear-to-r from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Micronutrient Planner</h3>
-              <p className="text-gray-600 mb-4">
-                Calculate micronutrient dosage for SAM children
-              </p>
-              <button 
-                className="w-full bg-linear-to-r from-teal-500 to-cyan-600 text-white py-2 rounded-lg hover:shadow-lg transition"
-                onClick={() => setMicronutrientOpen(true)}
-              >
-                Open Tool
-              </button>
-            </div>
-            
-            {/* Weight Gain Calculator */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all">
-              <div className="w-16 h-16 bg-linear-to-r from-teal-500 to-cyan-600 rounded-2xl flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Weight Gain</h3>
-              <p className="text-gray-600 mb-4">
-                Calculate weight gain in gm/kg/day
-              </p>
-              <button 
-                className="w-full bg-linear-to-r from-teal-500 to-cyan-600 text-white py-2 rounded-lg hover:shadow-lg transition"
-                onClick={() => setWeightGainOpen(true)}
-              >
-                Open Tool
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+            <motion.h1 variants={fadeUp} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-sky-900 leading-[1.1] tracking-tight">
+              Tracking <span className="text-transparent bg-clip-text bg-gradient-to-br from-sky-600 to-sky-400">Health.</span><br />
+              Transforming <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-sky-500 to-blue-500">Lives.</span>
+            </motion.h1>
 
-      {/* ====== BACKGROUND INFO ====== */}
-      <section id="about" className="py-16 bg-linear-to-br from-teal-50 to-cyan-50">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-linear-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                </div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Background</h2>
-              </div>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                Malnutrition is a serious public health problem in Jharkhand. As per MoHFW CNNS 2016-17, 
-                6.7% of children under the age of 5 years are <strong>Severe Acute Malnourished (SAM)</strong>. 
-                SAM is an important preventable and treatable cause of morbidity and mortality in children below five years.
-              </p>
-              <p className="text-gray-700 leading-relaxed">
-                To address the huge case load of children with SAM, National Health Mission (NHM), Department of Health and Family Welfare, 
-                Government of Jharkhand has established a network of <strong>Malnutrition Treatment Centres (MTCs)</strong> at Community Health Centres (CHCs) 
-                and District Hospitals to manage SAM cases. Government of India has sanctioned <strong>103 MTCs</strong> for the State of Jharkhand, 
-                out of which <strong>96 MTCs are currently functional</strong>.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+            <motion.p variants={fadeUp} className="text-lg text-sky-700 max-w-lg leading-relaxed font-medium">
+              A state-of-the-art digital portal for monitoring and managing Severe Acute Malnutrition (SAM) and Moderate Acute Malnutrition (MAM) treatment centers across the state.
+            </motion.p>
 
-      {/* ====== MISSION DIRECTOR MESSAGE ====== */}
-      <section id="message-director" className="py-16 bg-linear-to-br from-teal-50 to-cyan-50">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 bg-linear-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                  </svg>
-                </div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-800">Message from Mission Director</h2>
-              </div>
-              
-              <div className="space-y-4 text-gray-700 leading-relaxed">
-                <p>
-                  Government of Jharkhand is committed to improve the nutrition status of all children and put extra focus on treatment of most vulnerable children with Severe Acute Malnutrition (SAM) through a wide network of 96 Malnutrition Treatment Centers (MTC).
-                </p>
-                <p>
-                  I am happy to share the revised online Malnutrition Treatment Center Management Information System (MTC-MIS) which is an extremely helpful management tool that will go a long way towards monitoring and alleviating the malnutrition in children.
-                </p>
-                <p>
-                  The latest revised version not only allows Real Time Data entry and management but also simultaneously enables MTC Staff to register children, update and keep a track of their daily weight as well as intake of micronutrients and antibiotics with discharge summary thereby providing a holistic and comprehensive track of all important indicators and quality of care and coverage.
-                </p>
-                <p>
-                  I am confident and certain that the present dashboard of MTC in this website would enhance the technical and management expertise for treatment of Children with Severe Acute Malnutrition. I thank UNICEF, State Center of Excellence – SAM at RIMS in supporting this important initiative.
-                </p>
-              </div>
-              
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <p className="text-gray-800 font-medium">Dr. [Name]</p>
-                <p className="text-gray-600">Mission Director, National Health Mission, Jharkhand</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-4 pt-4 w-full sm:w-auto">
+              <Button className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-600 text-white text-lg font-bold shadow-[0_0_40px_-10px_rgba(56,189,248,0.4)] border-none transition-all hover:scale-105">
+                Access Portal
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </motion.div>
+          </motion.div>
 
-      {/* ====== DISTRICTS SECTION ====== */}
-      <section className="py-16 bg-linear-to-br from-teal-600 to-cyan-600">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Districts with Functional MTCs</h2>
-            <p className="text-white/80 max-w-2xl mx-auto">96 functional centers across 24 districts</p>
-          </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {[
-              "Bokaro", "Chatra", "Deoghar", "Dhanbad", "Dumka",
-              "Garhwa", "Giridih", "Godda", "Gumla", "Hazaribagh",
-              "Jamtara", "Khunti", "Kodarma", "Latehar", "Lohardaga",
-              "Pakur", "Palamu", "Pashchimi Singhbhum", "Purbi Singhbhum",
-              "Ramgarh", "Ranchi", "Sahibganj", "Saraikela-Kharsawan", "Simdega"
-            ].map((district) => (
-              <div
-                key={district}
-                className="bg-white/20 backdrop-blur-sm text-white font-medium rounded-xl py-3 px-4 text-center hover:bg-white/30 transition-all transform hover:scale-105"
-              >
-                {district}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+          {/* RIGHT: ANIMATED BENTO LAYOUT */}
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="lg:col-span-6 relative w-full h-[500px] sm:h-[600px] flex items-center justify-center z-10 mt-10 lg:mt-0"
+          >
+            <div className="absolute right-0 top-10 w-[80%] h-[75%] bg-white/60 backdrop-blur-xl border border-sky-200 rounded-[2.5rem] shadow-[0_0_50px_rgba(56,189,248,0.15)] rotate-6 transition-transform duration-700 hover:rotate-3 z-0"></div>
 
-      {/* ====== GALLERY ====== */}
-      <section id="gallery" className="py-16">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Gallery</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Visual journey of our MTC centers and impact</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div key={item} className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all">
-                <div className="relative h-64">
-                  <Image
-                    src={`/b${item}.jpg`}
-                    alt={`MTC Image ${item}`}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-linear-to-br  from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ====== CONTACT ====== */}
-      <section id="contact-us" className="py-16 bg-linear-to-br from-teal-50 to-cyan-50">
-        <div className="container mx-auto px-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Contact Us</h2>
-                <p className="text-gray-600">We&apos;re here to help and answer any questions you may have</p>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-12">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-6">MTC Help Desk Jharkhand</h3>
-                  <p className="text-gray-600 mb-4">
-                    Queries related to website/dashboard, please reach us at:
-                  </p>
-                  <div className="space-y-4">
-                    <div className="flex items-start">
-                      <div className="w-10 h-10 bg-linear-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center mr-4 shrink-0">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-800">Email</p>
-                        <p className="text-gray-600">mtchelpdeskjhk@gmail.com</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start">
-                      <div className="w-10 h-10 bg-linear-to-r from-teal-500 to-cyan-600 rounded-lg flex items-center justify-center mr-4 shrink-0">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-800">Mobile</p>
-                        <p className="text-gray-600">7419808558</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-6">Submit Your Query/Messages</h3>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-gray-700 mb-1 font-medium">Subject *</label>
-                      <input 
-                        type="text" 
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        value={contactForm.subject}
-                        onChange={(e) => setContactForm({...contactForm, subject: e.target.value})}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-gray-700 mb-1 font-medium">Your Name *</label>
-                      <input 
-                        type="text" 
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        value={contactForm.name}
-                        onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-gray-700 mb-1 font-medium">Your Email *</label>
-                      <input 
-                        type="email" 
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        value={contactForm.email}
-                        onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-gray-700 mb-1 font-medium">Query Type *</label>
-                      <select 
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        value={contactForm.queryType}
-                        onChange={(e) => setContactForm({...contactForm, queryType: e.target.value})}
-                        required
-                      >
-                        <option value="">Select</option>
-                        <option value="general">General Query</option>
-                        <option value="technical">Technical Issue</option>
-                        <option value="feedback">Feedback</option>
-                        <option value="complaint">Complaint</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-gray-700 mb-1 font-medium">Message</label>
-                      <textarea 
-                        rows={4} 
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        value={contactForm.message}
-                        onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
-                      ></textarea>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-gray-700 mb-1 font-medium">Organization *</label>
-                      <input 
-                        type="text" 
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        value={contactForm.organization}
-                        onChange={(e) => setContactForm({...contactForm, organization: e.target.value})}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-gray-700 mb-1 font-medium">Contact No *</label>
-                      <input 
-                        type="tel" 
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        value={contactForm.contactNo}
-                        onChange={(e) => setContactForm({...contactForm, contactNo: e.target.value})}
-                        required
-                      />
-                    </div>
-                    
-                    {/* Custom CAPTCHA */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <label className="block text-gray-700 mb-2 font-medium">Captcha Image</label>
-                      <div className="flex items-center gap-3">
-                        <div className="bg-white px-4 py-2 rounded border border-gray-300 select-none">
-                          <span className="text-xl font-mono font-bold text-gray-800 tracking-wider">
-                            {captchaCode}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleRefreshCaptcha}
-                          className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-                          title="Refresh CAPTCHA"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                          </svg>
-                        </button>
-                        <input
-                          type="text"
-                          placeholder="Enter code"
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                          value={captcha}
-                          onChange={(e) => setCaptcha(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    {submitMessage && (
-                      <div className={`p-3 rounded-lg text-sm ${
-                        submitMessage.includes("Thank you") 
-                          ? "bg-green-100 text-green-700" 
-                          : "bg-red-100 text-red-700"
-                      }`}>
-                        {submitMessage}
-                      </div>
-                    )}
-                    
-                    <button 
-                      type="submit" 
-                      className="w-full bg-linear-to-r from-teal-500 to-cyan-600 text-white py-3 rounded-lg hover:shadow-lg transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Sending..." : "Submit"}
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Feed Planner Modal */}
-      {feedPlannerOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Feed Planner</h3>
-              <button 
-                onClick={() => setFeedPlannerOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Feed Type</label>
-              <select 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                value={feedType}
-                onChange={(e) => setFeedType(e.target.value)}
-              >
-                <option value="F100">F100</option>
-                <option value="F75">F75</option>
-              </select>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Child Weight (kg)</label>
-              <input 
-                type="number" 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                value={childWeight}
-                onChange={(e) => setChildWeight(e.target.value)}
-                placeholder="Enter weight"
+            <div className="absolute left-0 sm:left-10 z-10 w-[85%] h-[80%] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(2,132,199,0.2)] border border-sky-100 transition-transform duration-700 hover:-translate-y-2 group">
+              <Image
+                src="/b2.jpg"
+                alt="Child health care at MTC"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                priority
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-sky-100/80 via-sky-100/10 to-transparent"></div>
             </div>
-            
-            <button 
-              className="w-full bg-linear-to-r from-teal-500 to-cyan-600 text-white py-2 rounded-lg hover:shadow-lg transition font-medium mb-4"
-              onClick={calculateFeedPlanner}
+
+            {/* Floating Stats */}
+            <motion.div 
+              animate={{ y: [0, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+              className="absolute bottom-4 -right-4 sm:right-4 z-20 bg-white/95 backdrop-blur-xl border border-sky-200 p-5 rounded-3xl shadow-2xl flex items-center gap-4"
             >
-              Calculate
-            </button>
-            
-            {feedResults && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-800 mb-2">Results:</h4>
-                <p className="text-gray-600">Min Feed: {feedResults.minFeed} ml</p>
-                <p className="text-gray-600">Max Feed: {feedResults.maxFeed} ml</p>
-                <p className="text-gray-600">Min Daily: {feedResults.minDaily} ml</p>
-                <p className="text-gray-600">Max Daily: {feedResults.maxDaily} ml</p>
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-400 to-sky-500 flex items-center justify-center flex-shrink-0 shadow-inner">
+                <Activity className="w-6 h-6 text-white" />
               </div>
-            )}
-          </div>
+              <div className="pr-2">
+                <p className="text-2xl font-black text-sky-900 leading-none">90+</p>
+                <p className="text-xs text-sky-600 font-semibold uppercase mt-1">Active Centers</p>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
-      )}
+      </div>
+    </section>
+  );
+}
 
-      {/* Z-Score Calculator Modal */}
-      {zScoreOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Z-Score Calculator</h3>
-              <button 
-                onClick={() => setZScoreOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Gender</label>
-              <select 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                value={zScoreInput.gender}
-                onChange={(e) => setZScoreInput({...zScoreInput, gender: e.target.value})}
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Height (cm)</label>
-              <input 
-                type="number" 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                value={zScoreInput.height}
-                onChange={(e) => setZScoreInput({...zScoreInput, height: e.target.value})}
-                placeholder="Enter height"
-              />
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Weight (kg)</label>
-              <input 
-                type="number" 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                value={zScoreInput.weight}
-                onChange={(e) => setZScoreInput({...zScoreInput, weight: e.target.value})}
-                placeholder="Enter weight"
-              />
-            </div>
-            
-            <button 
-              className="w-full bg-linear-to-r from-teal-500 to-cyan-600 text-white py-2 rounded-lg hover:shadow-lg transition font-medium mb-4"
-              onClick={calculateZScore}
-            >
-              Calculate
-            </button>
-            
-            {zScoreResult && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-800 mb-2">Result:</h4>
-                <p className="text-gray-600">Z-Score: {zScoreResult}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+// ==========================================
+// 2. FEATURES SECTION
+// ==========================================
+function Features() {
+  const features = [
+    { title: "Real-time Bed Tracking", description: "Monitor bed availability across all 90+ MTCs with live updates.", icon: MapPin, color: "from-sky-400 to-blue-500" },
+    { title: "Patient Monitoring", description: "Track treatment progress and recovery metrics for every admitted child.", icon: HeartPulse, color: "from-cyan-400 to-sky-500" },
+    { title: "Automated Reporting", description: "Generate district-wise, automated compliance reports.", icon: LineChart, color: "from-blue-400 to-indigo-500" },
+    { title: "Centralized Database", description: "Secure, encrypted storage of patient history and follow-up schedules.", icon: Database, color: "from-sky-300 to-cyan-500" }
+  ];
 
-      {/* Micronutrient Planner Modal */}
-      {micronutrientOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Micronutrient Planner</h3>
-              <button 
-                onClick={() => setMicronutrientOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Child Weight (kg)</label>
-              <input 
-                type="number" 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                value={micronutrientWeight}
-                onChange={(e) => setMicronutrientWeight(e.target.value)}
-                placeholder="Enter weight"
-              />
-            </div>
-            
-            <button 
-              className="w-full bg-linear-to-r from-teal-500 to-cyan-600 text-white py-2 rounded-lg hover:shadow-lg transition font-medium mb-4"
-              onClick={calculateMicronutrient}
-            >
-              Calculate
-            </button>
-            
-            {micronutrientResults && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-800 mb-2">Results:</h4>
-                <p className="text-gray-600">Folic Acid (Day 1): {micronutrientResults.folicAcidDay1} mg</p>
-                <p className="text-gray-600">Folic Acid (Day 2): {micronutrientResults.folicAcidDay2} mg</p>
-                <p className="text-gray-600">Zinc: {micronutrientResults.zinc} mg</p>
-                <p className="text-gray-600">IFA: {micronutrientResults.ifa} mg</p>
-                <p className="text-gray-600">Magnesium (Day 1): {micronutrientResults.magnesiumDay1} mg</p>
-                <p className="text-gray-600">Magnesium (Day 2): {micronutrientResults.magnesiumDay2} mg</p>
-                <p className="text-gray-600">Potassium: {micronutrientResults.potassium} mg</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+  return (
+    <section className="py-24 bg-sky-50 relative z-10 border-t border-sky-100">
+      <div className="container mx-auto px-6 lg:px-10">
+        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="text-center max-w-2xl mx-auto mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-sky-900 mb-4">
+            Empowering Health Officials with <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">Actionable Data</span>
+          </h2>
+        </motion.div>
 
-      {/* Weight Gain Calculator Modal */}
-      {weightGainOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-800">Weight Gain Calculator</h3>
-              <button 
-                onClick={() => setWeightGainOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </button>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Discharge Weight (kg)</label>
-              <input 
-                type="number" 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                value={weightGainInput.dischargeWeight}
-                onChange={(e) => setWeightGainInput({...weightGainInput, dischargeWeight: e.target.value})}
-                placeholder="Enter discharge weight"
-              />
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Minimum Weight (kg)</label>
-              <input 
-                type="number" 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                value={weightGainInput.minimumWeight}
-                onChange={(e) => setWeightGainInput({...weightGainInput, minimumWeight: e.target.value})}
-                placeholder="Enter minimum weight"
-              />
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Number of Days</label>
-              <input 
-                type="number" 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                value={weightGainInput.numberOfDays}
-                onChange={(e) => setWeightGainInput({...weightGainInput, numberOfDays: e.target.value})}
-                placeholder="Enter number of days"
-              />
-            </div>
-            
-            <button 
-              className="w-full bg-linear-to-r from-teal-500 to-cyan-600 text-white py-2 rounded-lg hover:shadow-lg transition font-medium mb-4"
-              onClick={calculateWeightGain}
-            >
-              Calculate
-            </button>
-            
-            {weightGainResult && (
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-800 mb-2">Result:</h4>
-                <p className="text-gray-600">Weight Gain: {weightGainResult} gm/kg/day</p>
+        <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true }} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {features.map((feature, idx) => (
+            <motion.div key={idx} variants={fadeUp} className="bg-white/80 border border-sky-100 p-6 rounded-3xl hover:bg-white transition-colors group cursor-default shadow-sm hover:shadow-md">
+              <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
+                <feature.icon className="w-6 h-6 text-white" />
               </div>
-            )}
+              <h3 className="text-xl font-semibold text-sky-900 mb-3">{feature.title}</h3>
+              <p className="text-sm text-sky-700/80 leading-relaxed">{feature.description}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ==========================================
+// 3. SPOTLIGHT SECTION (News & Updates)
+// ==========================================
+function Spotlight() {
+  return (
+    <section className="py-24 bg-white relative z-10 border-t border-sky-100">
+      <div className="container mx-auto px-6 lg:px-10">
+        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-sky-900">
+            Information <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-blue-500">Spotlight</span>
+          </h2>
+        </motion.div>
+
+        <motion.div 
+          variants={staggerContainer} 
+          initial="hidden" 
+          whileInView="show" 
+          viewport={{ once: true }} 
+          className="grid md:grid-cols-3 gap-6"
+        >
+          {/* Spotlight Main Accent Card */}
+          <motion.div variants={fadeUp} className="bg-gradient-to-br from-sky-500 to-blue-600 rounded-[2rem] p-8 flex flex-col justify-center relative overflow-hidden group cursor-pointer shadow-xl">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            <div className="relative z-10 flex flex-col items-center text-center">
+              <h3 className="text-4xl font-black text-white mb-2">Spotlight</h3>
+              <p className="text-sky-100 font-medium mb-8">The Latest Updates</p>
+              <div className="flex items-center gap-2 text-white font-bold tracking-wide group-hover:translate-x-2 transition-transform">
+                Explore All <ArrowRightCircle className="w-6 h-6" />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Article Card 1 */}
+          <motion.div variants={fadeUp} className="bg-sky-50 border border-sky-100 rounded-[2rem] overflow-hidden group cursor-pointer hover:border-sky-400 transition-colors shadow-sm hover:shadow-lg flex flex-col">
+            <div className="relative h-48 w-full overflow-hidden">
+              <Image 
+                src="/b1.jpg" 
+                alt="Anthropometry Measurement" 
+                fill 
+                className="object-cover group-hover:scale-105 transition-transform duration-700" 
+              />
+            </div>
+            <div className="p-6 flex flex-col flex-1 relative">
+              <h4 className="text-lg font-bold text-sky-700 mb-3 line-clamp-2">
+                Treatment at Malnutrition Treatment Centre
+              </h4>
+              <p className="text-sm text-sky-600 line-clamp-3 mb-4">
+                Once the child is diagnosed through anthropometry examination as SAM, the child gets admitted to MTC ...
+              </p>
+              <div className="mt-auto flex items-center justify-between text-xs font-semibold text-sky-500/80">
+                <span>11-Jun-2021 10:00 AM</span>
+                <ChevronRight className="w-5 h-5 text-sky-500" />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Article Card 2 */}
+          <motion.div variants={fadeUp} className="bg-sky-50 border border-sky-100 rounded-[2rem] overflow-hidden group cursor-pointer hover:border-sky-400 transition-colors shadow-sm hover:shadow-lg flex flex-col">
+            <div className="relative h-48 w-full overflow-hidden">
+              <Image 
+                src="/b2.jpg" 
+                alt="Mother and Child" 
+                fill 
+                className="object-cover group-hover:scale-105 transition-transform duration-700" 
+              />
+            </div>
+            <div className="p-6 flex flex-col flex-1 relative">
+              <h4 className="text-lg font-bold text-sky-700 mb-3 line-clamp-2">
+                What is Malnutrition Treatment Centre?
+              </h4>
+              <p className="text-sm text-sky-600 line-clamp-3 mb-4">
+                A facility-based unit providing medical and nutritional therapeutic care for children suffering from severe acute malnutrition...
+              </p>
+              <div className="mt-auto flex items-center justify-between text-xs font-semibold text-sky-500/80">
+                <span>Information Guide</span>
+                <ChevronRight className="w-5 h-5 text-sky-500" />
+              </div>
+            </div>
+          </motion.div>
+
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ==========================================
+// 4. IMPACT STATS SECTION
+// ==========================================
+function ImpactStats() {
+  return (
+    <section className="py-20 bg-sky-500 relative z-10 border-y border-sky-400">
+      <div className="container relative mx-auto px-6 lg:px-10 z-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 divide-x divide-sky-400">
+          <div className="text-center px-4">
+            <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">24</h4>
+            <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Districts</p>
+          </div>
+          <div className="text-center px-4">
+            <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">1.2k+</h4>
+            <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Total Beds</p>
+          </div>
+          <div className="text-center px-4">
+            <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">85%</h4>
+            <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Recovery</p>
+          </div>
+          <div className="text-center px-4">
+            <h4 className="text-4xl lg:text-5xl font-black text-white mb-2">10k+</h4>
+            <p className="text-sky-100 font-semibold uppercase tracking-wider text-sm">Lives Saved</p>
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    </section>
+  );
+}
+
+// ==========================================
+// 5. ANIMATED PARTNERS MARQUEE SECTION
+// ==========================================
+function Partners() {
+  const baseLogos = [
+    { src: "/logo-jharkhand-govt.png", alt: "Government of Jharkhand", width: 75, height: 75 },
+    { src: "/logo_1.png", alt: "Centre of Excellence for Management of Severe Acute Malnutrition (CoE-SAM) Network", width: 340, height: 75, isWide: true },
+    { src: "/logo_2.png", alt: "National Centre of Excellence and Advanced Research on Diets", width: 310, height: 75, isWide: true },
+    { src: "/logo_3.png", alt: "ICMR - National Institute of Nutrition", width: 240, height: 75, isWide: true },
+    { src: "/logo_4.png", alt: "Partner 4", width: 240, height: 75, isWide: true },
+    { src: "/logo_5.png", alt: "Partner 5", width: 240, height: 75, isWide: true },
+    { src: "/logo_6.png", alt: "Partner 6", width: 240, height: 75, isWide: true },
+    { src: "/logo_7.png", alt: "Partner 7", width: 240, height: 75, isWide: true },
+    { src: "/logo_8.png", alt: "Partner 8", width: 240, height: 75, isWide: true },
+    { src: "/logo_9.png", alt: "Partner 9", width: 240, height: 75, isWide: true },
+    { src: "/logo_10.png", alt: "Partner 10", width: 240, height: 75, isWide: true }
+  ];
+
+  // We only need two sets for a perfect 0% to -50% seamless loop
+  const marqueeLogos = [...baseLogos, ...baseLogos];
+
+  return (
+    <section className="bg-white py-12 border-t border-sky-100 relative z-20 overflow-hidden select-none">
+      <div className="container mx-auto px-6 lg:px-10 mb-4 hidden">
+        <h4 className="text-xs font-bold text-sky-400 uppercase tracking-widest text-center">In Collaboration With</h4>
+      </div>
+      
+      {/* Marquee Wrapper Container */}
+      <div className="flex w-full relative">
+        {/* Soft edge gradients for a fading enterprise look */}
+        <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+        <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+
+        <motion.div 
+          className="flex items-center gap-16 md:gap-24 flex-nowrap w-max"
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{
+            ease: "linear",
+            duration: 40, 
+            repeat: Infinity,
+          }}
+        >
+          {marqueeLogos.map((logo, index) => (
+            <div 
+              key={index} 
+              className={`relative h-16 flex-shrink-0 flex items-center justify-center transition-all duration-300 ${
+                logo.isWide ? "w-64 md:w-80" : "w-16 md:w-20"
+              }`}
+            >
+              <Image 
+                src={logo.src} 
+                alt={logo.alt} 
+                fill 
+                className="object-contain" 
+              />
+            </div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// ==========================================
+// MAIN PAGE EXPORT
+// ==========================================
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-sky-50 font-sans selection:bg-sky-400/30">
+      <Hero />
+      <Features />
+      <Spotlight />
+      <ImpactStats />
+      <Partners />
+    </main>
   );
 }

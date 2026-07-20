@@ -1,6 +1,10 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import ConditionalLayout from "@/app/_components/ConditionalLayout";
+import { Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
   title: "MTC",
@@ -16,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body className="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
         <ConditionalLayout>{children}</ConditionalLayout>
       </body>

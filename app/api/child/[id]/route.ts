@@ -1,336 +1,194 @@
-// // // import { NextResponse } from "next/server";
-// // // import { getChildBySamNo } from "@/lib/db";
+// // // import { NextResponse } from 'next/server';
+// // // // Import your custom database query function here
+// // // import { query } from '@/lib/db'; 
 
+// // // // Fix 1: Type params as a Promise
 // // // export async function GET(
-// // //   request: Request,
-// // //   { params }: { params: Promise<{ id: string }> } // Fix for Next.js 15
+// // //   request: Request, 
+// // //   { params }: { params: Promise<{ id: string }> }
 // // // ) {
 // // //   try {
-// // //     const { id } = await params;
-    
-// // //     // Decode the ID (e.g. "JH%2FWSB" -> "JH/WSB")
-// // //     const samNo = decodeURIComponent(id);
-    
-// // //     const child = await getChildBySamNo(samNo);
+// // //     // Fix 1: Await the params before accessing the ID
+// // //     const resolvedParams = await params;
+// // //     const id = resolvedParams.id;
 
-// // //     if (!child) {
+// // //     // Fix 2: Replace ACTUAL_TABLE_NAME_HERE with your real table name
+// // //     const sqlText = `
+// // //       SELECT 
+// // //         c.sam_no AS "SamNo",
+// // //         c.child_name AS "ChildName",
+// // //         c.father_name AS "FatherName",
+// // //         c.mother_name AS "MotherName",
+// // //         c.admission_date AS "AdmissionDate",
+// // //         c.admission_weight AS "AdmissionWeight",
+// // //         c.admission_height AS "AdmissionHeight",
+// // //         c.admission_edema AS "AdmissionEdema",
+// // //         c.admission_muac AS "AdmissionMuac",
+// // //         c.target_weight AS "TargetWeight",
+// // //         NULL AS "AdmissionHemoglobin" 
+// // //       FROM ACTUAL_TABLE_NAME_HERE c 
+// // //       WHERE c.id = $1
+// // //     `;
+    
+// // //     const result = await query(sqlText, [id]);
+
+// // //     if (result.rows.length === 0) {
 // // //       return NextResponse.json(
-// // //         { success: false, message: "Child not found" },
+// // //         { success: false, message: 'Child not found' }, 
 // // //         { status: 404 }
 // // //       );
 // // //     }
 
-// // //     return NextResponse.json({
-// // //       success: true,
-// // //       data: child
-// // //     });
-// // //   } catch (error: any) {
-// // //     console.error("API Error:", error);
 // // //     return NextResponse.json(
-// // //       { success: false, message: "Server error" },
+// // //       { success: true, data: result.rows[0] }, 
+// // //       { status: 200 }
+// // //     );
+
+// // //   } catch (error) {
+// // //     console.error("Database query failed:", error);
+// // //     return NextResponse.json(
+// // //       { success: false, message: 'Internal Server Error' }, 
 // // //       { status: 500 }
 // // //     );
 // // //   }
 // // // }
 
-// // // app/api/child
-// // import { NextResponse } from "next/server";
-// // import { getChildBySamNo } from "@/lib/db";
+// // import { NextResponse } from 'next/server';
+// // import { query } from '@/lib/db';
 
 // // export async function GET(
-// //   request: Request,
-// //   { params }: { params: Promise<{ id: string }> } // Fix for Next.js 15
+// //   request: Request, 
+// //   { params }: { params: Promise<{ id: string }> }
 // // ) {
 // //   try {
 // //     const { id } = await params;
-    
-// //     // Decode the ID (e.g. "JH%2FWSB" -> "JH/WSB")
-// //     const samNo = decodeURIComponent(id);
-    
-// //     const child = await getChildBySamNo(samNo);
 
-// //     if (!child) {
-// //       return NextResponse.json(
-// //         { success: false, message: "Child not found" },
-// //         { status: 404 }
-// //       );
+// //     // Notice we removed c.admission_hemoglobin from this query
+// //     const sqlText = `
+// //       SELECT 
+// //         c.registration_id AS "id",
+// //         c.sam_no AS "SamNo",
+// //         c.child_full_name AS "ChildName",
+// //         c.guardian_name AS "FatherName", 
+// //         c.guardian_name AS "MotherName", 
+// //         c.admission_date AS "AdmissionDate",
+// //         c.admission_weight_kg AS "AdmissionWeight",
+// //         c.length_height_cm AS "AdmissionHeight",
+// //         c.muac_cm AS "AdmissionMuac",
+// //         ROUND((c.admission_weight_kg * 1.15), 2) AS "TargetWeight",
+// //         COALESCE(o.odema_name, 'No') AS "AdmissionEdema"
+// //       FROM mtc_child_master c
+// //       LEFT JOIN mtc_admission_odema o ON c.odema_id = o.odema_id
+// //       WHERE c.registration_id = $1
+// //     `;
+    
+// //     const result = await query(sqlText, [id]);
+
+// //     if (result.rows.length === 0) {
+// //       return NextResponse.json({ success: false, message: 'Child not found' }, { status: 404 });
 // //     }
 
-// //     return NextResponse.json({
-// //       success: true,
-// //       data: child
-// //     });
-// //   } catch (error: unknown) { // Changed from 'any' to 'unknown'
-// //     console.error("API Error:", error);
-// //     return NextResponse.json(
-// //       { success: false, message: "Server error" },
-// //       { status: 500 }
-// //     );
+// //     return NextResponse.json({ success: true, data: result.rows[0] }, { status: 200 });
+
+// //   } catch (error) {
+// //     console.error('Fetch Child Error:', error);
+// //     return NextResponse.json({ success: false, error: 'Database error' }, { status: 500 });
 // //   }
 // // }
 
-// import { NextResponse } from "next/server";
-// import { getChildForEdit, updateChildRegistration } from "@/lib/db";
-// import { writeFile, mkdir } from "fs/promises";
-// import path from "path";
+// import { NextResponse } from 'next/server';
+// import { query } from '@/lib/db';
 
-// // Fix for Next.js 15: Params are promises
 // export async function GET(
-//   request: Request,
+//   request: Request, 
 //   { params }: { params: Promise<{ id: string }> }
 // ) {
 //   try {
 //     const { id } = await params;
-//     const samNo = decodeURIComponent(id);
 
-//     const child = await getChildForEdit(samNo);
+//     // Fetch the child's admission data. 
+//     // We join with mtc_admission_odema to get the text value (e.g., "No", "++")
+//     const sqlText = `
+//       SELECT 
+//         c.registration_id AS "id",
+//         c.sam_no AS "SamNo",
+//         c.child_full_name AS "ChildName",
+//         c.guardian_name AS "FatherName", 
+//         c.guardian_name AS "MotherName", 
+//         c.admission_date AS "AdmissionDate",
+//         c.admission_weight_kg AS "AdmissionWeight",
+//         c.length_height_cm AS "AdmissionHeight",
+//         c.muac_cm AS "AdmissionMuac",
+//         c.admission_hemoglobin AS "AdmissionHemoglobin",
+//         -- Target weight logic: Admission weight + 15%
+//         ROUND((c.admission_weight_kg * 1.15), 2) AS "TargetWeight",
+//         -- Get the text label for edema instead of just the ID
+//         COALESCE(o.odema_name, 'No') AS "AdmissionEdema"
+//       FROM mtc_child_master c
+//       LEFT JOIN mtc_admission_odema o ON c.odema_id = o.odema_id
+//       WHERE c.registration_id = $1
+//     `;
+    
+//     const result = await query(sqlText, [id]);
 
-//     if (!child) {
-//       return NextResponse.json({ success: false, message: "Child not found" }, { status: 404 });
+//     if (result.rows.length === 0) {
+//       return NextResponse.json({ success: false, message: 'Child not found' }, { status: 404 });
 //     }
 
-//     // Map DB columns to Frontend State keys
-//     const mappedData = {
-//       id: child.SamNo, // using SamNo as ID
-//       samNumber: child.SamNo,
-//       admissionType: child.AtId?.toString() || "1",
-//       referredBy: child.RefererId?.toString() || "",
-//       childName: child.ChildName,
-//       parentName: child.FatherName || child.MotherName,
-//       relationship: child.FatherName ? "1" : "2", // Simple guess
-//       mobileNumber: child.MobileNumber,
-//       bplNumber: child.BPLNo,
-//       dateOfBirth: child.DateofBirth,
-//       sex: child.GenderId?.toString(),
-//       address: child.Address,
-//       caste: child.CastId?.toString(),
-//       district: child.DistrictId?.toString(),
-//       block: child.BlockId?.toString(),
-//       icdsProject: child.ICDSId?.toString(),
-//       anganwadiCenter: child.AnganwadiId?.toString(),
-//       village: child.VillageName,
-//       admissionDate: child.AdmissionDate,
-//       admissionTime: new Date(child.AdmissionDate).toTimeString().substring(0,5), // Extract HH:MM
-//       admissionWeight: child.AdmissionWeight?.toString(),
-//       admissionHeight: child.AdmissionHeight?.toString(),
-//       admissionOdema: child.AdmissionEdema?.toString(),
-//       admissionMuac: child.AdmissionMuac?.toString(),
-//       breastFeeding: child.BreastFeeding?.toString(),
-//       complementaryFeeding: child.ComplementaryFeeding?.toString(),
-//       appetiteTest: child.AdmissionAppetite?.toString(),
-//       complications: child.MedicalComplication ? child.MedicalComplication.split(',') : [],
-//       photo: child.RegistrationImage
-//     };
+//     return NextResponse.json({ success: true, data: result.rows[0] }, { status: 200 });
 
-//     return NextResponse.json({ success: true, data: mappedData });
 //   } catch (error) {
-//     console.error("API GET Error:", error);
-//     return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
+//     console.error('Fetch Child Error:', error);
+//     return NextResponse.json({ success: false, error: 'Database error' }, { status: 500 });
 //   }
 // }
 
-// export async function PUT(
-//   request: Request,
-//   { params }: { params: Promise<{ id: string }> }
-// ) {
-//   try {
-//     const { id } = await params;
-//     const samNo = decodeURIComponent(id);
-    
-//     const formData = await request.formData();
-    
-//     // --- 1. Handle File Upload ---
-//     const file = formData.get("photo") as File | null;
-//     let photoUrl = null;
+import { NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 
-//     if (file && file.size > 0) {
-//       const buffer = Buffer.from(await file.arrayBuffer());
-//       const filename = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-      
-//       // Ensure directory exists
-//       const uploadDir = path.join(process.cwd(), "public/uploads/children");
-//       await mkdir(uploadDir, { recursive: true });
-      
-//       await writeFile(path.join(uploadDir, filename), buffer);
-//       photoUrl = `/uploads/children/${filename}`;
-//     }
-
-//     // --- 2. Extract Data ---
-//     const getStr = (key: string) => formData.get(key) as string;
-    
-//     // Combine Date and Time for AdmissionDate
-//     const dateStr = getStr("admissionDate"); // dd-MMM-yyyy or ISO
-//     const timeStr = getStr("admissionTime");
-//     const admissionDateTime = new Date(`${dateStr} ${timeStr}`);
-
-//     const updateData = {
-//       childName: getStr("childName"),
-//       parentName: getStr("parentName"),
-//       relationship: getStr("relationship"),
-//       mobileNumber: getStr("mobileNumber"),
-//       bplNumber: getStr("bplNumber"),
-//       dateOfBirth: getStr("dateOfBirth"),
-//       sex: getStr("sex"),
-//       address: getStr("address"),
-//       caste: getStr("caste"),
-//       district: getStr("district"),
-//       block: getStr("block"),
-//       icdsProject: getStr("icdsProject"),
-//       anganwadiCenter: getStr("anganwadiCenter"),
-//       village: getStr("village"),
-//       admissionDate: admissionDateTime.toISOString(),
-//       admissionWeight: getStr("admissionWeight"),
-//       admissionHeight: getStr("admissionHeight"),
-//       admissionOdema: getStr("admissionOdema"),
-//       admissionMuac: getStr("admissionMuac"),
-//       breastFeeding: getStr("breastFeeding"),
-//       complementaryFeeding: getStr("complementaryFeeding"),
-//       appetiteTest: getStr("appetiteTest"),
-//       complications: formData.getAll("complications"),
-//       // If photoUrl is null (no new file), existing photo remains in logic inside updateChildRegistration
-//       photo: photoUrl 
-//     };
-
-//     await updateChildRegistration(samNo, updateData);
-
-//     return NextResponse.json({ success: true, message: "Child updated successfully" });
-
-//   } catch (error) {
-//     console.error("API PUT Error:", error);
-//     return NextResponse.json({ success: false, message: "Update failed" }, { status: 500 });
-//   }
-// }
-
-
-import { NextResponse } from "next/server";
-import { getChildForEdit, updateChildRegistration } from "@/lib/db";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-
-// Fix for Next.js 15: Params are promises
 export async function GET(
-  request: Request,
+  request: Request, 
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const samNo = decodeURIComponent(id);
 
-    const child = await getChildForEdit(samNo);
+    // Fetch the child's admission data. 
+    // We join with mtc_admission_odema to get the text value (e.g., "No", "++")
+    // ✅ Added SAAMAR tracking fields to the SELECT statement
+    const sqlText = `
+      SELECT 
+        c.registration_id AS "id",
+        c.sam_no AS "SamNo",
+        c.child_full_name AS "ChildName",
+        c.guardian_name AS "FatherName", 
+        c.guardian_name AS "MotherName", 
+        c.admission_date AS "AdmissionDate",
+        c.admission_weight_kg AS "AdmissionWeight",
+        c.length_height_cm AS "AdmissionHeight",
+        c.muac_cm AS "AdmissionMuac",
+        c.admission_hemoglobin AS "AdmissionHemoglobin",
+        c.is_samar_registered AS "isSamarRegistered",
+        c.samar_uuid AS "samarUuid",
+        -- Target weight logic: Admission weight + 15%
+        ROUND((c.admission_weight_kg * 1.15), 2) AS "TargetWeight",
+        -- Get the text label for edema instead of just the ID
+        COALESCE(o.odema_name, 'No') AS "AdmissionEdema"
+      FROM mtc_child_master c
+      LEFT JOIN mtc_admission_odema o ON c.odema_id = o.odema_id
+      WHERE c.registration_id = $1
+    `;
+    
+    const result = await query(sqlText, [id]);
 
-    if (!child) {
-      return NextResponse.json({ success: false, message: "Child not found" }, { status: 404 });
+    if (result.rows.length === 0) {
+      return NextResponse.json({ success: false, message: 'Child not found' }, { status: 404 });
     }
 
-    // Map DB columns to Frontend State keys
-    const mappedData = {
-      id: child.SamNo, // using SamNo as ID
-      samNumber: child.SamNo,
-      admissionType: child.AtId?.toString() || "1",
-      referredBy: child.RefererId?.toString() || "",
-      childName: child.ChildName,
-      parentName: child.FatherName || child.MotherName,
-      relationship: child.FatherName ? "1" : "2", // Simple guess
-      mobileNumber: child.MobileNumber,
-      bplNumber: child.BPLNo,
-      dateOfBirth: child.DateofBirth,
-      sex: child.GenderId?.toString(),
-      address: child.Address,
-      caste: child.CastId?.toString(),
-      district: child.DistrictId?.toString(),
-      block: child.BlockId?.toString(),
-      icdsProject: child.ICDSId?.toString(),
-      anganwadiCenter: child.AnganwadiId?.toString(),
-      village: child.VillageName,
-      admissionDate: child.AdmissionDate,
-      admissionTime: new Date(child.AdmissionDate).toTimeString().substring(0,5), // Extract HH:MM
-      admissionWeight: child.AdmissionWeight?.toString(),
-      admissionHeight: child.AdmissionHeight?.toString(),
-      admissionOdema: child.AdmissionEdema?.toString(),
-      admissionMuac: child.AdmissionMuac?.toString(),
-      breastFeeding: child.BreastFeeding?.toString(),
-      complementaryFeeding: child.ComplementaryFeeding?.toString(),
-      appetiteTest: child.AdmissionAppetite?.toString(),
-      complications: child.MedicalComplication ? child.MedicalComplication.split(',') : [],
-      photo: child.RegistrationImage
-    };
-
-    return NextResponse.json({ success: true, data: mappedData });
-  } catch (error) {
-    console.error("API GET Error:", error);
-    return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
-  }
-}
-
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const samNo = decodeURIComponent(id);
-    
-    const formData = await request.formData();
-    
-    // --- 1. Handle File Upload ---
-    const file = formData.get("photo") as File | null;
-    let photoUrl = null;
-
-    if (file && file.size > 0) {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const filename = `${Date.now()}_${file.name.replace(/\s/g, '_')}`;
-      
-      // Ensure directory exists
-      const uploadDir = path.join(process.cwd(), "public/uploads/children");
-      await mkdir(uploadDir, { recursive: true });
-      
-      await writeFile(path.join(uploadDir, filename), buffer);
-      photoUrl = `/uploads/children/${filename}`;
-    }
-
-    // --- 2. Extract Data ---
-    const getStr = (key: string) => formData.get(key) as string;
-    
-    // Combine Date and Time for AdmissionDate
-    const dateStr = getStr("admissionDate"); // dd-MMM-yyyy or ISO
-    const timeStr = getStr("admissionTime");
-    const admissionDateTime = new Date(`${dateStr} ${timeStr}`);
-
-    const updateData = {
-      childName: getStr("childName"),
-      parentName: getStr("parentName"),
-      relationship: getStr("relationship"),
-      mobileNumber: getStr("mobileNumber"),
-      bplNumber: getStr("bplNumber"),
-      dateOfBirth: getStr("dateOfBirth"),
-      sex: getStr("sex"),
-      address: getStr("address"),
-      caste: getStr("caste"),
-      district: getStr("district"),
-      block: getStr("block"),
-      icdsProject: getStr("icdsProject"),
-      anganwadiCenter: getStr("anganwadiCenter"),
-      village: getStr("village"),
-      admissionDate: admissionDateTime.toISOString(),
-      admissionWeight: getStr("admissionWeight"),
-      admissionHeight: getStr("admissionHeight"),
-      admissionOdema: getStr("admissionOdema"),
-      admissionMuac: getStr("admissionMuac"),
-      breastFeeding: getStr("breastFeeding"),
-      complementaryFeeding: getStr("complementaryFeeding"),
-      appetiteTest: getStr("appetiteTest"),
-      // FIX: Explicitly convert FormDataEntryValue[] to string[]
-      complications: formData.getAll("complications").map(c => c.toString()), 
-      // If photoUrl is null (no new file), existing photo remains in logic inside updateChildRegistration
-      photo: photoUrl 
-    };
-
-    await updateChildRegistration(samNo, updateData);
-
-    return NextResponse.json({ success: true, message: "Child updated successfully" });
+    return NextResponse.json({ success: true, data: result.rows[0] }, { status: 200 });
 
   } catch (error) {
-    console.error("API PUT Error:", error);
-    return NextResponse.json({ success: false, message: "Update failed" }, { status: 500 });
+    console.error('Fetch Child Error:', error);
+    return NextResponse.json({ success: false, error: 'Database error' }, { status: 500 });
   }
 }

@@ -1,3 +1,87 @@
+// // // "use client";
+
+// // // import Link from "next/link";
+// // // import {
+// // //   FileText,
+// // //   Scale,
+// // //   Pill,
+// // //   FileCheck,
+// // //   ClipboardList,
+// // //   Wrench,
+// // //   Users,
+// // //   BedDouble,
+// // //   BookOpen,
+// // //   Mail,
+// // //   HeartPulse,
+// // // } from "lucide-react";
+
+// // // export default function MtcDashboard() {
+// // //   const cards = [
+// // //     { title: "Child Registration", icon: <FileText size={28} />, color: "from-blue-500 to-blue-700", href: "/mtc-user/dashboard/child-registration" },
+// // //     { title: "Daily Weight Entry", icon: <Scale size={28} />, color: "from-purple-400 to-purple-600", href: "/mtc-user/dashboard/daily-weight" },
+// // //     { title: "Micronutrients & Antibiotics", icon: <Pill size={28} />, color: "from-cyan-600 to-green-600", href: "/mtc-user/dashboard/micronutrients" },
+// // //     { title: "Child Discharge", icon: <FileCheck size={28} />, color: "from-green-500 to-emerald-600", href: "/mtc-user/dashboard/discharge" },
+// // //     { title: "Follow-Up", icon: <ClipboardList size={28} />, color: "from-orange-400 to-yellow-500", href: "/mtc-user/dashboard/follow-up" },
+// // //     { title: "Equipment Section", icon: <Wrench size={28} />, color: "from-teal-400 to-cyan-500", href: "/mtc-user/dashboard/equipment" },
+// // //     { title: "Staff Details", icon: <Users size={28} />, color: "from-blue-600 to-green-600", href: "/mtc-user/dashboard/staff" },
+// // //     { title: "Bed Occupancy", icon: <BedDouble size={28} />, color: "from-pink-500 to-rose-500", href: "/mtc-user/dashboard/bed-occupancy" },
+// // //     { title: "Child Records", icon: <BookOpen size={28} />, color: "from-orange-500 to-red-500", href: "/mtc-user/dashboardr/child-records" },
+// // //     { title: "MPR / Follow-Up Report", icon: <Mail size={28} />, color: "from-red-500 to-pink-500", href: "/mtc-user/dashboardmpr-followup" },
+// // //     { title: "Maternal Nutrition", icon: <HeartPulse size={28} />, color: "from-pink-500 to-rose-600", href: "/mtc-user/dashboard/maternal-nutrition" },
+// // //     { title: "Samar", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/dashboard/maternal-nutrition" },
+// // //   ];
+
+// // //   return (
+// // //     <div className="min-h-screen bg-gray-50 pt-20 px-4 sm:px-6 md:px-8 lg:px-10 transition-all">
+// // //       <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800 mb-8 text-center md:text-left">
+// // //         Malnutrition Treatment Center Dashboard
+// // //       </h1>
+
+// // //       <div
+// // //         className="
+// // //           grid 
+// // //           grid-cols-1 
+// // //           sm:grid-cols-2 
+// // //           md:grid-cols-3 
+// // //           lg:grid-cols-4 
+// // //           xl:grid-cols-5 
+// // //           gap-4 
+// // //           sm:gap-6
+// // //         "
+// // //       >
+// // //         {cards.map((card) => (
+// // //           <Link
+// // //             key={card.title}
+// // //             href={card.href}
+// // //             className={`
+// // //               p-4 sm:p-5 md:p-6 
+// // //               rounded-2xl 
+// // //               shadow-lg 
+// // //               bg-linear-to-r ${card.color} 
+// // //               text-white 
+// // //               flex 
+// // //               flex-col 
+// // //               items-start 
+// // //               gap-3 
+// // //               hover:scale-[1.03] 
+// // //               hover:shadow-xl 
+// // //               transition-all 
+// // //               duration-200
+// // //             `}
+// // //           >
+// // //             <div className="bg-white/20 p-3 rounded-xl">
+// // //               {card.icon}
+// // //             </div>
+// // //             <h2 className="text-base sm:text-lg md:text-xl font-semibold leading-snug">
+// // //               {card.title}
+// // //             </h2>
+// // //           </Link>
+// // //         ))}
+// // //       </div>
+// // //     </div>
+// // //   );
+// // // }
+
 // // "use client";
 
 // // import Link from "next/link";
@@ -28,11 +112,11 @@
 // //     { title: "Child Records", icon: <BookOpen size={28} />, color: "from-orange-500 to-red-500", href: "/mtc-user/dashboardr/child-records" },
 // //     { title: "MPR / Follow-Up Report", icon: <Mail size={28} />, color: "from-red-500 to-pink-500", href: "/mtc-user/dashboardmpr-followup" },
 // //     { title: "Maternal Nutrition", icon: <HeartPulse size={28} />, color: "from-pink-500 to-rose-600", href: "/mtc-user/dashboard/maternal-nutrition" },
-// //     { title: "Samar", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/dashboard/maternal-nutrition" },
+// //     { title: "Samar", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/dashboard/Samar" },
 // //   ];
 
 // //   return (
-// //     <div className="min-h-screen bg-gray-50 pt-20 px-4 sm:px-6 md:px-8 lg:px-10 transition-all">
+// //     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 pt-20 px-4 sm:px-6 md:px-8 lg:px-10 transition-all">
 // //       <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800 mb-8 text-center md:text-left">
 // //         Malnutrition Treatment Center Dashboard
 // //       </h1>
@@ -54,27 +138,36 @@
 // //             key={card.title}
 // //             href={card.href}
 // //             className={`
+// //               group relative overflow-hidden
 // //               p-4 sm:p-5 md:p-6 
 // //               rounded-2xl 
 // //               shadow-lg 
-// //               bg-linear-to-r ${card.color} 
+// //               bg-linear-to-br ${card.color} 
 // //               text-white 
 // //               flex 
 // //               flex-col 
 // //               items-start 
 // //               gap-3 
 // //               hover:scale-[1.03] 
-// //               hover:shadow-xl 
+// //               hover:shadow-2xl 
 // //               transition-all 
-// //               duration-200
+// //               duration-300
 // //             `}
 // //           >
-// //             <div className="bg-white/20 p-3 rounded-xl">
-// //               {card.icon}
+// //             {/* Floating circle animation */}
+// //             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500"></div>
+            
+// //             <div className="relative z-10 flex flex-col gap-3">
+// //               <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl group-hover:bg-white/30 transition-colors duration-300">
+// //                 {card.icon}
+// //               </div>
+// //               <h2 className="text-base sm:text-lg md:text-xl font-semibold leading-snug">
+// //                 {card.title}
+// //               </h2>
+// //               <p className="text-white/80 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+// //                 Click to access
+// //               </p>
 // //             </div>
-// //             <h2 className="text-base sm:text-lg md:text-xl font-semibold leading-snug">
-// //               {card.title}
-// //             </h2>
 // //           </Link>
 // //         ))}
 // //       </div>
@@ -86,6 +179,7 @@
 
 // import Link from "next/link";
 // import {
+//   Banknote,
 //   FileText,
 //   Scale,
 //   Pill,
@@ -105,14 +199,15 @@
 //     { title: "Daily Weight Entry", icon: <Scale size={28} />, color: "from-purple-400 to-purple-600", href: "/mtc-user/dashboard/daily-weight" },
 //     { title: "Micronutrients & Antibiotics", icon: <Pill size={28} />, color: "from-cyan-600 to-green-600", href: "/mtc-user/dashboard/micronutrients" },
 //     { title: "Child Discharge", icon: <FileCheck size={28} />, color: "from-green-500 to-emerald-600", href: "/mtc-user/dashboard/discharge" },
-//     { title: "Follow-Up", icon: <ClipboardList size={28} />, color: "from-orange-400 to-yellow-500", href: "/mtc-user/dashboard/follow-up" },
+//     { title: "Follow-Up", icon: <ClipboardList size={28} />, color: "from-orange-400 to-yellow-500", href: "/mtc-user/dashboard/follow-up-report" },
 //     { title: "Equipment Section", icon: <Wrench size={28} />, color: "from-teal-400 to-cyan-500", href: "/mtc-user/dashboard/equipment" },
 //     { title: "Staff Details", icon: <Users size={28} />, color: "from-blue-600 to-green-600", href: "/mtc-user/dashboard/staff" },
 //     { title: "Bed Occupancy", icon: <BedDouble size={28} />, color: "from-pink-500 to-rose-500", href: "/mtc-user/dashboard/bed-occupancy" },
-//     { title: "Child Records", icon: <BookOpen size={28} />, color: "from-orange-500 to-red-500", href: "/mtc-user/dashboardr/child-records" },
-//     { title: "MPR / Follow-Up Report", icon: <Mail size={28} />, color: "from-red-500 to-pink-500", href: "/mtc-user/dashboardmpr-followup" },
+//     { title: "Child Records", icon: <BookOpen size={28} />, color: "from-orange-500 to-red-500", href: "/mtc-user/dashboard/child-records" },
+//     { title: "MPR / Follow-Up Report", icon: <Mail size={28} />, color: "from-red-500 to-pink-500", href: "/mtc-user/dashboard/mrp" },
 //     { title: "Maternal Nutrition", icon: <HeartPulse size={28} />, color: "from-pink-500 to-rose-600", href: "/mtc-user/dashboard/maternal-nutrition" },
-//     { title: "Samar", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/dashboard/Samar" },
+//     { title: "Samar", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/dashboard/Samar/referred-children", newTab: true },
+//     { title: "Compensation", icon: <Banknote size={28} />, color: "from-blue-300 to-rose-500", href: "/mtc-user/dashboard/compensation" },
 //   ];
 
 //   return (
@@ -137,6 +232,8 @@
 //           <Link
 //             key={card.title}
 //             href={card.href}
+//             target={card.newTab ? "_blank" : "_self"}
+//             rel={card.newTab ? "noopener noreferrer" : ""}
 //             className={`
 //               group relative overflow-hidden
 //               p-4 sm:p-5 md:p-6 
@@ -179,6 +276,7 @@
 
 import Link from "next/link";
 import {
+  Banknote,
   FileText,
   Scale,
   Pill,
@@ -202,10 +300,11 @@ export default function MtcDashboard() {
     { title: "Equipment Section", icon: <Wrench size={28} />, color: "from-teal-400 to-cyan-500", href: "/mtc-user/dashboard/equipment" },
     { title: "Staff Details", icon: <Users size={28} />, color: "from-blue-600 to-green-600", href: "/mtc-user/dashboard/staff" },
     { title: "Bed Occupancy", icon: <BedDouble size={28} />, color: "from-pink-500 to-rose-500", href: "/mtc-user/dashboard/bed-occupancy" },
-    { title: "Child Records", icon: <BookOpen size={28} />, color: "from-orange-500 to-red-500", href: "/mtc-user/dashboardr/child-records" },
-    { title: "MPR / Follow-Up Report", icon: <Mail size={28} />, color: "from-red-500 to-pink-500", href: "/mtc-user/dashboardmpr-followup" },
+    { title: "Child Records", icon: <BookOpen size={28} />, color: "from-orange-500 to-red-500", href: "/mtc-user/dashboard/child-records" },
+    { title: "MPR / Follow-Up Report", icon: <Mail size={28} />, color: "from-red-500 to-pink-500", href: "/mtc-user/dashboard/mrp" },
     { title: "Maternal Nutrition", icon: <HeartPulse size={28} />, color: "from-pink-500 to-rose-600", href: "/mtc-user/dashboard/maternal-nutrition" },
-    { title: "Samar", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/Samar/referred-children", newTab: true },
+    { title: "Samar", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/dashboard/Samar/referred-children" },
+    { title: "Compensation", icon: <Banknote size={28} />, color: "from-blue-300 to-rose-500", href: "/mtc-user/dashboard/compensation" },
   ];
 
   return (
@@ -230,8 +329,6 @@ export default function MtcDashboard() {
           <Link
             key={card.title}
             href={card.href}
-            target={card.newTab ? "_blank" : "_self"}
-            rel={card.newTab ? "noopener noreferrer" : ""}
             className={`
               group relative overflow-hidden
               p-4 sm:p-5 md:p-6 

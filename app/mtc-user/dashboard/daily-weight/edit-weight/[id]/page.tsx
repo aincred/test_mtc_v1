@@ -1,12 +1,502 @@
+
+// // "use client";
+
+// // import { useState, useEffect, useRef } from "react";
+// // import { useRouter, useParams } from "next/navigation";
+// // import { Button } from "@/components/ui/button";
+// // import { Input } from "@/components/ui/input";
+// // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// // import { 
+// //   ArrowLeft, Save, X, Download, Activity, User, Target, AlertCircle, CalendarDays, Loader2
+// // } from "lucide-react";
+// // import toast, { Toaster } from "react-hot-toast";
+// // import { cn } from "@/lib/utils";
+
+// // interface Child {
+// //   id: string;
+// //   recordNo: string;
+// //   samNumber: string;
+// //   childName: string;
+// //   parentName: string;
+// //   admissionWeight: string;
+// // }
+
+// // interface WeightEntry {
+// //   day: string;
+// //   value: string;
+// // }
+
+// // interface WeightData {
+// //   childId: string;
+// //   samNumber: string;
+// //   name: string;
+// //   weightEntries: WeightEntry[];
+// //   minimumWeight: string;
+// //   targetWeight: string;
+// // }
+
+// // export default function EditWeightEntryPage() {
+// //   const router = useRouter();
+// //   const params = useParams();
+// //   const childId = params.id as string;
+// //   const chartRef = useRef<HTMLDivElement>(null);
+  
+// //   const [child, setChild] = useState<Child | null>(null);
+// //   const [weightData, setWeightData] = useState<WeightData | null>(null);
+// //   const [isLoading, setIsLoading] = useState(true);
+// //   const [isSaving, setIsSaving] = useState(false);
+
+// //   useEffect(() => {
+// //     const loadData = async () => {
+// //       try {
+// //         // 1. Fetch Patient Profile Details
+// //         const childrenRes = await fetch('/api/child-registration');
+// //         if (!childrenRes.ok) throw new Error('Failed to fetch patient data');
+// //         const dbChildren = await childrenRes.json();
+        
+// //         // Find specific child. Mapping snake_case DB columns to our interface
+// //         const foundChildRaw = dbChildren.find((c: any) => c.registration_id?.toString() === childId || c.id === childId);
+        
+// //         if (!foundChildRaw) {
+// //           toast.error("Child not found");
+// //           router.push("/mtc-user/dashboard/daily-weight");
+// //           return;
+// //         }
+
+// //         const foundChild: Child = {
+// //           id: foundChildRaw.registration_id?.toString() || foundChildRaw.id,
+// //           recordNo: foundChildRaw.registration_id?.toString() || "N/A",
+// //           samNumber: foundChildRaw.sam_no || foundChildRaw.samNumber,
+// //           childName: foundChildRaw.child_full_name || foundChildRaw.childName,
+// //           parentName: foundChildRaw.guardian_name || foundChildRaw.parentName,
+// //           admissionWeight: foundChildRaw.admission_weight_kg?.toString() || foundChildRaw.admissionWeight || "0"
+// //         };
+        
+// //         setChild(foundChild);
+
+// //         // 2. Fetch Weight Records from API
+// //         const weightsRes = await fetch(`/api/daily-weights?childId=${childId}`);
+// //         const weightsDbResult = await weightsRes.json();
+
+// //         let dbWeights: Record<string, string> = {};
+// //         let savedMin = "";
+// //         let savedTarget = "";
+
+// //         if (weightsDbResult.success && weightsDbResult.data) {
+// //           dbWeights = weightsDbResult.data.weights_data || {};
+// //           savedMin = weightsDbResult.data.minimum_weight?.toString() || "";
+// //           savedTarget = weightsDbResult.data.target_weight?.toString() || "";
+// //         }
+
+// //         // Calculate defaults if no records exist yet
+// //         const admissionWeightNum = parseFloat(foundChild.admissionWeight) || 0;
+// //         const defaultTarget = savedTarget || (admissionWeightNum * 1.15).toFixed(2);
+// //         const defaultMin = savedMin || (admissionWeightNum * 1.05).toFixed(2);
+
+// //         // Generate the 60-day array
+// //         const allDays: WeightEntry[] = [];
+// //         for (let i = 0; i < 60; i++) {
+// //           const dayKey = `day${i}`; 
+// //           let val = dbWeights[dayKey] || "";
+          
+// //           // Fallback: Populate Day 0 with admission weight if blank
+// //           if (i === 0 && val === "" && admissionWeightNum > 0) {
+// //             val = foundChild.admissionWeight;
+// //           }
+
+// //           allDays.push({ day: dayKey, value: val });
+// //         }
+
+// //         setWeightData({
+// //           childId: foundChild.id,
+// //           samNumber: foundChild.samNumber,
+// //           name: foundChild.childName,
+// //           weightEntries: allDays,
+// //           minimumWeight: defaultMin,
+// //           targetWeight: defaultTarget
+// //         });
+
+// //       } catch (error) {
+// //         console.error("Error loading clinical data:", error);
+// //         toast.error("Failed to load clinical data from server.");
+// //       } finally {
+// //         setIsLoading(false);
+// //       }
+// //     };
+
+// //     loadData();
+// //   }, [childId, router]);
+
+// //   const handleWeightChange = (dayIndex: number, value: string) => {
+// //     if (!weightData) return;
+// //     const updatedEntries = [...weightData.weightEntries];
+// //     updatedEntries[dayIndex] = { ...updatedEntries[dayIndex], value: value };
+// //     setWeightData({ ...weightData, weightEntries: updatedEntries });
+// //   };
+
+// //   const handleMinimumWeightChange = (value: string) => {
+// //     if (!weightData) return;
+// //     setWeightData({ ...weightData, minimumWeight: value });
+// //   };
+
+// //   const handleSave = async () => {
+// //     if (!weightData || !child) return;
+// //     setIsSaving(true);
+
+// //     try {
+// //       // Format array back into flat JSON dictionary for PostgreSQL
+// //       const formattedWeights: Record<string, string> = {};
+// //       weightData.weightEntries.forEach(entry => {
+// //         if (entry.value !== "") {
+// //           formattedWeights[entry.day] = entry.value;
+// //         }
+// //       });
+
+// //       const payload = {
+// //         childId: child.id,
+// //         minimumWeight: weightData.minimumWeight,
+// //         targetWeight: weightData.targetWeight,
+// //         weightEntries: formattedWeights
+// //       };
+
+// //       const response = await fetch('/api/daily-weights', {
+// //         method: 'POST',
+// //         headers: { 'Content-Type': 'application/json' },
+// //         body: JSON.stringify(payload)
+// //       });
+
+// //       if (!response.ok) throw new Error('Failed to save to database');
+
+// //       toast.success("Weight entries saved securely!");
+// //       router.push("/mtc-user/dashboard/daily-weight");
+// //     } catch (error) {
+// //       console.error("Error saving data:", error);
+// //       toast.error("Failed to save data to the server.");
+// //     } finally {
+// //       setIsSaving(false);
+// //     }
+// //   };
+
+// //   const downloadChart = async () => {
+// //     if (!chartRef.current) return;
+// //     try {
+// //       const canvas = document.createElement('canvas');
+// //       const ctx = canvas.getContext('2d');
+// //       if (!ctx) return;
+      
+// //       const svgElement = chartRef.current.querySelector('svg');
+// //       if (!svgElement) return;
+      
+// //       const svgRect = svgElement.getBoundingClientRect();
+// //       canvas.width = svgRect.width;
+// //       canvas.height = svgRect.height;
+      
+// //       const svgData = new XMLSerializer().serializeToString(svgElement);
+// //       const img = new Image();
+      
+// //       img.onload = () => {
+// //         ctx.fillStyle = "white";
+// //         ctx.fillRect(0, 0, canvas.width, canvas.height);
+// //         ctx.drawImage(img, 0, 0);
+        
+// //         canvas.toBlob((blob) => {
+// //           if (!blob) return;
+// //           const url = URL.createObjectURL(blob);
+// //           const link = document.createElement('a');
+// //           link.download = `weight-chart-${child?.childName?.replace(/\s+/g, '-') || 'patient'}.png`;
+// //           link.href = url;
+// //           link.click();
+// //           URL.revokeObjectURL(url);
+// //         }, 'image/png');
+// //       };
+// //       img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+// //     } catch (error) {
+// //       console.error("Error downloading chart:", error);
+// //       toast.error("Failed to download chart");
+// //     }
+// //   };
+
+// //   const WeightChart = () => {
+// //     if (!weightData) return null;
+
+// //     const width = 800;
+// //     const height = 350;
+// //     const padding = 45;
+// //     const chartWidth = width - 2 * padding;
+// //     const chartHeight = height - 2 * padding;
+
+// //     const dataPoints = weightData.weightEntries
+// //       .map((entry, index) => ({ day: index, value: entry.value ? parseFloat(entry.value) : null }))
+// //       .filter(point => point.value !== null);
+
+// //     if (dataPoints.length === 0) {
+// //       return (
+// //         <div className="flex flex-col items-center justify-center h-full text-slate-400">
+// //           <Activity className="h-10 w-10 mb-2 opacity-20" />
+// //           <p className="text-sm font-medium">No weight data available to graph</p>
+// //         </div>
+// //       );
+// //     }
+
+// //     const allValues = [
+// //       ...dataPoints.map(p => p.value!),
+// //       parseFloat(weightData.targetWeight) || 0,
+// //       parseFloat(weightData.minimumWeight) || 0
+// //     ].filter(v => v > 0);
+    
+// //     const minValue = Math.min(...allValues) * 0.95;
+// //     const maxValue = Math.max(...allValues) * 1.05;
+// //     const valueRange = maxValue - minValue || 1; 
+
+// //     const xScale = (day: number) => padding + (day / 59) * chartWidth;
+// //     const yScale = (value: number) => padding + chartHeight - ((value - minValue) / valueRange) * chartHeight;
+
+// //     const pathData = dataPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xScale(point.day)} ${yScale(point.value!)}`).join(' ');
+// //     const areaData = `${pathData} L ${xScale(dataPoints[dataPoints.length-1].day)} ${padding + chartHeight} L ${xScale(dataPoints[0].day)} ${padding + chartHeight} Z`;
+
+// //     return (
+// //       <div className="w-full overflow-x-auto custom-scrollbar">
+// //         <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="w-full min-w-[600px]">
+          
+// //           {/* Grid lines */}
+// //           {Array.from({ length: 6 }).map((_, i) => {
+// //             const y = padding + (i / 5) * chartHeight;
+// //             const value = maxValue - (i / 5) * valueRange;
+// //             return (
+// //               <g key={`h-grid-${i}`}>
+// //                 <line x1={padding} y1={y} x2={padding + chartWidth} y2={y} stroke="#f1f5f9" strokeWidth="1" />
+// //                 <text x={padding - 10} y={y + 4} textAnchor="end" fontSize="11" fontWeight="600" fill="#94a3b8">{value.toFixed(1)}</text>
+// //               </g>
+// //             );
+// //           })}
+          
+// //           {Array.from({ length: 7 }).map((_, i) => {
+// //             const x = padding + (i / 6) * chartWidth;
+// //             const day = Math.round((i / 6) * 59);
+// //             return (
+// //               <g key={`v-grid-${i}`}>
+// //                 <line x1={x} y1={padding} x2={x} y2={padding + chartHeight} stroke="#f1f5f9" strokeWidth="1" />
+// //                 <text x={x} y={padding + chartHeight + 20} textAnchor="middle" fontSize="11" fontWeight="600" fill="#94a3b8">Day {day}</text>
+// //               </g>
+// //             );
+// //           })}
+          
+// //           {/* Target & Min Lines */}
+// //           <line x1={padding} y1={yScale(parseFloat(weightData.targetWeight))} x2={padding + chartWidth} y2={yScale(parseFloat(weightData.targetWeight))} stroke="#e11d48" strokeWidth="2" strokeDasharray="6,4" />
+// //           <line x1={padding} y1={yScale(parseFloat(weightData.minimumWeight))} x2={padding + chartWidth} y2={yScale(parseFloat(weightData.minimumWeight))} stroke="#ea580c" strokeWidth="2" strokeDasharray="6,4" />
+          
+// //           {/* Growth Curve */}
+// //           <path d={areaData} fill="rgba(13, 148, 136, 0.1)" />
+// //           <path d={pathData} fill="none" stroke="#0d9488" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          
+// //           {/* Data Points */}
+// //           {dataPoints.map((point) => (
+// //             <circle key={`point-${point.day}`} cx={xScale(point.day)} cy={yScale(point.value!)} r="4" fill="white" stroke="#0d9488" strokeWidth="2" />
+// //           ))}
+          
+// //           {/* Axes */}
+// //           <line x1={padding} y1={padding} x2={padding} y2={padding + chartHeight} stroke="#cbd5e1" strokeWidth="2" />
+// //           <line x1={padding} y1={padding + chartHeight} x2={padding + chartWidth} y2={padding + chartHeight} stroke="#cbd5e1" strokeWidth="2" />
+// //           <text x={15} y={height / 2} textAnchor="middle" fontSize="12" fontWeight="bold" fill="#64748b" transform={`rotate(-90 15 ${height / 2})`}>Weight (kg)</text>
+          
+// //           {/* Legend */}
+// //           <g transform={`translate(${width - 240}, 10)`}>
+// //             <rect x="0" y="0" width="220" height="30" fill="white" rx="6" className="shadow-sm" />
+// //             <line x1="10" y1="15" x2="25" y2="15" stroke="#0d9488" strokeWidth="3" />
+// //             <text x="30" y="19" fontSize="11" fontWeight="600" fill="#475569">Actual</text>
+// //             <line x1="75" y1="15" x2="90" y2="15" stroke="#e11d48" strokeWidth="2" strokeDasharray="4,2" />
+// //             <text x="95" y="19" fontSize="11" fontWeight="600" fill="#475569">Target</text>
+// //             <line x1="145" y1="15" x2="160" y2="15" stroke="#ea580c" strokeWidth="2" strokeDasharray="4,2" />
+// //             <text x="165" y="19" fontSize="11" fontWeight="600" fill="#475569">Min</text>
+// //           </g>
+// //         </svg>
+// //       </div>
+// //     );
+// //   };
+
+// //   if (isLoading || !weightData || !child) {
+// //     return (
+// //       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+// //         <div className="flex flex-col items-center">
+// //           <Loader2 className="h-10 w-10 animate-spin text-teal-600 mb-4" />
+// //           <p className="text-slate-500 font-medium">Loading clinical data...</p>
+// //         </div>
+// //       </div>
+// //     );
+// //   }
+
+// //   return (
+// //     <div className="min-h-screen bg-slate-50 pb-12">
+// //       <Toaster position="top-center" />
+      
+// //       {/* Sticky Top Navigation Bar */}
+// //       <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+// //         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+// //           <div className="flex items-center gap-4">
+// //             <Button onClick={() => router.push("/mtc-user/dashboard/daily-weight")} variant="ghost" size="icon" className="text-slate-500 hover:text-slate-900">
+// //               <ArrowLeft className="h-5 w-5" />
+// //             </Button>
+// //             <div>
+// //               <h1 className="text-lg font-bold text-slate-900 leading-tight">Update Flow Sheet</h1>
+// //               <p className="text-xs font-medium text-slate-500">60-Day Nutritional Monitoring</p>
+// //             </div>
+// //           </div>
+          
+// //           <div className="flex items-center gap-2">
+// //             <Button variant="outline" onClick={() => router.push("/mtc-user/dashboard/daily-weight")} className="border-slate-200 text-slate-600 hidden sm:flex">
+// //               <X className="mr-2 h-4 w-4" /> Cancel
+// //             </Button>
+// //             <Button onClick={handleSave} disabled={isSaving} className="bg-teal-600 hover:bg-teal-700 text-white shadow-sm">
+// //               {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+// //               {isSaving ? "Saving..." : "Save Changes"}
+// //             </Button>
+// //           </div>
+// //         </div>
+// //       </div>
+
+// //       <main className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
+// //         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+// //           {/* Left Column: Patient Profile & Targets */}
+// //           <div className="lg:col-span-4 space-y-6">
+// //             <Card className="border-slate-200 shadow-sm">
+// //               <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+// //                 <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+// //                   <User className="h-4 w-4" /> Patient Profile
+// //                 </CardTitle>
+// //               </CardHeader>
+// //               <CardContent className="pt-6">
+// //                 <div className="flex items-center gap-4 mb-6">
+// //                   <div className="h-14 w-14 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-2xl border-2 border-teal-200 shrink-0">
+// //                     {weightData.name.charAt(0)}
+// //                   </div>
+// //                   <div>
+// //                     <h2 className="text-xl font-bold text-slate-900">{weightData.name}</h2>
+// //                     <p className="text-sm text-slate-500 font-medium mt-0.5">SAM ID: {weightData.samNumber}</p>
+// //                   </div>
+// //                 </div>
+                
+// //                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+// //                   <div>
+// //                     <p className="text-xs text-slate-400 font-bold uppercase mb-1">Record No</p>
+// //                     <p className="text-sm font-semibold text-slate-700">{child?.recordNo}</p>
+// //                   </div>
+// //                   <div>
+// //                     <p className="text-xs text-slate-400 font-bold uppercase mb-1">Adm Weight</p>
+// //                     <p className="text-sm font-semibold text-slate-700">{child?.admissionWeight} kg</p>
+// //                   </div>
+// //                 </div>
+// //               </CardContent>
+// //             </Card>
+
+// //             <Card className="border-slate-200 shadow-sm overflow-hidden">
+// //               <div className="h-1 w-full bg-linear-to-r from-orange-400 to-rose-500"></div>
+// //               <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4">
+// //                 <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+// //                   <Target className="h-4 w-4" /> Clinical Targets
+// //                 </CardTitle>
+// //               </CardHeader>
+// //               <CardContent className="pt-6 space-y-5">
+// //                 <div className="bg-orange-50 border border-orange-100 rounded-lg p-3">
+// //                   <label className="text-xs font-bold text-orange-700 uppercase flex items-center gap-1.5 mb-2">
+// //                     <AlertCircle className="h-3.5 w-3.5" /> Minimum Weight (5% Gain)
+// //                   </label>
+// //                   <div className="flex items-center gap-2">
+// //                     <Input type="number" step="0.01" value={weightData.minimumWeight} onChange={(e) => handleMinimumWeightChange(e.target.value)} className="bg-white border-orange-200 font-bold text-slate-700 focus-visible:ring-orange-500" />
+// //                     <span className="text-sm font-bold text-slate-400">kg</span>
+// //                   </div>
+// //                 </div>
+// //                 <div className="bg-rose-50 border border-rose-100 rounded-lg p-3">
+// //                   <label className="text-xs font-bold text-rose-700 uppercase flex items-center gap-1.5 mb-2">
+// //                     <Target className="h-3.5 w-3.5" /> Target Weight (15% Gain)
+// //                   </label>
+// //                   <div className="flex items-center gap-2">
+// //                     <Input value={weightData.targetWeight} readOnly className="bg-white/50 border-rose-200 font-bold text-slate-700 opacity-80 cursor-not-allowed" />
+// //                     <span className="text-sm font-bold text-slate-400">kg</span>
+// //                   </div>
+// //                 </div>
+// //               </CardContent>
+// //             </Card>
+// //           </div>
+
+// //           {/* Right Column: Chart & Data Entry */}
+// //           <div className="lg:col-span-8 space-y-6">
+// //             <Card className="border-slate-200 shadow-sm">
+// //               <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 flex flex-row items-center justify-between">
+// //                 <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+// //                   <Activity className="h-4 w-4" /> Growth Trajectory
+// //                 </CardTitle>
+// //                 <Button variant="ghost" size="sm" onClick={downloadChart} className="h-8 text-teal-600 hover:text-teal-700 hover:bg-teal-50 -my-2">
+// //                   <Download className="h-4 w-4 mr-1.5" /> Export
+// //                 </Button>
+// //               </CardHeader>
+// //               <CardContent className="pt-6">
+// //                 <div ref={chartRef} className="h-[350px] w-full">
+// //                   <WeightChart />
+// //                 </div>
+// //               </CardContent>
+// //             </Card>
+
+// //             <Card className="border-slate-200 shadow-sm">
+// //               <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-4 flex flex-row items-center justify-between">
+// //                 <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+// //                   <CalendarDays className="h-4 w-4" /> Daily Log (kg)
+// //                 </CardTitle>
+// //               </CardHeader>
+// //               <CardContent className="pt-6">
+// //                 <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-x-3 gap-y-4">
+// //                   {weightData.weightEntries.map((entry, index) => {
+// //                     const isDayZero = index === 0;
+// //                     const hasValue = entry.value !== "";
+                    
+// //                     return (
+// //                       <div key={entry.day} className="flex flex-col group">
+// //                         <label className={cn(
+// //                           "text-[10px] font-bold text-center mb-1.5 uppercase tracking-wide",
+// //                           isDayZero ? "text-teal-600" : "text-slate-400 group-hover:text-slate-600"
+// //                         )}>
+// //                           {isDayZero ? "Adm" : `Day ${index}`}
+// //                         </label>
+// //                         <Input
+// //                           type="number"
+// //                           step="0.01"
+// //                           min="1"
+// //                           max="30"
+// //                           value={entry.value}
+// //                           onChange={(e) => handleWeightChange(index, e.target.value)}
+// //                           className={cn(
+// //                             "text-center h-9 text-sm font-semibold transition-all",
+// //                             isDayZero ? "bg-teal-50 border-teal-200 text-teal-900 focus-visible:ring-teal-500" :
+// //                             hasValue ? "bg-white border-slate-300 text-slate-900 focus-visible:ring-teal-500 shadow-sm" :
+// //                             "bg-slate-50 border-slate-200 border-dashed text-slate-900 focus-visible:ring-teal-500 focus:border-solid hover:bg-white"
+// //                           )}
+// //                           placeholder="--"
+// //                         />
+// //                       </div>
+// //                     );
+// //                   })}
+// //                 </div>
+// //               </CardContent>
+// //             </Card>
+// //           </div>
+// //         </div>
+// //       </main>
+// //     </div>
+// //   );
+// // }
+
 // "use client";
 
 // import { useState, useEffect, useRef } from "react";
 // import { useRouter, useParams } from "next/navigation";
 // import { Button } from "@/components/ui/button";
 // import { Input } from "@/components/ui/input";
-// import { Card, CardContent, CardHeader } from "@/components/ui/card";
-// import { ArrowLeft, Save, X, Download } from "lucide-react";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { 
+//   ArrowLeft, Save, X, Download, Activity, User, Target, AlertCircle, CalendarDays, Loader2
+// } from "lucide-react";
 // import toast, { Toaster } from "react-hot-toast";
+// import { cn } from "@/lib/utils";
 
 // interface Child {
 //   id: string;
@@ -14,10 +504,7 @@
 //   samNumber: string;
 //   childName: string;
 //   parentName: string;
-//   dateOfBirth: string;
 //   admissionWeight: string;
-//   admissionHeight: string;
-//   createdAt: string;
 // }
 
 // interface WeightEntry {
@@ -27,11 +514,6 @@
 
 // interface WeightData {
 //   childId: string;
-//   dailyWeightId: string;
-//   recordId: string;
-//   status: boolean;
-//   createdBy: string;
-//   createdDate: string;
 //   samNumber: string;
 //   name: string;
 //   weightEntries: WeightEntry[];
@@ -50,86 +532,79 @@
 //   const [isLoading, setIsLoading] = useState(true);
 //   const [isSaving, setIsSaving] = useState(false);
 
-//   // Load child data and weight entries on component mount
 //   useEffect(() => {
-//     const loadData = () => {
+//     const loadData = async () => {
 //       try {
-//         // Load children data from localStorage
-//         const storedChildren = localStorage.getItem('registeredChildren');
-//         if (!storedChildren) {
-//           toast.error("No children data found");
-//           router.push("/mtc-user/dashboard/daily-weight");
-//           return;
-//         }
-
-//         const children = JSON.parse(storedChildren);
-//         const foundChild = children.find((c: Child) => c.id === childId);
+//         // 1. Fetch Patient Profile Details
+//         const childrenRes = await fetch('/api/child-registration');
+//         if (!childrenRes.ok) throw new Error('Failed to fetch patient data');
+//         const dbChildren = await childrenRes.json();
         
-//         if (!foundChild) {
+//         // Find specific child. Mapping snake_case DB columns to our interface
+//         const foundChildRaw = dbChildren.find((c: any) => c.registration_id?.toString() === childId || c.id === childId);
+        
+//         if (!foundChildRaw) {
 //           toast.error("Child not found");
 //           router.push("/mtc-user/dashboard/daily-weight");
 //           return;
 //         }
 
+//         const foundChild: Child = {
+//           id: foundChildRaw.registration_id?.toString() || foundChildRaw.id,
+//           recordNo: foundChildRaw.registration_id?.toString() || "N/A",
+//           samNumber: foundChildRaw.sam_no || foundChildRaw.samNumber,
+//           childName: foundChildRaw.child_full_name || foundChildRaw.childName,
+//           parentName: foundChildRaw.guardian_name || foundChildRaw.parentName,
+//           admissionWeight: foundChildRaw.admission_weight_kg?.toString() || foundChildRaw.admissionWeight || "0"
+//         };
+        
 //         setChild(foundChild);
 
-//         // Load weight entries data from localStorage
-//         const storedWeights = localStorage.getItem('weightEntries');
-//         let weightEntries: WeightEntry[] = [];
+//         // 2. Fetch Weight Records from API
+//         const weightsRes = await fetch(`/api/daily-weights?childId=${childId}`);
+//         const weightsDbResult = await weightsRes.json();
 
-//         if (storedWeights) {
-//           const weights = JSON.parse(storedWeights);
-//           if (weights[childId]) {
-//             // Convert weight data to expected format
-//             weightEntries = Object.keys(weights[childId])
-//               .filter(key => key.startsWith('day'))
-//               .map(key => ({
-//                 day: key.replace('day', 'DAY_').toUpperCase(),
-//                 value: weights[childId][key] || ""
-//               }));
-//           }
+//         let dbWeights: Record<string, string> = {};
+//         let savedMin = "";
+//         let savedTarget = "";
+
+//         if (weightsDbResult.success && weightsDbResult.data) {
+//           dbWeights = weightsDbResult.data.weights_data || {};
+//           savedMin = weightsDbResult.data.minimum_weight?.toString() || "";
+//           savedTarget = weightsDbResult.data.target_weight?.toString() || "";
 //         }
 
-//         // Initialize with DAY_0 as admission weight if not present
-//         if (!weightEntries.find(e => e.day === 'DAY_0')) {
-//           weightEntries.unshift({
-//             day: 'DAY_0',
-//             value: foundChild.admissionWeight
-//           });
-//         }
+//         // Calculate defaults if no records exist yet
+//         const admissionWeightNum = parseFloat(foundChild.admissionWeight) || 0;
+//         const defaultTarget = savedTarget || (admissionWeightNum * 1.15).toFixed(2);
+//         const defaultMin = savedMin || (admissionWeightNum * 1.05).toFixed(2);
 
-//         // Ensure we have all days from DAY_0 to DAY_59
+//         // Generate the 60-day array
 //         const allDays: WeightEntry[] = [];
 //         for (let i = 0; i < 60; i++) {
-//           const dayName = `DAY_${i}`;
-//           const existingEntry = weightEntries.find(e => e.day === dayName);
-//           allDays.push({
-//             day: dayName,
-//             value: existingEntry ? existingEntry.value : ""
-//           });
+//           const dayKey = `day${i}`; 
+//           let val = dbWeights[dayKey] || "";
+          
+//           // Fallback: Populate Day 0 with admission weight if blank
+//           if (i === 0 && val === "" && admissionWeightNum > 0) {
+//             val = foundChild.admissionWeight;
+//           }
+
+//           allDays.push({ day: dayKey, value: val });
 //         }
 
-//         // Calculate target weight (15% weight gain from admission weight)
-//         const admissionWeight = parseFloat(foundChild.admissionWeight) || 0;
-//         const targetWeight = (admissionWeight * 1.15).toFixed(2);
-//         const minimumWeight = (admissionWeight * 1.05).toFixed(2);
-
 //         setWeightData({
-//           childId: childId,
-//           dailyWeightId: Date.now().toString(),
-//           recordId: foundChild.recordNo,
-//           status: true,
-//           createdBy: "1",
-//           createdDate: new Date().toISOString(),
+//           childId: foundChild.id,
 //           samNumber: foundChild.samNumber,
 //           name: foundChild.childName,
 //           weightEntries: allDays,
-//           minimumWeight: minimumWeight,
-//           targetWeight: targetWeight
+//           minimumWeight: defaultMin,
+//           targetWeight: defaultTarget
 //         });
+
 //       } catch (error) {
-//         console.error("Error loading data:", error);
-//         toast.error("Failed to load data");
+//         console.error("Error loading clinical data:", error);
+//         toast.error("Failed to load clinical data from server.");
 //       } finally {
 //         setIsLoading(false);
 //       }
@@ -138,105 +613,88 @@
 //     loadData();
 //   }, [childId, router]);
 
-//   // Handle weight entry change
 //   const handleWeightChange = (dayIndex: number, value: string) => {
 //     if (!weightData) return;
-
 //     const updatedEntries = [...weightData.weightEntries];
-//     updatedEntries[dayIndex] = {
-//       ...updatedEntries[dayIndex],
-//       value: value
-//     };
-
-//     setWeightData({
-//       ...weightData,
-//       weightEntries: updatedEntries
-//     });
+//     updatedEntries[dayIndex] = { ...updatedEntries[dayIndex], value: value };
+//     setWeightData({ ...weightData, weightEntries: updatedEntries });
 //   };
 
-//   // Handle minimum weight change
 //   const handleMinimumWeightChange = (value: string) => {
 //     if (!weightData) return;
-
-//     setWeightData({
-//       ...weightData,
-//       minimumWeight: value
-//     });
+//     setWeightData({ ...weightData, minimumWeight: value });
 //   };
 
-//   // Save weight entries
 //   const handleSave = async () => {
 //     if (!weightData || !child) return;
-
 //     setIsSaving(true);
+
 //     try {
-//       // Convert weight entries back to format used in localStorage
-//       const formattedWeights: { [key: string]: string } = {};
+//       // Format array back into flat JSON dictionary for PostgreSQL
+//       const formattedWeights: Record<string, string> = {};
 //       weightData.weightEntries.forEach(entry => {
-//         const dayKey = entry.day.toLowerCase().replace('_', '');
-//         formattedWeights[dayKey] = entry.value;
+//         if (entry.value !== "") {
+//           formattedWeights[entry.day] = entry.value;
+//         }
 //       });
 
-//       // Get existing weight entries from localStorage
-//       const storedWeights = localStorage.getItem('weightEntries');
-//       const allWeights = storedWeights ? JSON.parse(storedWeights) : {}; // Fixed: Changed let to const
+//       const payload = {
+//         childId: child.id,
+//         minimumWeight: weightData.minimumWeight,
+//         targetWeight: weightData.targetWeight,
+//         weightEntries: formattedWeights
+//       };
 
-//       // Update weight entries for this child
-//       allWeights[childId] = formattedWeights;
+//       const response = await fetch('/api/daily-weights', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
+//       });
 
-//       // Save to localStorage
-//       localStorage.setItem('weightEntries', JSON.stringify(allWeights));
+//       if (!response.ok) throw new Error('Failed to save to database');
 
-//       toast.success("Weight entries saved successfully!");
+//       toast.success("Weight entries saved securely!");
 //       router.push("/mtc-user/dashboard/daily-weight");
 //     } catch (error) {
 //       console.error("Error saving data:", error);
-//       toast.error("Failed to save data");
+//       toast.error("Failed to save data to the server.");
 //     } finally {
 //       setIsSaving(false);
 //     }
 //   };
 
-//   // Download chart as image
 //   const downloadChart = async () => {
 //     if (!chartRef.current) return;
-    
 //     try {
-//       // Create a canvas element
 //       const canvas = document.createElement('canvas');
 //       const ctx = canvas.getContext('2d');
 //       if (!ctx) return;
       
-//       // Get SVG element
 //       const svgElement = chartRef.current.querySelector('svg');
 //       if (!svgElement) return;
       
-//       // Get SVG dimensions
 //       const svgRect = svgElement.getBoundingClientRect();
 //       canvas.width = svgRect.width;
 //       canvas.height = svgRect.height;
       
-//       // Convert SVG to image
 //       const svgData = new XMLSerializer().serializeToString(svgElement);
 //       const img = new Image();
       
 //       img.onload = () => {
+//         ctx.fillStyle = "white";
+//         ctx.fillRect(0, 0, canvas.width, canvas.height);
 //         ctx.drawImage(img, 0, 0);
         
-//         // Convert canvas to blob and download
 //         canvas.toBlob((blob) => {
 //           if (!blob) return;
-          
 //           const url = URL.createObjectURL(blob);
 //           const link = document.createElement('a');
-//           link.download = `weight-chart-${child?.childName || 'child'}.png`;
+//           link.download = `weight-chart-${child?.childName?.replace(/\s+/g, '-') || 'patient'}.png`;
 //           link.href = url;
 //           link.click();
-          
 //           URL.revokeObjectURL(url);
 //         }, 'image/png');
 //       };
-      
 //       img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
 //     } catch (error) {
 //       console.error("Error downloading chart:", error);
@@ -244,434 +702,276 @@
 //     }
 //   };
 
-//   // Simple SVG chart component
 //   const WeightChart = () => {
 //     if (!weightData) return null;
 
 //     const width = 800;
-//     const height = 400;
-//     const padding = 40;
+//     const height = 350;
+//     const padding = 45;
 //     const chartWidth = width - 2 * padding;
 //     const chartHeight = height - 2 * padding;
 
-//     // Extract data points
 //     const dataPoints = weightData.weightEntries
-//       .map((entry, index) => ({
-//         day: index,
-//         value: entry.value ? parseFloat(entry.value) : null
-//       }))
+//       .map((entry, index) => ({ day: index, value: entry.value ? parseFloat(entry.value) : null }))
 //       .filter(point => point.value !== null);
 
 //     if (dataPoints.length === 0) {
 //       return (
-//         <div className="flex items-center justify-center h-64 bg-gray-50 rounded">
-//           <p className="text-gray-500">No weight data available</p>
+//         <div className="flex flex-col items-center justify-center h-full text-slate-400">
+//           <Activity className="h-10 w-10 mb-2 opacity-20" />
+//           <p className="text-sm font-medium">No weight data available to graph</p>
 //         </div>
 //       );
 //     }
 
-//     // Find min and max values for scaling
 //     const allValues = [
 //       ...dataPoints.map(p => p.value!),
-//       parseFloat(weightData.targetWeight),
-//       parseFloat(weightData.minimumWeight)
-//     ];
+//       parseFloat(weightData.targetWeight) || 0,
+//       parseFloat(weightData.minimumWeight) || 0
+//     ].filter(v => v > 0);
     
 //     const minValue = Math.min(...allValues) * 0.95;
 //     const maxValue = Math.max(...allValues) * 1.05;
-//     const valueRange = maxValue - minValue;
+//     const valueRange = maxValue - minValue || 1; 
 
-//     // Scale functions
 //     const xScale = (day: number) => padding + (day / 59) * chartWidth;
 //     const yScale = (value: number) => padding + chartHeight - ((value - minValue) / valueRange) * chartHeight;
 
-//     // Create path for weight line
-//     const pathData = dataPoints
-//       .map((point, index) => {
-//         const x = xScale(point.day);
-//         const y = yScale(point.value!);
-//         return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
-//       })
-//       .join(' ');
-
-//     // Create area under the curve
-//     const areaData = `${pathData} L ${xScale(59)} ${padding + chartHeight} L ${padding} ${padding + chartHeight} Z`;
-
-//     // Grid lines
-//     const horizontalGridLines = 5;
-//     const verticalGridLines = 6;
+//     const pathData = dataPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xScale(point.day)} ${yScale(point.value!)}`).join(' ');
+//     const areaData = `${pathData} L ${xScale(dataPoints[dataPoints.length-1].day)} ${padding + chartHeight} L ${xScale(dataPoints[0].day)} ${padding + chartHeight} Z`;
 
 //     return (
-//       <div className="w-full overflow-x-auto">
-//         <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="w-full">
-//           {/* Background */}
-//           <rect width={width} height={height} fill="white" />
+//       <div className="w-full overflow-x-auto custom-scrollbar">
+//         <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="w-full min-w-[600px]">
           
 //           {/* Grid lines */}
-//           {Array.from({ length: horizontalGridLines + 1 }).map((_, i) => {
-//             const y = padding + (i / horizontalGridLines) * chartHeight;
-//             const value = maxValue - (i / horizontalGridLines) * valueRange;
+//           {Array.from({ length: 6 }).map((_, i) => {
+//             const y = padding + (i / 5) * chartHeight;
+//             const value = maxValue - (i / 5) * valueRange;
 //             return (
 //               <g key={`h-grid-${i}`}>
-//                 <line
-//                   x1={padding}
-//                   y1={y}
-//                   x2={padding + chartWidth}
-//                   y2={y}
-//                   stroke="#e5e7eb"
-//                   strokeWidth="1"
-//                 />
-//                 <text
-//                   x={padding - 10}
-//                   y={y + 5}
-//                   textAnchor="end"
-//                   fontSize="12"
-//                   fill="#6b7280"
-//                 >
-//                   {value.toFixed(1)}
-//                 </text>
+//                 <line x1={padding} y1={y} x2={padding + chartWidth} y2={y} stroke="#f1f5f9" strokeWidth="1" />
+//                 <text x={padding - 10} y={y + 4} textAnchor="end" fontSize="11" fontWeight="600" fill="#94a3b8">{value.toFixed(1)}</text>
 //               </g>
 //             );
 //           })}
           
-//           {Array.from({ length: verticalGridLines + 1 }).map((_, i) => {
-//             const x = padding + (i / verticalGridLines) * chartWidth;
-//             const day = Math.round((i / verticalGridLines) * 59);
+//           {Array.from({ length: 7 }).map((_, i) => {
+//             const x = padding + (i / 6) * chartWidth;
+//             const day = Math.round((i / 6) * 59);
 //             return (
 //               <g key={`v-grid-${i}`}>
-//                 <line
-//                   x1={x}
-//                   y1={padding}
-//                   x2={x}
-//                   y2={padding + chartHeight}
-//                   stroke="#e5e7eb"
-//                   strokeWidth="1"
-//                 />
-//                 <text
-//                   x={x}
-//                   y={padding + chartHeight + 20}
-//                   textAnchor="middle"
-//                   fontSize="12"
-//                   fill="#6b7280"
-//                 >
-//                   {day}
-//                 </text>
+//                 <line x1={x} y1={padding} x2={x} y2={padding + chartHeight} stroke="#f1f5f9" strokeWidth="1" />
+//                 <text x={x} y={padding + chartHeight + 20} textAnchor="middle" fontSize="11" fontWeight="600" fill="#94a3b8">Day {day}</text>
 //               </g>
 //             );
 //           })}
           
-//           {/* Target weight line */}
-//           <line
-//             x1={padding}
-//             y1={yScale(parseFloat(weightData.targetWeight))}
-//             x2={padding + chartWidth}
-//             y2={yScale(parseFloat(weightData.targetWeight))}
-//             stroke="#ef4444"
-//             strokeWidth="2"
-//             strokeDasharray="5,5"
-//           />
+//           {/* Target & Min Lines */}
+//           <line x1={padding} y1={yScale(parseFloat(weightData.targetWeight))} x2={padding + chartWidth} y2={yScale(parseFloat(weightData.targetWeight))} stroke="#6366f1" strokeWidth="2" strokeDasharray="6,4" />
+//           <line x1={padding} y1={yScale(parseFloat(weightData.minimumWeight))} x2={padding + chartWidth} y2={yScale(parseFloat(weightData.minimumWeight))} stroke="#0ea5e9" strokeWidth="2" strokeDasharray="6,4" />
           
-//           {/* Minimum weight line */}
-//           <line
-//             x1={padding}
-//             y1={yScale(parseFloat(weightData.minimumWeight))}
-//             x2={padding + chartWidth}
-//             y2={yScale(parseFloat(weightData.minimumWeight))}
-//             stroke="#f97316"
-//             strokeWidth="2"
-//             strokeDasharray="3,3"
-//           />
+//           {/* Growth Curve */}
+//           <path d={areaData} fill="rgba(37, 99, 235, 0.08)" />
+//           <path d={pathData} fill="none" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           
-//           {/* Area under curve */}
-//           <path
-//             d={areaData}
-//             fill="rgba(34, 197, 94, 0.1)"
-//           />
-          
-//           {/* Weight line */}
-//           <path
-//             d={pathData}
-//             fill="none"
-//             stroke="#22c55e"
-//             strokeWidth="2"
-//           />
-          
-//           {/* Data points */}
+//           {/* Data Points */}
 //           {dataPoints.map((point) => (
-//             <circle
-//               key={`point-${point.day}`}
-//               cx={xScale(point.day)}
-//               cy={yScale(point.value!)}
-//               r="3"
-//               fill="#22c55e"
-//             />
+//             <circle key={`point-${point.day}`} cx={xScale(point.day)} cy={yScale(point.value!)} r="4" fill="white" stroke="#2563eb" strokeWidth="2" className="hover:r-6 transition-all duration-300" />
 //           ))}
           
 //           {/* Axes */}
-//           <line
-//             x1={padding}
-//             y1={padding}
-//             x2={padding}
-//             y2={padding + chartHeight}
-//             stroke="#374151"
-//             strokeWidth="2"
-//           />
-//           <line
-//             x1={padding}
-//             y1={padding + chartHeight}
-//             x2={padding + chartWidth}
-//             y2={padding + chartHeight}
-//             stroke="#374151"
-//             strokeWidth="2"
-//           />
-          
-//           {/* Title */}
-//           <text
-//             x={width / 2}
-//             y={20}
-//             textAnchor="middle"
-//             fontSize="16"
-//             fontWeight="bold"
-//             fill="#111827"
-//           >
-//             Weight Progress Chart
-//           </text>
-          
-//           {/* Axis labels */}
-//           <text
-//             x={width / 2}
-//             y={height - 5}
-//             textAnchor="middle"
-//             fontSize="14"
-//             fill="#374151"
-//           >
-//             Day
-//           </text>
-          
-//           <text
-//             x={15}
-//             y={height / 2}
-//             textAnchor="middle"
-//             fontSize="14"
-//             fill="#374151"
-//             transform={`rotate(-90 15 ${height / 2})`}
-//           >
-//             Weight (kg)
-//           </text>
+//           <line x1={padding} y1={padding} x2={padding} y2={padding + chartHeight} stroke="#cbd5e1" strokeWidth="2" />
+//           <line x1={padding} y1={padding + chartHeight} x2={padding + chartWidth} y2={padding + chartHeight} stroke="#cbd5e1" strokeWidth="2" />
+//           <text x={15} y={height / 2} textAnchor="middle" fontSize="12" fontWeight="bold" fill="#64748b" transform={`rotate(-90 15 ${height / 2})`}>Weight (kg)</text>
           
 //           {/* Legend */}
-//           <g transform={`translate(${width - 150}, 30)`}>
-//             <rect x="0" y="0" width="140" height="80" fill="white" stroke="#e5e7eb" rx="5" />
-            
-//             <line x1="10" y1="20" x2="30" y2="20" stroke="#22c55e" strokeWidth="2" />
-//             <text x="35" y="25" fontSize="12" fill="#374151">Weight</text>
-            
-//             <line x1="10" y1="40" x2="30" y2="40" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" />
-//             <text x="35" y="45" fontSize="12" fill="#374151">Target</text>
-            
-//             <line x1="10" y1="60" x2="30" y2="60" stroke="#f97316" strokeWidth="2" strokeDasharray="3,3" />
-//             <text x="35" y="65" fontSize="12" fill="#374151">Minimum</text>
+//           <g transform={`translate(${width - 240}, 10)`}>
+//             <rect x="0" y="0" width="220" height="30" fill="white" rx="6" className="shadow-sm border border-slate-100" />
+//             <line x1="10" y1="15" x2="25" y2="15" stroke="#2563eb" strokeWidth="3" />
+//             <text x="30" y="19" fontSize="11" fontWeight="600" fill="#475569">Actual</text>
+//             <line x1="75" y1="15" x2="90" y2="15" stroke="#6366f1" strokeWidth="2" strokeDasharray="4,2" />
+//             <text x="95" y="19" fontSize="11" fontWeight="600" fill="#475569">Target</text>
+//             <line x1="145" y1="15" x2="160" y2="15" stroke="#0ea5e9" strokeWidth="2" strokeDasharray="4,2" />
+//             <text x="165" y="19" fontSize="11" fontWeight="600" fill="#475569">Min</text>
 //           </g>
 //         </svg>
 //       </div>
 //     );
 //   };
 
-//   if (isLoading) {
+//   if (isLoading || !weightData || !child) {
 //     return (
-//       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-//         <div className="text-center">
-//           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-//           <p className="mt-4 text-gray-600">Loading weight data...</p>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   if (!weightData || !child) {
-//     return (
-//       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-//         <div className="text-center">
-//           <p className="text-red-600">Failed to load weight data</p>
-//           <Button 
-//             onClick={() => router.push("/mtc-user/dashboard/daily-weight")}
-//             className="mt-4"
-//           >
-//             Go Back
-//           </Button>
+//       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+//         <div className="flex flex-col items-center">
+//           <Loader2 className="h-10 w-10 animate-spin text-blue-600 mb-4" />
+//           <p className="text-slate-500 font-medium tracking-wide">Loading clinical data...</p>
 //         </div>
 //       </div>
 //     );
 //   }
 
 //   return (
-//     <div className="min-h-screen bg-gray-100 py-4 sm:py-6 md:py-8 lg:py-10 px-2 sm:px-4 md:px-6">
-//       <Toaster position="top-right" />
+//     <div className="min-h-screen bg-slate-50/50 pb-12 font-sans selection:bg-blue-100 selection:text-blue-900">
+//       <Toaster position="top-center" />
       
-//       <div className="max-w-7xl mx-auto">
-//         {/* Header */}
-//         <div className="flex justify-between items-center mb-6">
-//           <Button
-//             onClick={() => router.push("/mtc-user/dashboard/daily-weight")}
-//             variant="outline"
-//             className="border-gray-600 text-gray-700 hover:bg-gray-100"
-//           >
-//             <ArrowLeft className="mr-2 h-4 w-4" /> 
-//             Back to Daily Weight
-//           </Button>
-//           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
-//             Edit Weight Entry
-//           </h1>
-//         </div>
-
-//         <Card className="shadow-sm border border-gray-200">
-//           <CardContent className="p-4 sm:p-6">
-//             {/* Child Information */}
-//             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">
-//                   SAM Number
-//                 </label>
-//                 <Input
-//                   value={weightData.samNumber}
-//                   readOnly
-//                   className="bg-gray-50"
-//                 />
-//               </div>
-//               <div>
-//                 <label className="block text-sm font-medium text-gray-700 mb-1">
-//                   Child Name
-//                 </label>
-//                 <Input
-//                   value={weightData.name}
-//                   readOnly
-//                   className="bg-gray-50"
-//                 />
-//               </div>
+//       {/* Sticky Top Navigation Bar - Glass Effect */}
+//       <div className="bg-white/80 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-30 shadow-sm transition-all duration-300">
+//         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+//           <div className="flex items-center gap-4">
+//             <Button onClick={() => router.push("/mtc-user/dashboard/daily-weight")} variant="ghost" size="icon" className="text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-full transition-colors">
+//               <ArrowLeft className="h-5 w-5" />
+//             </Button>
+//             <div>
+//               <h1 className="text-lg font-bold text-slate-900 leading-tight">Update Flow Sheet</h1>
+//               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">60-Day Nutritional Monitoring</p>
 //             </div>
+//           </div>
+          
+//           <div className="flex items-center gap-3">
+//             <Button variant="outline" onClick={() => router.push("/mtc-user/dashboard/daily-weight")} className="border-slate-200 text-slate-600 hover:bg-slate-50 hidden sm:flex rounded-xl transition-colors">
+//               <X className="mr-2 h-4 w-4" /> Cancel
+//             </Button>
+//             <Button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/20 rounded-xl transition-all">
+//               {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+//               {isSaving ? "Saving..." : "Save Changes"}
+//             </Button>
+//           </div>
+//         </div>
+//       </div>
 
-//             {/* Weight Entries Grid */}
-//             <Card className="mb-6">
-//               <CardHeader className="pb-2">
-//                 <h2 className="text-lg font-semibold text-gray-800">
-//                   Daily Weight Entries
-//                 </h2>
+//       <main className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
+//         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+//           {/* Left Column: Patient Profile & Targets */}
+//           <div className="lg:col-span-4 space-y-6">
+//             <Card className="border-slate-200/70 shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl overflow-hidden bg-white">
+//               <CardHeader className="bg-slate-50/50 border-b border-slate-100/80 pb-4">
+//                 <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+//                   <User className="h-4 w-4 text-blue-500" /> Patient Profile
+//                 </CardTitle>
 //               </CardHeader>
-//               <CardContent>
-//                 <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
-//                   {weightData.weightEntries.map((entry, index) => (
-//                     <div key={entry.day} className="mb-2">
-//                       <h6 className="text-xs text-center font-medium text-gray-700 mb-1">
-//                         {entry.day}
-//                       </h6>
-//                       <Input
-//                         type="number"
-//                         step="0.01"
-//                         value={entry.value}
-//                         onChange={(e) => handleWeightChange(index, e.target.value)}
-//                         className="text-xs"
-//                         placeholder="0.00"
-//                       />
-//                     </div>
-//                   ))}
+//               <CardContent className="pt-6">
+//                 <div className="flex items-center gap-4 mb-6">
+//                   <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 flex items-center justify-center font-bold text-2xl border-2 border-white shadow-sm shrink-0">
+//                     {weightData.name.charAt(0)}
+//                   </div>
+//                   <div>
+//                     <h2 className="text-xl font-bold text-slate-900">{weightData.name}</h2>
+//                     <p className="text-sm text-slate-500 font-medium mt-0.5 flex items-center gap-1.5">
+//                       <span className="bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 text-xs text-slate-600">ID: {weightData.samNumber}</span>
+//                     </p>
+//                   </div>
 //                 </div>
-//                 <div className="mt-2 text-xs text-gray-600">
-//                   ** Weight entered in kilograms (kg)
+                
+//                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+//                   <div className="bg-slate-50 rounded-xl p-3 border border-slate-100/50">
+//                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Record No</p>
+//                     <p className="text-sm font-semibold text-slate-800">{child?.recordNo}</p>
+//                   </div>
+//                   <div className="bg-slate-50 rounded-xl p-3 border border-slate-100/50">
+//                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Adm Weight</p>
+//                     <p className="text-sm font-semibold text-slate-800">{child?.admissionWeight} kg</p>
+//                   </div>
 //                 </div>
 //               </CardContent>
 //             </Card>
 
-//             {/* Target Weight Section */}
-//             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-//               <div className="lg:col-span-1">
-//                 <Card>
-//                   <CardContent className="p-4">
-//                     <h3 className="text-sm font-medium text-gray-700 mb-2">
-//                       Target Weight Calculation
-//                     </h3>
-//                     <div className="space-y-3">
-//                       <div>
-//                         <label className="block text-xs font-medium text-gray-600 mb-1">
-//                           Minimum weight (kg)
+//             <Card className="border-slate-200/70 shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl overflow-hidden bg-white">
+//               <div className="h-1.5 w-full bg-gradient-to-r from-sky-400 to-indigo-500"></div>
+//               <CardHeader className="bg-slate-50/50 border-b border-slate-100/80 pb-4">
+//                 <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+//                   <Target className="h-4 w-4 text-indigo-500" /> Clinical Targets
+//                 </CardTitle>
+//               </CardHeader>
+//               <CardContent className="pt-6 space-y-5">
+//                 <div className="bg-sky-50/50 border border-sky-100 rounded-xl p-4 transition-colors hover:bg-sky-50">
+//                   <label className="text-xs font-bold text-sky-700 uppercase tracking-wide flex items-center gap-1.5 mb-2.5">
+//                     <AlertCircle className="h-4 w-4" /> Minimum Weight (5% Gain)
+//                   </label>
+//                   <div className="flex items-center gap-3">
+//                     <Input type="number" step="0.01" value={weightData.minimumWeight} onChange={(e) => handleMinimumWeightChange(e.target.value)} className="bg-white border-sky-200/80 font-bold text-slate-800 focus-visible:ring-sky-500 shadow-sm rounded-lg" />
+//                     <span className="text-sm font-bold text-slate-400">kg</span>
+//                   </div>
+//                 </div>
+//                 <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 transition-colors hover:bg-indigo-50">
+//                   <label className="text-xs font-bold text-indigo-700 uppercase tracking-wide flex items-center gap-1.5 mb-2.5">
+//                     <Target className="h-4 w-4" /> Target Weight (15% Gain)
+//                   </label>
+//                   <div className="flex items-center gap-3">
+//                     <Input value={weightData.targetWeight} readOnly className="bg-white/60 border-indigo-200/80 font-bold text-slate-800 opacity-80 cursor-not-allowed shadow-sm rounded-lg" />
+//                     <span className="text-sm font-bold text-slate-400">kg</span>
+//                   </div>
+//                 </div>
+//               </CardContent>
+//             </Card>
+//           </div>
+
+//           {/* Right Column: Chart & Data Entry */}
+//           <div className="lg:col-span-8 space-y-6">
+//             <Card className="border-slate-200/70 shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl bg-white">
+//               <CardHeader className="bg-slate-50/50 border-b border-slate-100/80 pb-4 flex flex-row items-center justify-between">
+//                 <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+//                   <Activity className="h-4 w-4 text-blue-500" /> Growth Trajectory
+//                 </CardTitle>
+//                 <Button variant="ghost" size="sm" onClick={downloadChart} className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 -my-2 rounded-lg transition-colors">
+//                   <Download className="h-4 w-4 mr-1.5" /> Export
+//                 </Button>
+//               </CardHeader>
+//               <CardContent className="pt-6">
+//                 <div ref={chartRef} className="h-[350px] w-full">
+//                   <WeightChart />
+//                 </div>
+//               </CardContent>
+//             </Card>
+
+//             <Card className="border-slate-200/70 shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl bg-white">
+//               <CardHeader className="bg-slate-50/50 border-b border-slate-100/80 pb-4 flex flex-row items-center justify-between">
+//                 <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+//                   <CalendarDays className="h-4 w-4 text-blue-500" /> Daily Log (kg)
+//                 </CardTitle>
+//               </CardHeader>
+//               <CardContent className="pt-6">
+//                 <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-x-3 gap-y-5">
+//                   {weightData.weightEntries.map((entry, index) => {
+//                     const isDayZero = index === 0;
+//                     const hasValue = entry.value !== "";
+                    
+//                     return (
+//                       <div key={entry.day} className="flex flex-col group">
+//                         <label className={cn(
+//                           "text-[10px] font-bold text-center mb-1.5 uppercase tracking-wide transition-colors",
+//                           isDayZero ? "text-blue-600" : "text-slate-400 group-hover:text-blue-500"
+//                         )}>
+//                           {isDayZero ? "Adm" : `Day ${index}`}
 //                         </label>
 //                         <Input
 //                           type="number"
 //                           step="0.01"
-//                           value={weightData.minimumWeight}
-//                           onChange={(e) => handleMinimumWeightChange(e.target.value)}
-//                           className="text-xs"
+//                           min="1"
+//                           max="30"
+//                           value={entry.value}
+//                           onChange={(e) => handleWeightChange(index, e.target.value)}
+//                           className={cn(
+//                             "text-center h-10 text-sm font-semibold transition-all duration-200 rounded-lg",
+//                             isDayZero ? "bg-blue-50 border-blue-200 text-blue-900 focus-visible:ring-blue-500 shadow-inner" :
+//                             hasValue ? "bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-500 shadow-sm" :
+//                             "bg-slate-50 border-slate-200 border-dashed text-slate-900 focus-visible:ring-blue-500 focus:border-solid hover:bg-white hover:border-blue-300"
+//                           )}
+//                           placeholder="--"
 //                         />
 //                       </div>
-//                       <div>
-//                         <label className="block text-xs font-medium text-gray-600 mb-1">
-//                           Target weight (kg)
-//                         </label>
-//                         <Input
-//                           value={weightData.targetWeight}
-//                           readOnly
-//                           className="bg-gray-50 text-xs"
-//                         />
-//                       </div>
-//                       <div className="text-xs text-gray-600 mt-2">
-//                         (Target weight: 15% weight gain from weight on admission)
-//                       </div>
-//                     </div>
-//                   </CardContent>
-//                 </Card>
-//               </div>
-              
-//               <div className="lg:col-span-2">
-//                 <Card>
-//                   <CardContent className="p-4">
-//                     <div className="flex justify-between items-center mb-2">
-//                       <h3 className="text-sm font-medium text-gray-700">
-//                         Weight Chart
-//                       </h3>
-//                       <Button
-//                         variant="outline"
-//                         size="sm"
-//                         onClick={downloadChart}
-//                         className="text-xs"
-//                       >
-//                         <Download className="h-3 w-3 mr-1" />
-//                         Download
-//                       </Button>
-//                     </div>
-//                     <div ref={chartRef} className="h-64">
-//                       <WeightChart />
-//                     </div>
-//                   </CardContent>
-//                 </Card>
-//               </div>
-//             </div>
-
-//             {/* Action Buttons */}
-//             <div className="flex justify-end space-x-2">
-//               <Button
-//                 variant="outline"
-//                 onClick={() => router.push("/mtc-user/dashboard/daily-weight")}
-//                 className="border-gray-600 text-gray-700 hover:bg-gray-100"
-//               >
-//                 <X className="mr-2 h-4 w-4" />
-//                 Cancel
-//               </Button>
-//               <Button
-//                 onClick={handleSave}
-//                 disabled={isSaving}
-//                 className="bg-indigo-600 hover:bg-indigo-700"
-//               >
-//                 <Save className="mr-2 h-4 w-4" />
-//                 {isSaving ? "Saving..." : "Save"}
-//               </Button>
-//             </div>
-//           </CardContent>
-//         </Card>
-//       </div>
+//                     );
+//                   })}
+//                 </div>
+//               </CardContent>
+//             </Card>
+//           </div>
+//         </div>
+//       </main>
 //     </div>
 //   );
-// }// 
-
-
+// }
 
 "use client";
 
@@ -679,109 +979,149 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ArrowLeft, Save, X, Download } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  ArrowLeft, Save, X, Download, Activity, User, Target, AlertCircle, CalendarDays, Loader2
+} from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
+import { cn } from "@/lib/utils";
 
-// 1. Updated Interfaces to match DB response
+interface Child {
+  id: string;
+  recordNo: string;
+  samNumber: string;
+  childName: string;
+  parentName: string;
+  admissionWeight: string;
+}
+
 interface WeightEntry {
-  day: string;  // Display format "DAY_0"
-  index: number; // Numeric format for DB (0)
+  day: string;
   value: string;
 }
 
 interface WeightData {
+  childId: string;
   samNumber: string;
-  mtcCode: string;
   name: string;
-  admissionWeight: number;
   weightEntries: WeightEntry[];
   minimumWeight: string;
   targetWeight: string;
 }
 
+interface RawChildFromDB {
+  id: string;
+  registration_id?: string | number;
+  sam_no?: string;
+  samNumber?: string;
+  child_full_name?: string;
+  childName?: string;
+  guardian_name?: string;
+  parentName?: string;
+  admission_weight_kg?: string | number;
+  admissionWeight?: string;
+}
+
 export default function EditWeightEntryPage() {
   const router = useRouter();
   const params = useParams();
-  // Decode the SAM number from the URL
-  const samNo = decodeURIComponent(params.id as string || params.samNo as string || "");
-  
+  const childId = params.id as string;
   const chartRef = useRef<HTMLDivElement>(null);
   
+  const [child, setChild] = useState<Child | null>(null);
   const [weightData, setWeightData] = useState<WeightData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // 2. Load Data from API
   useEffect(() => {
     const loadData = async () => {
-      if (!samNo) return;
-
       try {
-        const response = await fetch(`/api/mtc/daily-weight/${encodeURIComponent(samNo)}`);
+        // 1. Fetch Patient Profile Details
+        const childrenRes = await fetch('/api/child-registration');
+        if (!childrenRes.ok) throw new Error('Failed to fetch patient data');
+        const dbChildren = await childrenRes.json() as RawChildFromDB[];
         
-        if (!response.ok) {
-          throw new Error("Failed to fetch data");
+        // Find specific child. Mapping snake_case DB columns to our interface
+        const foundChildRaw = dbChildren.find((c) => c.registration_id?.toString() === childId || c.id === childId);
+        
+        if (!foundChildRaw) {
+          toast.error("Child not found");
+          router.push("/mtc-user/dashboard/daily-weight");
+          return;
         }
 
-        const data = await response.json();
-        const { profile, weights } = data;
-
-        // --- Transform DB Data to UI Format ---
+        const foundChild: Child = {
+          id: foundChildRaw.registration_id?.toString() || foundChildRaw.id,
+          recordNo: foundChildRaw.registration_id?.toString() || "N/A",
+          samNumber: foundChildRaw.sam_no || foundChildRaw.samNumber || "",
+          childName: foundChildRaw.child_full_name || foundChildRaw.childName || "",
+          parentName: foundChildRaw.guardian_name || foundChildRaw.parentName || "",
+          admissionWeight: foundChildRaw.admission_weight_kg?.toString() || foundChildRaw.admissionWeight || "0"
+        };
         
-        // 1. Create array for Day 0 to Day 59
+        setChild(foundChild);
+
+        // 2. Fetch Weight Records from API
+        const weightsRes = await fetch(`/api/daily-weights?childId=${childId}`);
+        const weightsDbResult = await weightsRes.json() as { 
+          success: boolean; 
+          data?: { weights_data?: Record<string, string>; minimum_weight?: string | number; target_weight?: string | number } 
+        };
+
+        let dbWeights: Record<string, string> = {};
+        let savedMin = "";
+        let savedTarget = "";
+
+        if (weightsDbResult.success && weightsDbResult.data) {
+          dbWeights = weightsDbResult.data.weights_data || {};
+          savedMin = weightsDbResult.data.minimum_weight?.toString() || "";
+          savedTarget = weightsDbResult.data.target_weight?.toString() || "";
+        }
+
+        // Calculate defaults if no records exist yet
+        const admissionWeightNum = parseFloat(foundChild.admissionWeight) || 0;
+        const defaultTarget = savedTarget || (admissionWeightNum * 1.15).toFixed(2);
+        const defaultMin = savedMin || (admissionWeightNum * 1.05).toFixed(2);
+
+        // Generate the 60-day array
         const allDays: WeightEntry[] = [];
         for (let i = 0; i < 60; i++) {
-            const dbKey = `Day${i}`; // Matches DB column
-            const val = weights[dbKey];
-            
-            allDays.push({
-                day: `DAY_${i}`,
-                index: i,
-                value: val !== null && val !== undefined ? val.toString() : ""
-            });
+          const dayKey = `day${i}`; 
+          let val = dbWeights[dayKey] || "";
+          
+          // Fallback: Populate Day 0 with admission weight if blank
+          if (i === 0 && val === "" && admissionWeightNum > 0) {
+            val = foundChild.admissionWeight;
+          }
+
+          allDays.push({ day: dayKey, value: val });
         }
 
-        // 2. Calculate Targets based on Admission Weight
-        const admWeight = parseFloat(profile.AdmissionWeight) || 0;
-        const targetWeight = (admWeight * 1.15).toFixed(2);
-        const minimumWeight = (admWeight * 1.05).toFixed(2);
-
         setWeightData({
-          samNumber: profile.SamNo,
-          mtcCode: profile.MTCCode,
-          name: profile.ChildName,
-          admissionWeight: admWeight,
+          childId: foundChild.id,
+          samNumber: foundChild.samNumber,
+          name: foundChild.childName,
           weightEntries: allDays,
-          minimumWeight: minimumWeight,
-          targetWeight: targetWeight
+          minimumWeight: defaultMin,
+          targetWeight: defaultTarget
         });
 
       } catch (error) {
-        console.error("Error loading data:", error);
-        toast.error("Failed to load child data");
+        console.error("Error loading clinical data:", error);
+        toast.error("Failed to load clinical data from server.");
       } finally {
         setIsLoading(false);
       }
     };
 
     loadData();
-  }, [samNo]);
+  }, [childId, router]);
 
-  // Handle local state update for inputs
   const handleWeightChange = (dayIndex: number, value: string) => {
     if (!weightData) return;
-
     const updatedEntries = [...weightData.weightEntries];
-    updatedEntries[dayIndex] = {
-      ...updatedEntries[dayIndex],
-      value: value
-    };
-
-    setWeightData({
-      ...weightData,
-      weightEntries: updatedEntries
-    });
+    updatedEntries[dayIndex] = { ...updatedEntries[dayIndex], value: value };
+    setWeightData({ ...weightData, weightEntries: updatedEntries });
   };
 
   const handleMinimumWeightChange = (value: string) => {
@@ -789,44 +1129,44 @@ export default function EditWeightEntryPage() {
     setWeightData({ ...weightData, minimumWeight: value });
   };
 
-  // 3. Save Data to API
   const handleSave = async () => {
-    if (!weightData) return;
-
+    if (!weightData || !child) return;
     setIsSaving(true);
+
     try {
-        // We filter for entries that have values to avoid sending 60 requests if empty
-        // Or strictly, in this use case, we might want to save everything the user touched.
-        // For simplicity, we will save all non-empty values using Promise.all
-        
-        const savePromises = weightData.weightEntries
-            .filter(entry => entry.value !== "") // Only save entries with values
-            .map(entry => {
-                return fetch(`/api/mtc/daily-weight/${encodeURIComponent(samNo)}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        day: entry.index,
-                        value: entry.value,
-                        mtcCode: weightData.mtcCode
-                    })
-                });
-            });
+      // Format array back into flat JSON dictionary for PostgreSQL
+      const formattedWeights: Record<string, string> = {};
+      weightData.weightEntries.forEach(entry => {
+        if (entry.value !== "") {
+          formattedWeights[entry.day] = entry.value;
+        }
+      });
 
-        await Promise.all(savePromises);
+      const payload = {
+        childId: child.id,
+        minimumWeight: weightData.minimumWeight,
+        targetWeight: weightData.targetWeight,
+        weightEntries: formattedWeights
+      };
 
-        toast.success("Weight entries saved successfully!");
-        // Optional: Redirect or stay on page
-        // router.push("/mtc-user/dashboard/daily-weight"); 
+      const response = await fetch('/api/daily-weights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error('Failed to save to database');
+
+      toast.success("Weight entries saved securely!");
+      router.push("/mtc-user/dashboard/daily-weight");
     } catch (error) {
       console.error("Error saving data:", error);
-      toast.error("Failed to save data");
+      toast.error("Failed to save data to the server.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  // --- Chart & Export Logic (Kept mostly same, adjusted for types) ---
   const downloadChart = async () => {
     if (!chartRef.current) return;
     try {
@@ -845,7 +1185,7 @@ export default function EditWeightEntryPage() {
       const img = new Image();
       
       img.onload = () => {
-        ctx.fillStyle = "white"; // Add white background
+        ctx.fillStyle = "white";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
         
@@ -853,13 +1193,12 @@ export default function EditWeightEntryPage() {
           if (!blob) return;
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
-          link.download = `weight-chart-${weightData?.name || 'child'}.png`;
+          link.download = `weight-chart-${child?.childName?.replace(/\s+/g, '-') || 'patient'}.png`;
           link.href = url;
           link.click();
           URL.revokeObjectURL(url);
         }, 'image/png');
       };
-      
       img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
     } catch (error) {
       console.error("Error downloading chart:", error);
@@ -871,243 +1210,269 @@ export default function EditWeightEntryPage() {
     if (!weightData) return null;
 
     const width = 800;
-    const height = 400;
-    const padding = 40;
+    const height = 350;
+    const padding = 45;
     const chartWidth = width - 2 * padding;
     const chartHeight = height - 2 * padding;
 
     const dataPoints = weightData.weightEntries
-      .map((entry) => ({
-        day: entry.index,
-        value: entry.value ? parseFloat(entry.value) : null
-      }))
-      .filter(point => point.value !== null && !isNaN(point.value));
+      .map((entry, index) => ({ day: index, value: entry.value ? parseFloat(entry.value) : null }))
+      .filter((point): point is { day: number; value: number } => point.value !== null);
 
     if (dataPoints.length === 0) {
       return (
-        <div className="flex items-center justify-center h-64 bg-gray-50 rounded">
-          <p className="text-gray-500">No weight data available</p>
+        <div className="flex flex-col items-center justify-center h-full text-slate-400">
+          <Activity className="h-10 w-10 mb-2 opacity-20" />
+          <p className="text-sm font-medium">No weight data available to graph</p>
         </div>
       );
     }
 
     const allValues = [
-      ...dataPoints.map(p => p.value!),
+      ...dataPoints.map(p => p.value),
       parseFloat(weightData.targetWeight) || 0,
       parseFloat(weightData.minimumWeight) || 0
-    ];
+    ].filter(v => v > 0);
     
-    // Safety check for min/max
-    const minValRaw = Math.min(...allValues);
-    const maxValRaw = Math.max(...allValues);
-    
-    const minValue = minValRaw > 0 ? minValRaw * 0.95 : 0;
-    const maxValue = maxValRaw > 0 ? maxValRaw * 1.05 : 10;
-    const valueRange = maxValue - minValue;
+    const minValue = Math.min(...allValues) * 0.95;
+    const maxValue = Math.max(...allValues) * 1.05;
+    const valueRange = maxValue - minValue || 1; 
 
     const xScale = (day: number) => padding + (day / 59) * chartWidth;
-    const yScale = (value: number) => padding + chartHeight - ((value - minValue) / (valueRange || 1)) * chartHeight;
+    const yScale = (value: number) => padding + chartHeight - ((value - minValue) / valueRange) * chartHeight;
 
-    const pathData = dataPoints
-      .map((point, index) => {
-        const x = xScale(point.day);
-        const y = yScale(point.value!);
-        return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
-      })
-      .join(' ');
-
+    const pathData = dataPoints.map((point, index) => `${index === 0 ? 'M' : 'L'} ${xScale(point.day)} ${yScale(point.value)}`).join(' ');
     const areaData = `${pathData} L ${xScale(dataPoints[dataPoints.length-1].day)} ${padding + chartHeight} L ${xScale(dataPoints[0].day)} ${padding + chartHeight} Z`;
 
-    const horizontalGridLines = 5;
-    const verticalGridLines = 6;
-
     return (
-      <div className="w-full overflow-x-auto">
-        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="w-full">
-          <rect width={width} height={height} fill="white" />
+      <div className="w-full overflow-x-auto custom-scrollbar">
+        <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="w-full min-w-[600px]">
           
-          {/* Grid Lines Y */}
-          {Array.from({ length: horizontalGridLines + 1 }).map((_, i) => {
-            const y = padding + (i / horizontalGridLines) * chartHeight;
-            const value = maxValue - (i / horizontalGridLines) * valueRange;
+          {/* Grid lines */}
+          {Array.from({ length: 6 }).map((_, i) => {
+            const y = padding + (i / 5) * chartHeight;
+            const value = maxValue - (i / 5) * valueRange;
             return (
               <g key={`h-grid-${i}`}>
-                <line x1={padding} y1={y} x2={padding + chartWidth} y2={y} stroke="#e5e7eb" strokeWidth="1" />
-                <text x={padding - 10} y={y + 5} textAnchor="end" fontSize="12" fill="#6b7280">{value.toFixed(1)}</text>
+                <line x1={padding} y1={y} x2={padding + chartWidth} y2={y} stroke="#f1f5f9" strokeWidth="1" />
+                <text x={padding - 10} y={y + 4} textAnchor="end" fontSize="11" fontWeight="600" fill="#94a3b8">{value.toFixed(1)}</text>
               </g>
             );
           })}
           
-          {/* Grid Lines X */}
-          {Array.from({ length: verticalGridLines + 1 }).map((_, i) => {
-            const x = padding + (i / verticalGridLines) * chartWidth;
-            const day = Math.round((i / verticalGridLines) * 59);
+          {Array.from({ length: 7 }).map((_, i) => {
+            const x = padding + (i / 6) * chartWidth;
+            const day = Math.round((i / 6) * 59);
             return (
               <g key={`v-grid-${i}`}>
-                <line x1={x} y1={padding} x2={x} y2={padding + chartHeight} stroke="#e5e7eb" strokeWidth="1" />
-                <text x={x} y={padding + chartHeight + 20} textAnchor="middle" fontSize="12" fill="#6b7280">{day}</text>
+                <line x1={x} y1={padding} x2={x} y2={padding + chartHeight} stroke="#f1f5f9" strokeWidth="1" />
+                <text x={x} y={padding + chartHeight + 20} textAnchor="middle" fontSize="11" fontWeight="600" fill="#94a3b8">Day {day}</text>
               </g>
             );
           })}
           
-          {/* Target Lines */}
-          <line x1={padding} y1={yScale(parseFloat(weightData.targetWeight))} x2={padding + chartWidth} y2={yScale(parseFloat(weightData.targetWeight))} stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" />
-          <line x1={padding} y1={yScale(parseFloat(weightData.minimumWeight))} x2={padding + chartWidth} y2={yScale(parseFloat(weightData.minimumWeight))} stroke="#f97316" strokeWidth="2" strokeDasharray="3,3" />
+          {/* Target & Min Lines */}
+          <line x1={padding} y1={yScale(parseFloat(weightData.targetWeight))} x2={padding + chartWidth} y2={yScale(parseFloat(weightData.targetWeight))} stroke="#6366f1" strokeWidth="2" strokeDasharray="6,4" />
+          <line x1={padding} y1={yScale(parseFloat(weightData.minimumWeight))} x2={padding + chartWidth} y2={yScale(parseFloat(weightData.minimumWeight))} stroke="#0ea5e9" strokeWidth="2" strokeDasharray="6,4" />
           
-          <path d={areaData} fill="rgba(34, 197, 94, 0.1)" />
-          <path d={pathData} fill="none" stroke="#22c55e" strokeWidth="2" />
+          {/* Growth Curve */}
+          <path d={areaData} fill="rgba(37, 99, 235, 0.08)" />
+          <path d={pathData} fill="none" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
           
+          {/* Data Points */}
           {dataPoints.map((point) => (
-            <circle key={`point-${point.day}`} cx={xScale(point.day)} cy={yScale(point.value!)} r="3" fill="#22c55e" />
+            <circle key={`point-${point.day}`} cx={xScale(point.day)} cy={yScale(point.value)} r="4" fill="white" stroke="#2563eb" strokeWidth="2" className="hover:r-6 transition-all duration-300" />
           ))}
           
           {/* Axes */}
-          <line x1={padding} y1={padding} x2={padding} y2={padding + chartHeight} stroke="#374151" strokeWidth="2" />
-          <line x1={padding} y1={padding + chartHeight} x2={padding + chartWidth} y2={padding + chartHeight} stroke="#374151" strokeWidth="2" />
+          <line x1={padding} y1={padding} x2={padding} y2={padding + chartHeight} stroke="#cbd5e1" strokeWidth="2" />
+          <line x1={padding} y1={padding + chartHeight} x2={padding + chartWidth} y2={padding + chartHeight} stroke="#cbd5e1" strokeWidth="2" />
+          <text x={15} y={height / 2} textAnchor="middle" fontSize="12" fontWeight="bold" fill="#64748b" transform={`rotate(-90 15 ${height / 2})`}>Weight (kg)</text>
           
           {/* Legend */}
-          <g transform={`translate(${width - 150}, 30)`}>
-            <rect x="0" y="0" width="140" height="80" fill="white" stroke="#e5e7eb" rx="5" />
-            <line x1="10" y1="20" x2="30" y2="20" stroke="#22c55e" strokeWidth="2" /> <text x="35" y="25" fontSize="12" fill="#374151">Weight</text>
-            <line x1="10" y1="40" x2="30" y2="40" stroke="#ef4444" strokeWidth="2" strokeDasharray="5,5" /> <text x="35" y="45" fontSize="12" fill="#374151">Target</text>
-            <line x1="10" y1="60" x2="30" y2="60" stroke="#f97316" strokeWidth="2" strokeDasharray="3,3" /> <text x="35" y="65" fontSize="12" fill="#374151">Minimum</text>
+          <g transform={`translate(${width - 240}, 10)`}>
+            <rect x="0" y="0" width="220" height="30" fill="white" rx="6" className="shadow-sm border border-slate-100" />
+            <line x1="10" y1="15" x2="25" y2="15" stroke="#2563eb" strokeWidth="3" />
+            <text x="30" y="19" fontSize="11" fontWeight="600" fill="#475569">Actual</text>
+            <line x1="75" y1="15" x2="90" y2="15" stroke="#6366f1" strokeWidth="2" strokeDasharray="4,2" />
+            <text x="95" y="19" fontSize="11" fontWeight="600" fill="#475569">Target</text>
+            <line x1="145" y1="15" x2="160" y2="15" stroke="#0ea5e9" strokeWidth="2" strokeDasharray="4,2" />
+            <text x="165" y="19" fontSize="11" fontWeight="600" fill="#475569">Min</text>
           </g>
         </svg>
       </div>
     );
   };
 
-  if (isLoading) {
+  if (isLoading || !weightData || !child) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading weight data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!weightData) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600">Failed to load weight data</p>
-          <Button onClick={() => router.push("/mtc-user/dashboard/daily-weight")} className="mt-4">Go Back</Button>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <Loader2 className="h-10 w-10 animate-spin text-blue-600 mb-4" />
+          <p className="text-slate-500 font-medium tracking-wide">Loading clinical data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-4 sm:py-6 md:py-8 lg:py-10 px-2 sm:px-4 md:px-6">
-      <Toaster position="top-right" />
+    <div className="min-h-screen bg-slate-50/50 pb-12 font-sans selection:bg-blue-100 selection:text-blue-900">
+      <Toaster position="top-center" />
       
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <Button
-            onClick={() => router.push("/mtc-user/dashboard/daily-weight")}
-            variant="outline"
-            className="border-gray-600 text-gray-700 hover:bg-gray-100"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Daily Weight
-          </Button>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">Edit Weight Entry</h1>
-        </div>
-
-        <Card className="shadow-sm border border-gray-200">
-          <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">SAM Number</label>
-                <Input value={weightData.samNumber} readOnly className="bg-gray-50" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Child Name</label>
-                <Input value={weightData.name} readOnly className="bg-gray-50" />
-              </div>
+      {/* Sticky Top Navigation Bar - Glass Effect */}
+      <div className="bg-white/80 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-30 shadow-sm transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button onClick={() => router.push("/mtc-user/dashboard/daily-weight")} variant="ghost" size="icon" className="text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-full transition-colors">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900 leading-tight">Update Flow Sheet</h1>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">60-Day Nutritional Monitoring</p>
             </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Button variant="outline" onClick={() => router.push("/mtc-user/dashboard/daily-weight")} className="border-slate-200 text-slate-600 hover:bg-slate-50 hidden sm:flex rounded-xl transition-colors">
+              <X className="mr-2 h-4 w-4" /> Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/20 rounded-xl transition-all">
+              {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              {isSaving ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </div>
+      </div>
 
-            <Card className="mb-6">
-              <CardHeader className="pb-2">
-                <h2 className="text-lg font-semibold text-gray-800">Daily Weight Entries</h2>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          {/* Left Column: Patient Profile & Targets */}
+          <div className="lg:col-span-4 space-y-6">
+            <Card className="border-slate-200/70 shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl overflow-hidden bg-white">
+              <CardHeader className="bg-slate-50/50 border-b border-slate-100/80 pb-4">
+                <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <User className="h-4 w-4 text-blue-500" /> Patient Profile
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
-                  {weightData.weightEntries.map((entry, index) => (
-                    <div key={entry.day} className="mb-2">
-                      <h6 className="text-xs text-center font-medium text-gray-700 mb-1">
-                        Day {entry.index}
-                      </h6>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={entry.value}
-                        onChange={(e) => handleWeightChange(index, e.target.value)}
-                        className="text-xs"
-                        placeholder="0.00"
-                      />
-                    </div>
-                  ))}
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 flex items-center justify-center font-bold text-2xl border-2 border-white shadow-sm shrink-0">
+                    {weightData.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">{weightData.name}</h2>
+                    <p className="text-sm text-slate-500 font-medium mt-0.5 flex items-center gap-1.5">
+                      <span className="bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 text-xs text-slate-600">ID: {weightData.samNumber}</span>
+                    </p>
+                  </div>
                 </div>
-                <div className="mt-2 text-xs text-gray-600">** Weight entered in kilograms (kg)</div>
+                
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                  <div className="bg-slate-50 rounded-xl p-3 border border-slate-100/50">
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Record No</p>
+                    <p className="text-sm font-semibold text-slate-800">{child?.recordNo}</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-xl p-3 border border-slate-100/50">
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Adm Weight</p>
+                    <p className="text-sm font-semibold text-slate-800">{child?.admissionWeight} kg</p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-              <div className="lg:col-span-1">
-                <Card>
-                  <CardContent className="p-4">
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">Target Weight Calculation</h3>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Minimum weight (kg)</label>
+            <Card className="border-slate-200/70 shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl overflow-hidden bg-white">
+              <div className="h-1.5 w-full bg-gradient-to-r from-sky-400 to-indigo-500"></div>
+              <CardHeader className="bg-slate-50/50 border-b border-slate-100/80 pb-4">
+                <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <Target className="h-4 w-4 text-indigo-500" /> Clinical Targets
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-5">
+                <div className="bg-sky-50/50 border border-sky-100 rounded-xl p-4 transition-colors hover:bg-sky-50">
+                  <label className="text-xs font-bold text-sky-700 uppercase tracking-wide flex items-center gap-1.5 mb-2.5">
+                    <AlertCircle className="h-4 w-4" /> Minimum Weight (5% Gain)
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <Input type="number" step="0.01" value={weightData.minimumWeight} onChange={(e) => handleMinimumWeightChange(e.target.value)} className="bg-white border-sky-200/80 font-bold text-slate-800 focus-visible:ring-sky-500 shadow-sm rounded-lg" />
+                    <span className="text-sm font-bold text-slate-400">kg</span>
+                  </div>
+                </div>
+                <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 transition-colors hover:bg-indigo-50">
+                  <label className="text-xs font-bold text-indigo-700 uppercase tracking-wide flex items-center gap-1.5 mb-2.5">
+                    <Target className="h-4 w-4" /> Target Weight (15% Gain)
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <Input value={weightData.targetWeight} readOnly className="bg-white/60 border-indigo-200/80 font-bold text-slate-800 opacity-80 cursor-not-allowed shadow-sm rounded-lg" />
+                    <span className="text-sm font-bold text-slate-400">kg</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column: Chart & Data Entry */}
+          <div className="lg:col-span-8 space-y-6">
+            <Card className="border-slate-200/70 shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl bg-white">
+              <CardHeader className="bg-slate-50/50 border-b border-slate-100/80 pb-4 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-blue-500" /> Growth Trajectory
+                </CardTitle>
+                <Button variant="ghost" size="sm" onClick={downloadChart} className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 -my-2 rounded-lg transition-colors">
+                  <Download className="h-4 w-4 mr-1.5" /> Export
+                </Button>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div ref={chartRef} className="h-[350px] w-full">
+                  <WeightChart />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-200/70 shadow-sm hover:shadow-md transition-shadow duration-300 rounded-2xl bg-white">
+              <CardHeader className="bg-slate-50/50 border-b border-slate-100/80 pb-4 flex flex-row items-center justify-between">
+                <CardTitle className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4 text-blue-500" /> Daily Log (kg)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-x-3 gap-y-5">
+                  {weightData.weightEntries.map((entry, index) => {
+                    const isDayZero = index === 0;
+                    const hasValue = entry.value !== "";
+                    
+                    return (
+                      <div key={entry.day} className="flex flex-col group">
+                        <label className={cn(
+                          "text-[10px] font-bold text-center mb-1.5 uppercase tracking-wide transition-colors",
+                          isDayZero ? "text-blue-600" : "text-slate-400 group-hover:text-blue-500"
+                        )}>
+                          {isDayZero ? "Adm" : `Day ${index}`}
+                        </label>
                         <Input
                           type="number"
                           step="0.01"
-                          value={weightData.minimumWeight}
-                          onChange={(e) => handleMinimumWeightChange(e.target.value)}
-                          className="text-xs"
+                          min="1"
+                          max="30"
+                          value={entry.value}
+                          onChange={(e) => handleWeightChange(index, e.target.value)}
+                          className={cn(
+                            "text-center h-10 text-sm font-semibold transition-all duration-200 rounded-lg",
+                            isDayZero ? "bg-blue-50 border-blue-200 text-blue-900 focus-visible:ring-blue-500 shadow-inner" :
+                            hasValue ? "bg-white border-slate-300 text-slate-900 focus-visible:ring-blue-500 shadow-sm" :
+                            "bg-slate-50 border-slate-200 border-dashed text-slate-900 focus-visible:ring-blue-500 focus:border-solid hover:bg-white hover:border-blue-300"
+                          )}
+                          placeholder="--"
                         />
                       </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Target weight (kg)</label>
-                        <Input value={weightData.targetWeight} readOnly className="bg-gray-50 text-xs" />
-                      </div>
-                      <div className="text-xs text-gray-600 mt-2">(Target weight: 15% weight gain from weight on admission)</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              <div className="lg:col-span-2">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <h3 className="text-sm font-medium text-gray-700">Weight Chart</h3>
-                      <Button variant="outline" size="sm" onClick={downloadChart} className="text-xs">
-                        <Download className="h-3 w-3 mr-1" /> Download
-                      </Button>
-                    </div>
-                    <div ref={chartRef} className="h-64">
-                      <WeightChart />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => router.push("/mtc-user/dashboard/daily-weight")} className="border-gray-600 text-gray-700 hover:bg-gray-100">
-                <X className="mr-2 h-4 w-4" /> Cancel
-              </Button>
-              <Button onClick={handleSave} disabled={isSaving} className="bg-indigo-600 hover:bg-indigo-700">
-                <Save className="mr-2 h-4 w-4" /> {isSaving ? "Saving..." : "Save"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

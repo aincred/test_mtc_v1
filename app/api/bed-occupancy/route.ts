@@ -1,180 +1,172 @@
-// // app/api/bed-occupancy/route.ts
-// import { NextRequest, NextResponse } from "next/server";
-// import { saveBedOccupancy, getBedOccupancyHistory } from "@/lib/db"; // Adjust path to your db.ts
+// import { NextResponse } from 'next/server';
+// import { query } from '@/lib/db';
 
-// // GET: Fetch records for a specific year
-// export async function GET(req: NextRequest) {
+// // --- GET: Fetch Bed Occupancy Records for a specific Year ---
+// export async function GET(request: Request) {
 //   try {
-//     const { searchParams } = new URL(req.url);
-//     const year = searchParams.get("year");
-//     // TODO: Get real MTCCode from user session
-//     const mtcCode = searchParams.get("mtcCode") || "JH/WSB/CBS"; 
+//     const { searchParams } = new URL(request.url);
+//     const year = searchParams.get('year');
+//     const mtcCode = searchParams.get('mtcCode');
 
-//     if (!year) {
-//       return NextResponse.json({ error: "Year is required" }, { status: 400 });
+//     if (!year || !mtcCode) {
+//       return NextResponse.json({ error: 'Year and MTC Code are required' }, { status: 400 });
 //     }
 
-//     const data = await getBedOccupancyHistory(mtcCode, parseInt(year));
+//     const sqlText = `
+//       SELECT 
+//         occupancy_id AS id,
+//         TO_CHAR(record_date, 'YYYY-MM-DD') AS date,
+//         record_year AS year,
+//         record_month AS month,
+//         record_day AS day,
+//         bed_sanctioned AS "bedSanctioned",
+//         utilized_bed AS "utilizedBed",
+//         bed_occupancy_percentage AS "bedOccupancyPercentage",
+//         created_at AS "createdAt"
+//       FROM mtc_bed_occupancy
+//       WHERE record_year = $1 AND mtc_code = $2
+//       ORDER BY record_date ASC
+//     `;
     
-//     // Transform data to match frontend interface if necessary
-//     const formattedData = data.map((record: any) => {
-//       const dateObj = new Date(record.date);
-//       return {
-//         id: record.id,
-//         date: record.date,
-//         year: dateObj.getFullYear(),
-//         month: dateObj.getMonth() + 1,
-//         day: dateObj.getDate(),
-//         bedSanctioned: record.BedSanctioned,
-//         utilizedBed: record.UtilizedBed,
-//         bedOccupancyPercentage: record.bedOccupancyPercentage,
-//         createdAt: record.date // Using record date as creation date
-//       };
-//     });
-
-//     return NextResponse.json(formattedData);
+//     const result = await query(sqlText, [parseInt(year), mtcCode]);
+    
+//     return NextResponse.json(result.rows, { status: 200 });
 //   } catch (error) {
-//     console.error("API Error:", error);
-//     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
+//     console.error('Fetch Bed Occupancy Error:', error);
+//     return NextResponse.json({ error: 'Failed to fetch records' }, { status: 500 });
 //   }
 // }
 
-// // POST: Save or Update a record
-// export async function POST(req: NextRequest) {
+// // --- POST: Save or Update a Bed Occupancy Record ---
+// export async function POST(request: Request) {
 //   try {
-//     const body = await req.json();
+//     const data = await request.json();
+
+//     // The ON CONFLICT clause ensures that if a record for this date already exists, it updates it!
+//     const sqlText = `
+//       INSERT INTO mtc_bed_occupancy (
+//         mtc_code, record_date, record_year, record_month, record_day,
+//         bed_sanctioned, utilized_bed, bed_occupancy_percentage
+//       ) VALUES (
+//         $1, $2, $3, $4, $5, $6, $7, $8
+//       )
+//       ON CONFLICT (mtc_code, record_date) 
+//       DO UPDATE SET 
+//         bed_sanctioned = EXCLUDED.bed_sanctioned,
+//         utilized_bed = EXCLUDED.utilized_bed,
+//         bed_occupancy_percentage = EXCLUDED.bed_occupancy_percentage
+//       RETURNING occupancy_id;
+//     `;
+
+//     const values = [
+//       data.mtcCode,
+//       data.date,
+//       data.year,
+//       data.month,
+//       data.day,
+//       data.bedSanctioned,
+//       data.utilizedBed,
+//       data.bedOccupancyPercentage
+//     ];
+
+//     const result = await query(sqlText, values);
     
-//     // TODO: Get real MTCCode from session
-//     const mtcCode = body.mtcCode || "JH/WSB/CBS"; 
+//     return NextResponse.json({ 
+//       success: true, 
+//       message: "Record saved successfully",
+//       id: result.rows[0].occupancy_id 
+//     }, { status: 201 });
 
-//     const saveResult = await saveBedOccupancy({
-//       MTCCode: mtcCode,
-//       BedSanctioned: parseFloat(body.bedSanctioned),
-//       UtilizedBed: parseFloat(body.utilizedBed),
-//       RecordDate: body.date,
-//       BedOccupency: parseFloat(body.bedOccupancyPercentage)
-//     });
-
-//     return NextResponse.json(saveResult);
 //   } catch (error) {
-//     console.error("API Save Error:", error);
-//     return NextResponse.json({ error: "Failed to save data" }, { status: 500 });
+//     console.error('Save Bed Occupancy Error:', error);
+//     return NextResponse.json({ error: 'Failed to save record' }, { status: 500 });
 //   }
 // }
 
-import { NextRequest, NextResponse } from "next/server";
-import { saveBedOccupancy, getBedOccupancyHistory } from "@/lib/db";
 
-/**
- * DB record shape returned by getBedOccupancyHistory
- */
-interface BedOccupancyDBRecord {
-  id: number;
-  date: string; // or Date if your DB returns Date objects
-  BedSanctioned: number;
-  UtilizedBed: number;
-  bedOccupancyPercentage: number;
-}
+import { NextResponse } from 'next/server';
+import { query } from '@/lib/db';
 
-/**
- * Frontend response shape
- */
-interface BedOccupancyResponse {
-  id: number;
-  date: string;
-  year: number;
-  month: number;
-  day: number;
-  bedSanctioned: number;
-  utilizedBed: number;
-  bedOccupancyPercentage: number;
-  createdAt: string;
-}
+export const dynamic = 'force-dynamic';
 
-// GET: Fetch records for a specific year
-export async function GET(req: NextRequest) {
+export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const yearParam = searchParams.get("year");
+    const { searchParams } = new URL(request.url);
+    const year = searchParams.get('year');
+    const mtcCode = searchParams.get('mtcCode');
 
-    // TODO: Replace with real MTCCode from session
-    const mtcCode = searchParams.get("mtcCode") ?? "JH/WSB/CBS";
-
-    if (!yearParam) {
-      return NextResponse.json(
-        { error: "Year is required" },
-        { status: 400 }
-      );
+    if (!year || !mtcCode) {
+      return NextResponse.json({ error: 'Year and MTC Code are required' }, { status: 400 });
     }
 
-    const year = Number(yearParam);
-
-    if (Number.isNaN(year)) {
-      return NextResponse.json(
-        { error: "Invalid year" },
-        { status: 400 }
-      );
-    }
-
-    const data: BedOccupancyDBRecord[] =
-      await getBedOccupancyHistory(mtcCode, year);
-
-    const formattedData: BedOccupancyResponse[] = data.map(
-      (record: BedOccupancyDBRecord) => {
-        const dateObj = new Date(record.date);
-
-        return {
-          id: record.id,
-          date: record.date,
-          year: dateObj.getFullYear(),
-          month: dateObj.getMonth() + 1,
-          day: dateObj.getDate(),
-          bedSanctioned: record.BedSanctioned,
-          utilizedBed: record.UtilizedBed,
-          bedOccupancyPercentage: record.bedOccupancyPercentage,
-          createdAt: record.date
-        };
-      }
-    );
-
-    return NextResponse.json(formattedData);
+    const sqlText = `
+      SELECT 
+        occupancy_id AS id,
+        mtc_name AS "mtcName",
+        TO_CHAR(record_date, 'YYYY-MM-DD') AS date,
+        record_year AS year,
+        record_month AS month,
+        record_day AS day,
+        bed_sanctioned AS "bedSanctioned",
+        utilized_bed AS "utilizedBed",
+        bed_occupancy_percentage AS "bedOccupancyPercentage",
+        created_at AS "createdAt"
+      FROM mtc_bed_occupancy
+      WHERE record_year = $1 AND mtc_code = $2
+      ORDER BY record_date ASC
+    `;
+    
+    const result = await query(sqlText, [parseInt(year, 10), mtcCode]);
+    
+    return NextResponse.json(result.rows, { status: 200 });
   } catch (error) {
-    console.error("API Error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch data" },
-      { status: 500 }
-    );
+    console.error('Fetch Bed Occupancy Error:', error);
+    return NextResponse.json({ error: 'Failed to fetch records' }, { status: 500 });
   }
 }
 
-// POST: Save or Update a record
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body: {
-      mtcCode?: string;
-      bedSanctioned: number | string;
-      utilizedBed: number | string;
-      bedOccupancyPercentage: number | string;
-      date: string;
-    } = await req.json();
+    const data = await request.json();
 
-    // TODO: Replace with real MTCCode from session
-    const mtcCode = body.mtcCode ?? "JH/WSB/CBS";
+    const sqlText = `
+      INSERT INTO mtc_bed_occupancy (
+        mtc_code, mtc_name, record_date, record_year, record_month, record_day,
+        bed_sanctioned, utilized_bed, bed_occupancy_percentage
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9
+      )
+      ON CONFLICT (mtc_code, record_date) 
+      DO UPDATE SET 
+        mtc_name = EXCLUDED.mtc_name,
+        bed_sanctioned = EXCLUDED.bed_sanctioned,
+        utilized_bed = EXCLUDED.utilized_bed,
+        bed_occupancy_percentage = EXCLUDED.bed_occupancy_percentage
+      RETURNING occupancy_id;
+    `;
 
-    const saveResult = await saveBedOccupancy({
-      MTCCode: mtcCode,
-      BedSanctioned: Number(body.bedSanctioned),
-      UtilizedBed: Number(body.utilizedBed),
-      RecordDate: body.date,
-      BedOccupency: Number(body.bedOccupancyPercentage)
-    });
+    const values = [
+      data.mtcCode,
+      data.mtcName, 
+      data.date,
+      data.year,
+      data.month,
+      data.day,
+      data.bedSanctioned,
+      data.utilizedBed,
+      data.bedOccupancyPercentage
+    ];
 
-    return NextResponse.json(saveResult);
+    const result = await query(sqlText, values);
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: "Record saved successfully",
+      id: result.rows[0].occupancy_id 
+    }, { status: 201 });
+
   } catch (error) {
-    console.error("API Save Error:", error);
-    return NextResponse.json(
-      { error: "Failed to save data" },
-      { status: 500 }
-    );
+    console.error('Save Bed Occupancy Error:', error);
+    return NextResponse.json({ error: 'Failed to save record' }, { status: 500 });
   }
 }

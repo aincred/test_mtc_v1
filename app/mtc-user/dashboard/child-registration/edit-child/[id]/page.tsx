@@ -1,1286 +1,3737 @@
+
+// // // // // "use client";
+
+// // // // // import React, { useState, useEffect } from "react";
+// // // // // import { useRouter, useParams } from "next/navigation";
+// // // // // import { Clock, Landmark, ClipboardCheck, MapPin, Activity, Stethoscope, Baby, ShieldCheck, ArrowLeft, CheckCircle } from "lucide-react";
+// // // // // import toast, { Toaster } from "react-hot-toast";
+// // // // // import { clsx, type ClassValue } from "clsx";
+// // // // // import { twMerge } from "tailwind-merge";
+
+// // // // // function cn(...inputs: ClassValue[]) {
+// // // // //   return twMerge(clsx(inputs));
+// // // // // }
+
+// // // // // // --- Reusable UI Components ---
+// // // // // const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+// // // // //   ({ className, type, ...props }, ref) => (
+// // // // //     <input type={type} className={cn("flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+// // // // //   )
+// // // // // );
+// // // // // Input.displayName = "Input";
+
+// // // // // const Button = React.forwardRef<any, any>(
+// // // // //   ({ className, variant = 'default', href, ...props }, ref) => {
+// // // // //     const classes = cn(
+// // // // //       "inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]",
+// // // // //       variant === 'default' ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 h-11 py-2 px-6" : "",
+// // // // //       variant === 'outline' ? "border border-slate-200 bg-white shadow-sm hover:bg-slate-50 hover:text-slate-900 h-11 py-2 px-6 text-slate-700" : "",
+// // // // //       variant === 'ghost' ? "hover:bg-slate-100 hover:text-slate-900 h-11 py-2 px-6 text-slate-600" : "",
+// // // // //       className
+// // // // //     );
+// // // // //     if (href) return <a href={href} className={classes} ref={ref} {...props} />;
+// // // // //     return <button ref={ref} className={classes} {...props} />;
+// // // // //   }
+// // // // // );
+// // // // // Button.displayName = "Button";
+
+// // // // // const Card = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+// // // // //   <div className={cn("rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-sm", className)} {...props} />
+// // // // // );
+// // // // // const CardContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+// // // // //   <div className={cn("p-6 md:p-8", className)} {...props} />
+// // // // // );
+// // // // // const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
+// // // // //   ({ className, ...props }, ref) => (
+// // // // //     <label ref={ref} className={cn("text-sm font-semibold text-slate-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block", className)} {...props} />
+// // // // //   )
+// // // // // );
+// // // // // Label.displayName = "Label";
+
+// // // // // const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+// // // // //   ({ className, ...props }, ref) => (
+// // // // //     <textarea className={cn("flex min-h-[80px] w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+// // // // //   )
+// // // // // );
+// // // // // Textarea.displayName = "Textarea";
+
+// // // // // const Select = ({ name, value, onValueChange, required, children, disabled }: any) => {
+// // // // //   const [internalValue, setInternalValue] = useState(value || "");
+  
+// // // // //   // Sync internal state if external value changes (Crucial for Edit mode resets)
+// // // // //   useEffect(() => {
+// // // // //     if (value !== undefined) setInternalValue(value);
+// // // // //   }, [value]);
+
+// // // // //   const options: {value: string, label: string}[] = [];
+// // // // //   let placeholder = "Select";
+  
+// // // // //   React.Children.forEach(children, child => {
+// // // // //     if (child && child.type?.name === 'SelectTrigger') {
+// // // // //       React.Children.forEach(child.props.children, triggerChild => {
+// // // // //         if (triggerChild && triggerChild.type?.name === 'SelectValue') placeholder = triggerChild.props.placeholder || "Select";
+// // // // //       });
+// // // // //     }
+// // // // //     if (child && child.type?.name === 'SelectContent') {
+// // // // //       const contentChildren = Array.isArray(child.props.children) ? child.props.children.flat() : [child.props.children];
+// // // // //       React.Children.forEach(contentChildren, itemChild => {
+// // // // //         if (itemChild && itemChild.type?.name === 'SelectItem') {
+// // // // //           options.push({ value: itemChild.props.value, label: itemChild.props.children });
+// // // // //         }
+// // // // //       });
+// // // // //     }
+// // // // //   });
+
+// // // // //   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+// // // // //     setInternalValue(e.target.value);
+// // // // //     if (onValueChange) onValueChange(e.target.value);
+// // // // //   };
+
+// // // // //   return (
+// // // // //     <select name={name} value={internalValue} onChange={handleChange} required={required} disabled={disabled} className="flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100 appearance-none">
+// // // // //       <option value="" disabled>{placeholder}</option>
+// // // // //       {options.map((opt, i) => (<option key={i} value={opt.value}>{opt.label}</option>))}
+// // // // //     </select>
+// // // // //   );
+// // // // // };
+// // // // // const SelectTrigger = ({ children }: any) => <>{children}</>;
+// // // // // const SelectValue = ({ placeholder }: any) => <>{placeholder}</>;
+// // // // // const SelectContent = ({ children }: any) => <>{children}</>;
+// // // // // const SelectItem = ({ children, value }: any) => <>{children}</>;
+
+// // // // // // --- Constants & Math Functions ---
+// // // // // const MEDICAL_COMPLICATIONS_LIST = [
+// // // // //   "NO COMPLICATION", "PRESENCE OF ANY OF EMERGENCY SIGNS", "VERY WEAK, APATHETIC",
+// // // // //   "ODEMA OF BOTH FEET", "SEVERE PALMAR PALLOR", "SICK YOUNG INFANT LESS THAN 2 MONTHS",
+// // // // //   "LETHARGY/ DROWSINESS/ UNCONSCIOUSNESS", "CONTINUALLY IRRITABLE AND RESTLESS", "ANY RESPIRATORY DISTRESS",
+// // // // //   "SEVERE DEHYDRATION WITH DIARRHOEA", "PERSISTENT VOMITING", "HYPOTHERMIA (<35°C)",
+// // // // //   "SEVERE ANEMIA", "FEVER (>38.5°C)", "EXTENSIVE SKIN LESIONS",
+// // // // //   "TUBERCULOSIS", "MALARIA", "OTHERS"
+// // // // // ];
+
+// // // // // const calculateZScore = (weight: number, height: number, sex: string) => {
+// // // // //   if (!weight || !height || height <= 0) return "";
+// // // // //   const score = (weight / (height / 100) ** 2) - 15;
+// // // // //   if (!isFinite(score) || score > 99 || score < -99) return "Error";
+// // // // //   return score.toFixed(2);
+// // // // // };
+
+// // // // // // --- Main Application ---
+// // // // // export default function EditChildRegistration() {
+// // // // //   const router = useRouter();
+// // // // //   const params = useParams();
+// // // // //   const childId = params.id as string;
+
+// // // // //   const [loading, setLoading] = useState(false);
+// // // // //   const [mounted, setMounted] = useState(false);
+// // // // //   const [childData, setChildData] = useState<any>(null);
+  
+// // // // //   const [masterData, setMasterData] = useState({
+// // // // //     admissionTypes: [], referredBy: [], castes: [], districts: [],
+// // // // //     sexes: [], relationships: [], odemas: [], breastFeeding: [], appetiteTests: [],
+// // // // //     blocks: [], icdsProjects: [], anganwadis: []
+// // // // //   });
+
+// // // // //   const [admissionType, setAdmissionType] = useState("");
+// // // // //   const [referredBy, setReferredBy] = useState("");
+// // // // //   const [showAshaFields, setShowAshaFields] = useState(false);
+// // // // //   const [selectedComplications, setSelectedComplications] = useState<string[]>([]);
+  
+// // // // //   const [dateOfBirth, setDateOfBirth] = useState<string>("");
+// // // // //   const [admissionDate, setAdmissionDate] = useState<string>("");
+// // // // //   const [admissionTime, setAdmissionTime] = useState<string>("");
+
+// // // // //   const [sex, setSex] = useState<string>("");
+// // // // //   const [admissionWeight, setAdmissionWeight] = useState<string>("");
+// // // // //   const [admissionHeight, setAdmissionHeight] = useState<string>("");
+// // // // //   const [zScore, setZScore] = useState<string>("");
+
+// // // // //   const [caste, setCaste] = useState("");
+// // // // //   const [district, setDistrict] = useState("");
+// // // // //   const [block, setBlock] = useState("");
+// // // // //   const [icdsProject, setIcdsProject] = useState("");
+// // // // //   const [anganwadiCenter, setAnganwadiCenter] = useState("");
+// // // // //   const [relationship, setRelationship] = useState("");
+  
+// // // // //   const [admissionOdema, setAdmissionOdema] = useState("");
+// // // // //   const [breastFeeding, setBreastFeeding] = useState("");
+// // // // //   const [complementaryFeeding, setComplementaryFeeding] = useState("");
+// // // // //   const [appetiteTest, setAppetiteTest] = useState("");
+
+// // // // //   useEffect(() => {
+// // // // //     setMounted(true);
+    
+// // // // //     // Fetch Master Data
+// // // // //     const fetchMasterData = async () => {
+// // // // //       try {
+// // // // //         const response = await fetch('/api/master-data');
+// // // // //         if (response.ok) {
+// // // // //           const data = await response.json();
+// // // // //           setMasterData(data);
+// // // // //         }
+// // // // //       } catch (error) {
+// // // // //         toast.error("Failed to load dropdown options.");
+// // // // //       }
+// // // // //     };
+    
+// // // // //     // Fetch Specific Child Data
+// // // // //     const fetchChildData = async () => {
+// // // // //       try {
+// // // // //         const response = await fetch(`/api/child-registration/${childId}`);
+// // // // //         if (response.ok) {
+// // // // //           const patient = await response.json();
+// // // // //           setChildData(patient);
+          
+// // // // //           setAdmissionType(patient.admissionType || "");
+// // // // //           setReferredBy(patient.referredBy || "");
+// // // // //           setSex(patient.sex || "");
+// // // // //           setRelationship(patient.relationship || "");
+// // // // //           setCaste(patient.caste || "");
+// // // // //           setDistrict(patient.district || "");
+// // // // //           setBlock(patient.block || "");
+// // // // //           setIcdsProject(patient.icdsProject || "");
+// // // // //           setAnganwadiCenter(patient.anganwadiCenter || "");
+          
+// // // // //           setDateOfBirth(patient.dateOfBirth || "");
+// // // // //           setAdmissionDate(patient.admissionDate || "");
+// // // // //           setAdmissionTime(patient.admissionTime || "");
+          
+// // // // //           setAdmissionWeight(patient.admissionWeight || "");
+// // // // //           setAdmissionHeight(patient.admissionHeight || "");
+// // // // //           setZScore(patient.zScore || "");
+          
+// // // // //           setAdmissionOdema(patient.admissionOdema || "");
+// // // // //           setBreastFeeding(patient.breastFeeding || "");
+// // // // //           setComplementaryFeeding(patient.complementaryFeeding || "");
+// // // // //           setAppetiteTest(patient.appetiteTest || "");
+          
+// // // // //           setSelectedComplications(patient.medicalComplications || []);
+// // // // //         } else {
+// // // // //           toast.error("Patient not found!");
+// // // // //           router.push('/mtc-user/dashboard/child-registration');
+// // // // //         }
+// // // // //       } catch (error) {
+// // // // //         toast.error("Error loading patient data.");
+// // // // //       }
+// // // // //     };
+
+// // // // //     fetchMasterData();
+// // // // //     if (childId) fetchChildData();
+// // // // //   }, [childId, router]);
+
+// // // // //   useEffect(() => {
+// // // // //     if (admissionWeight && admissionHeight && sex) {
+// // // // //       const score = calculateZScore(parseFloat(admissionWeight), parseFloat(admissionHeight), sex);
+// // // // //       setZScore(score ? String(score) : "");
+// // // // //     } else {
+// // // // //       setZScore("");
+// // // // //     }
+// // // // //   }, [admissionWeight, admissionHeight, sex]);
+
+// // // // //   useEffect(() => {
+// // // // //     setShowAshaFields(referredBy === "6");
+// // // // //   }, [referredBy]);
+
+// // // // //   const handleComplicationToggle = (comp: string) => {
+// // // // //     setSelectedComplications(prev => 
+// // // // //       prev.includes(comp) ? prev.filter(c => c !== comp) : [...prev, comp]
+// // // // //     );
+// // // // //   };
+
+// // // // //   // Filter blocks based on the currently selected district
+// // // // //   const filteredBlocks = masterData.blocks.filter((b: any) => 
+// // // // //     !district || b.districtId?.toString() === district
+// // // // //   );
+
+// // // // //   const handleSubmit = async (e: React.FormEvent) => {
+// // // // //     e.preventDefault();
+// // // // //     if (zScore === "Error") {
+// // // // //       toast.error("Invalid Anthropometry data. Please check Height/Weight.");
+// // // // //       return;
+// // // // //     }
+// // // // //     if (selectedComplications.length === 0) {
+// // // // //       toast.error("Please select at least one medical complication status.");
+// // // // //       return;
+// // // // //     }
+
+// // // // //     setLoading(true);
+// // // // //     const formData = new FormData(e.currentTarget as HTMLFormElement);
+    
+// // // // //     const payload = {
+// // // // //       admissionType, referredBy,
+// // // // //       referredByName: formData.get('referredByName'), referredByMobile: formData.get('referredByMobile'),
+// // // // //       childName: formData.get('childName'), parentName: formData.get('parentName'),
+// // // // //       relationship, mobileNumber: formData.get('mobileNumber'),
+// // // // //       bplNumber: formData.get('bplNumber'), dateOfBirth, sex,
+// // // // //       address: formData.get('address'), caste, district, block, // Uses controlled state
+// // // // //       icdsProject, anganwadiCenter, village: formData.get('village'),
+// // // // //       aadhaarNumber: formData.get('aadhaarNumber'), bankName: formData.get('bankName'),
+// // // // //       accountHolderName: formData.get('accountHolderName'), accountNumber: formData.get('accountNumber'),
+// // // // //       ifscCode: formData.get('ifscCode'), admissionDate, admissionTime,
+// // // // //       admissionWeight, admissionHeight, admissionMuac: formData.get('admissionMuac'),
+// // // // //       zScore: zScore, admissionOdema, breastFeeding, complementaryFeeding, appetiteTest,
+// // // // //       medicalComplications: selectedComplications
+// // // // //     };
+
+// // // // //     try {
+// // // // //       const response = await fetch(`/api/child-registration/${childId}`, {
+// // // // //         method: 'PUT',
+// // // // //         headers: { 'Content-Type': 'application/json' },
+// // // // //         body: JSON.stringify(payload)
+// // // // //       });
+      
+// // // // //       if (!response.ok) throw new Error('Failed to update registration');
+      
+// // // // //       toast.success("Patient updated successfully!");
+// // // // //       setTimeout(() => router.push('/mtc-user/dashboard/child-registration'), 1000);
+      
+// // // // //     } catch (error) {
+// // // // //       toast.error("An error occurred while updating.");
+// // // // //       setLoading(false);
+// // // // //     }
+// // // // //   };
+
+// // // // //   if (!mounted || !childData) {
+// // // // //     return <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+// // // // //       <div className="animate-pulse text-indigo-600 font-medium">Loading database record...</div>
+// // // // //     </div>;
+// // // // //   }
+
+// // // // //   const SectionTitle = ({ icon: Icon, title }: { icon: any, title: string }) => (
+// // // // //     <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+// // // // //       <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600"><Icon size={20} strokeWidth={2.5} /></div>
+// // // // //       <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+// // // // //     </div>
+// // // // //   );
+
+// // // // //   return (
+// // // // //     <div className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 lg:px-8 font-sans pb-28">
+// // // // //       <Toaster position="top-center" toastOptions={{ className: 'rounded-xl shadow-lg font-medium' }} />
+      
+// // // // //       <div className="max-w-6xl mx-auto">
+// // // // //         <div className="mb-2 flex items-center">
+// // // // //           <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button" className="pl-0 text-slate-500 hover:text-indigo-600 hover:bg-transparent">
+// // // // //             <ArrowLeft className="w-5 h-5 mr-2" /> Back
+// // // // //           </Button>
+// // // // //         </div>
+
+// // // // //         <div className="mb-8 text-center md:text-left md:flex md:items-end md:justify-between">
+// // // // //           <div>
+// // // // //             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Edit Child Record</h1>
+// // // // //             <p className="mt-2 text-sm text-slate-500">Update the information directly in the database.</p>
+// // // // //           </div>
+// // // // //           <div className="mt-4 md:mt-0 px-5 py-3 bg-white rounded-xl shadow-sm border border-slate-200 inline-block text-center md:text-right">
+// // // // //             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">SAM Number</span>
+// // // // //             <span className="text-lg font-mono font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-md">{childData.samNumber}</span>
+// // // // //           </div>
+// // // // //         </div>
+
+// // // // //         <form onSubmit={handleSubmit} className="relative">
+// // // // //           <div className="space-y-6">
+
+// // // // //             {/* Admission Info */}
+// // // // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // // //               <CardContent className="p-6 sm:p-8">
+// // // // //                 <SectionTitle icon={ClipboardCheck} title="Admission Details" />
+// // // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // // // //                   <div>
+// // // // //                     <Label>Admission Type <span className="text-red-500">*</span></Label>
+// // // // //                     <Select name="admissionType" value={admissionType} onValueChange={setAdmissionType} required>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.admissionTypes.map((type: any) => (<SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Referred By</Label>
+// // // // //                     <Select name="referredBy" value={referredBy} onValueChange={setReferredBy}>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select Origin" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.referredBy.map((ref: any) => (<SelectItem key={ref.id} value={ref.id.toString()}>{ref.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   {showAshaFields && (
+// // // // //                     <>
+// // // // //                       <div>
+// // // // //                         <Label>Name of Sahiya/Asha</Label>
+// // // // //                         <Input name="referredByName" defaultValue={childData.referredByName || childData.parentName} placeholder="Enter Name" />
+// // // // //                       </div>
+// // // // //                       <div>
+// // // // //                         <Label>Sahiya/Asha Mobile</Label>
+// // // // //                         <Input name="referredByMobile" defaultValue={childData.referredByMobile || childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" />
+// // // // //                       </div>
+// // // // //                     </>
+// // // // //                   )}
+// // // // //                   <div>
+// // // // //                     <Label>Admission Date <span className="text-red-500">*</span></Label>
+// // // // //                     <Input type="date" name="admissionDate" value={admissionDate} onChange={(e) => setAdmissionDate(e.target.value)} required />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Admission Time <span className="text-red-500">*</span></Label>
+// // // // //                     <div className="relative">
+// // // // //                       <Input name="admissionTime" type="time" value={admissionTime} onChange={(e) => setAdmissionTime(e.target.value)} required className="pr-10" />
+// // // // //                       <Clock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 pointer-events-none" />
+// // // // //                     </div>
+// // // // //                   </div>
+// // // // //                 </div>
+// // // // //               </CardContent>
+// // // // //             </Card>
+
+// // // // //             {/* Personal Info */}
+// // // // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // // //               <CardContent className="p-6 sm:p-8">
+// // // // //                 <SectionTitle icon={Baby} title="Child & Guardian Information" />
+// // // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // // // //                   <div className="lg:col-span-2">
+// // // // //                     <Label>Child Full Name <span className="text-red-500">*</span></Label>
+// // // // //                     <Input name="childName" defaultValue={childData.childName} required />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Date of Birth <span className="text-red-500">*</span></Label>
+// // // // //                     <Input type="date" name="dateOfBirth" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} required />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Sex <span className="text-red-500">*</span></Label>
+// // // // //                     <Select name="sex" value={sex} onValueChange={setSex} required>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.sexes.map((s: any) => (<SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   <div className="lg:col-span-2">
+// // // // //                     <Label>Name of Father/Mother/Caretaker <span className="text-red-500">*</span></Label>
+// // // // //                     <Input name="parentName" defaultValue={childData.parentName} required />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Relationship <span className="text-red-500">*</span></Label>
+// // // // //                     <Select name="relationship" value={relationship} onValueChange={setRelationship} required>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.relationships.map((rel: any) => (<SelectItem key={rel.id} value={rel.id.toString()}>{rel.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Mobile Number <span className="text-red-500">*</span></Label>
+// // // // //                     <Input name="mobileNumber" defaultValue={childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" required />
+// // // // //                   </div>
+// // // // //                 </div>
+// // // // //               </CardContent>
+// // // // //             </Card>
+
+// // // // //             {/* Financial Details */}
+// // // // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // // //               <CardContent className="p-6 sm:p-8">
+// // // // //                 <SectionTitle icon={ShieldCheck} title="Identity & Financial Details" />
+// // // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // // // //                   <div>
+// // // // //                     <Label>Parent Aadhaar Number</Label>
+// // // // //                     <Input name="aadhaarNumber" defaultValue={childData.aadhaarNumber} maxLength={12} pattern="[0-9]{12}" />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>BPL Number</Label>
+// // // // //                     <Input name="bplNumber" defaultValue={childData.bplNumber} />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Caste <span className="text-red-500">*</span></Label>
+// // // // //                     <Select name="caste" value={caste} onValueChange={setCaste} required>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select Caste" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.castes.map((caste: any) => (<SelectItem key={caste.id} value={caste.id.toString()}>{caste.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   <div className="lg:col-span-4 mt-2">
+// // // // //                     <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
+// // // // //                       <Landmark className="w-4 h-4 text-indigo-500" /> Bank Account Details
+// // // // //                     </h3>
+// // // // //                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-slate-50 p-5 rounded-xl border border-slate-100">
+// // // // //                       <div><Label>Bank Name</Label><Input name="bankName" defaultValue={childData.bankName} className="bg-white" /></div>
+// // // // //                       <div><Label>Account Holder</Label><Input name="accountHolderName" defaultValue={childData.accountHolderName} className="bg-white" /></div>
+// // // // //                       <div><Label>Account Number</Label><Input name="accountNumber" defaultValue={childData.accountNumber} className="bg-white" /></div>
+// // // // //                       <div><Label>IFSC Code</Label><Input name="ifscCode" defaultValue={childData.ifscCode} className="bg-white" /></div>
+// // // // //                     </div>
+// // // // //                   </div>
+// // // // //                 </div>
+// // // // //               </CardContent>
+// // // // //             </Card>
+
+// // // // //             {/* DEPENDENT LOCATION DETAILS */}
+// // // // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // // //               <CardContent className="p-6 sm:p-8">
+// // // // //                 <SectionTitle icon={MapPin} title="Location Details" />
+// // // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+// // // // //                   <div className="lg:col-span-3">
+// // // // //                     <Label>Full Address <span className="text-red-500">*</span></Label>
+// // // // //                     <Textarea name="address" defaultValue={childData.address} rows={2} required />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>District <span className="text-red-500">*</span></Label>
+// // // // //                     <Select 
+// // // // //                       name="district" 
+// // // // //                       value={district} 
+// // // // //                       onValueChange={(val: string) => {
+// // // // //                         setDistrict(val);
+// // // // //                         setBlock(""); // Clear the block whenever a new district is selected
+// // // // //                       }} 
+// // // // //                       required
+// // // // //                     >
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.districts.map((dist: any) => (<SelectItem key={dist.id} value={dist.id.toString()}>{dist.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Block</Label>
+// // // // //                     <Select 
+// // // // //                       name="block" 
+// // // // //                       value={block} 
+// // // // //                       onValueChange={setBlock}
+// // // // //                       disabled={!district} // Disable if no district is selected
+// // // // //                     >
+// // // // //                       <SelectTrigger>
+// // // // //                         <SelectValue placeholder={district ? "Select Block" : "Select District First"} />
+// // // // //                       </SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {filteredBlocks.map((b: any) => (<SelectItem key={b.id} value={b.id.toString()}>{b.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Village</Label>
+// // // // //                     <Input name="village" defaultValue={childData.village} />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>ICDS Project</Label>
+// // // // //                     <Select name="icdsProject" value={icdsProject} onValueChange={setIcdsProject}>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.icdsProjects.map((project: any) => (<SelectItem key={project.id} value={project.id.toString()}>{project.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   <div className="lg:col-span-2">
+// // // // //                     <Label>Anganwadi Center</Label>
+// // // // //                     <Select name="anganwadiCenter" value={anganwadiCenter} onValueChange={setAnganwadiCenter}>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select Center" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.anganwadis.map((center: any) => (<SelectItem key={center.id} value={center.id.toString()}>{center.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                 </div>
+// // // // //               </CardContent>
+// // // // //             </Card>
+
+// // // // //             {/* Anthropometry Details */}
+// // // // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // // //               <CardContent className="p-6 sm:p-8">
+// // // // //                 <SectionTitle icon={Activity} title="Anthropometry & Feeding" />
+// // // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // // // //                   <div>
+// // // // //                     <Label>Admission Weight (kg) <span className="text-red-500">*</span></Label>
+// // // // //                     <Input name="admissionWeight" type="number" step="0.1" value={admissionWeight} onChange={(e) => setAdmissionWeight(e.target.value)} required />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Length/Height (cm) <span className="text-red-500">*</span></Label>
+// // // // //                     <Input name="admissionHeight" type="number" step="0.1" value={admissionHeight} onChange={(e) => setAdmissionHeight(e.target.value)} required />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>MUAC (cm) <span className="text-red-500">*</span></Label>
+// // // // //                     <Input name="admissionMuac" type="number" step="0.1" defaultValue={childData.admissionMuac} required />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Z-Score (SD)</Label>
+// // // // //                     <Input name="zScore" readOnly value={zScore} className={cn("font-semibold focus:ring-0 cursor-not-allowed", zScore === "Error" ? "bg-red-50 text-red-600" : "bg-slate-100 text-indigo-700")} />
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Admission Odema <span className="text-red-500">*</span></Label>
+// // // // //                     <Select name="admissionOdema" value={admissionOdema} onValueChange={setAdmissionOdema} required>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.odemas.map((odema: any) => (<SelectItem key={odema.id} value={odema.id.toString()}>{odema.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Breast Feeding <span className="text-red-500">*</span></Label>
+// // // // //                     <Select name="breastFeeding" value={breastFeeding} onValueChange={setBreastFeeding} required>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.breastFeeding.map((bf: any) => (<SelectItem key={bf.id} value={bf.id.toString()}>{bf.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Complementary Feeding <span className="text-red-500">*</span></Label>
+// // // // //                     <Select name="complementaryFeeding" value={complementaryFeeding} onValueChange={setComplementaryFeeding} required>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         <SelectItem value="1">Yes</SelectItem><SelectItem value="2">No</SelectItem>
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                   <div>
+// // // // //                     <Label>Appetite Test <span className="text-red-500">*</span></Label>
+// // // // //                     <Select name="appetiteTest" value={appetiteTest} onValueChange={setAppetiteTest} required>
+// // // // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // // // //                       <SelectContent>
+// // // // //                         {masterData.appetiteTests.map((at: any) => (<SelectItem key={at.id} value={at.id.toString()}>{at.name}</SelectItem>))}
+// // // // //                       </SelectContent>
+// // // // //                     </Select>
+// // // // //                   </div>
+// // // // //                 </div>
+// // // // //               </CardContent>
+// // // // //             </Card>
+
+// // // // //             <Card className="overflow-hidden border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // // //               <CardContent className="p-6 sm:p-8">
+// // // // //                 <SectionTitle icon={Stethoscope} title="Medical Complications" />
+// // // // //                 <p className="text-sm font-semibold text-slate-700 mb-4 block">Select all present complications: <span className="text-red-500">*</span></p>
+                
+// // // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6 bg-slate-50/50 p-6 rounded-xl border border-slate-200">
+// // // // //                   {MEDICAL_COMPLICATIONS_LIST.map((comp) => (
+// // // // //                     <label key={comp} className="flex items-start space-x-3 cursor-pointer group">
+// // // // //                       <div className="flex items-center h-5">
+// // // // //                         <input
+// // // // //                           type="checkbox"
+// // // // //                           className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/30 transition duration-150 ease-in-out cursor-pointer"
+// // // // //                           checked={selectedComplications.includes(comp)}
+// // // // //                           onChange={() => handleComplicationToggle(comp)}
+// // // // //                         />
+// // // // //                       </div>
+// // // // //                       <span className="text-sm font-medium text-slate-600 leading-tight group-hover:text-slate-900 transition-colors">
+// // // // //                         {comp}
+// // // // //                       </span>
+// // // // //                     </label>
+// // // // //                   ))}
+// // // // //                 </div>
+// // // // //               </CardContent>
+// // // // //             </Card>
+
+// // // // //           </div>
+
+// // // // //           <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200 p-4 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50 flex justify-end gap-4 sm:justify-center md:justify-end md:px-12">
+// // // // //             <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button">Cancel</Button>
+// // // // //             <Button type="submit" disabled={loading || zScore === "Error"} className="min-w-40">
+// // // // //               {loading ? "Saving to Database..." : "Update Patient"}
+// // // // //             </Button>
+// // // // //           </div>
+// // // // //         </form>
+// // // // //       </div>
+// // // // //     </div>
+// // // // //   );
+// // // // // }
+
+// // // // "use client";
+
+// // // // import React, { useState, useEffect } from "react";
+// // // // import { useRouter, useParams } from "next/navigation";
+// // // // import { Clock, Landmark, ClipboardCheck, MapPin, Activity, Stethoscope, Baby, ShieldCheck, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
+// // // // import toast, { Toaster } from "react-hot-toast";
+// // // // import { clsx, type ClassValue } from "clsx";
+// // // // import { twMerge } from "tailwind-merge";
+
+// // // // function cn(...inputs: ClassValue[]) {
+// // // //   return twMerge(clsx(inputs));
+// // // // }
+
+// // // // // --- Reusable UI Components ---
+// // // // const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+// // // //   ({ className, type, ...props }, ref) => (
+// // // //     <input type={type} className={cn("flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+// // // //   )
+// // // // );
+// // // // Input.displayName = "Input";
+
+// // // // const Button = React.forwardRef<any, any>(
+// // // //   ({ className, variant = 'default', href, ...props }, ref) => {
+// // // //     const classes = cn(
+// // // //       "inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]",
+// // // //       variant === 'default' ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 h-11 py-2 px-6" : "",
+// // // //       variant === 'outline' ? "border border-slate-200 bg-white shadow-sm hover:bg-slate-50 hover:text-slate-900 h-11 py-2 px-6 text-slate-700" : "",
+// // // //       variant === 'ghost' ? "hover:bg-slate-100 hover:text-slate-900 h-11 py-2 px-6 text-slate-600" : "",
+// // // //       className
+// // // //     );
+// // // //     if (href) return <a href={href} className={classes} ref={ref} {...props} />;
+// // // //     return <button ref={ref} className={classes} {...props} />;
+// // // //   }
+// // // // );
+// // // // Button.displayName = "Button";
+
+// // // // const Card = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+// // // //   <div className={cn("rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-sm", className)} {...props} />
+// // // // );
+// // // // const CardContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+// // // //   <div className={cn("p-6 md:p-8", className)} {...props} />
+// // // // );
+// // // // const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
+// // // //   ({ className, ...props }, ref) => (
+// // // //     <label ref={ref} className={cn("text-sm font-semibold text-slate-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block", className)} {...props} />
+// // // //   )
+// // // // );
+// // // // Label.displayName = "Label";
+
+// // // // const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+// // // //   ({ className, ...props }, ref) => (
+// // // //     <textarea className={cn("flex min-h-[80px] w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+// // // //   )
+// // // // );
+// // // // Textarea.displayName = "Textarea";
+
+// // // // const Select = ({ name, value, onValueChange, required, children, disabled }: any) => {
+// // // //   const [internalValue, setInternalValue] = useState(value || "");
+  
+// // // //   // Sync internal state if external value changes (Crucial for Edit mode resets)
+// // // //   useEffect(() => {
+// // // //     if (value !== undefined) setInternalValue(value);
+// // // //   }, [value]);
+
+// // // //   const options: {value: string, label: string}[] = [];
+// // // //   let placeholder = "Select";
+  
+// // // //   React.Children.forEach(children, child => {
+// // // //     if (child && child.type?.name === 'SelectTrigger') {
+// // // //       React.Children.forEach(child.props.children, triggerChild => {
+// // // //         if (triggerChild && triggerChild.type?.name === 'SelectValue') placeholder = triggerChild.props.placeholder || "Select";
+// // // //       });
+// // // //     }
+// // // //     if (child && child.type?.name === 'SelectContent') {
+// // // //       const contentChildren = Array.isArray(child.props.children) ? child.props.children.flat() : [child.props.children];
+// // // //       React.Children.forEach(contentChildren, itemChild => {
+// // // //         if (itemChild && itemChild.type?.name === 'SelectItem') {
+// // // //           options.push({ value: itemChild.props.value, label: itemChild.props.children });
+// // // //         }
+// // // //       });
+// // // //     }
+// // // //   });
+
+// // // //   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+// // // //     setInternalValue(e.target.value);
+// // // //     if (onValueChange) onValueChange(e.target.value);
+// // // //   };
+
+// // // //   return (
+// // // //     <select name={name} value={internalValue} onChange={handleChange} required={required} disabled={disabled} className="flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100 appearance-none">
+// // // //       <option value="" disabled>{placeholder}</option>
+// // // //       {options.map((opt, i) => (<option key={i} value={opt.value}>{opt.label}</option>))}
+// // // //     </select>
+// // // //   );
+// // // // };
+// // // // const SelectTrigger = ({ children }: any) => <>{children}</>;
+// // // // const SelectValue = ({ placeholder }: any) => <>{placeholder}</>;
+// // // // const SelectContent = ({ children }: any) => <>{children}</>;
+// // // // const SelectItem = ({ children, value }: any) => <>{children}</>;
+
+// // // // // --- Constants & Math Functions ---
+// // // // const MEDICAL_COMPLICATIONS_LIST = [
+// // // //   "NO COMPLICATION", "PRESENCE OF ANY OF EMERGENCY SIGNS", "VERY WEAK, APATHETIC",
+// // // //   "ODEMA OF BOTH FEET", "SEVERE PALMAR PALLOR", "SICK YOUNG INFANT LESS THAN 2 MONTHS",
+// // // //   "LETHARGY/ DROWSINESS/ UNCONSCIOUSNESS", "CONTINUALLY IRRITABLE AND RESTLESS", "ANY RESPIRATORY DISTRESS",
+// // // //   "SEVERE DEHYDRATION WITH DIARRHOEA", "PERSISTENT VOMITING", "HYPOTHERMIA (<35°C)",
+// // // //   "SEVERE ANEMIA", "FEVER (>38.5°C)", "EXTENSIVE SKIN LESIONS",
+// // // //   "TUBERCULOSIS", "MALARIA", "OTHERS"
+// // // // ];
+
+// // // // const calculateZScore = (weight: number, height: number, sex: string) => {
+// // // //   if (!weight || !height || height <= 0) return "";
+// // // //   const score = (weight / (height / 100) ** 2) - 15;
+// // // //   if (!isFinite(score) || score > 99 || score < -99) return "Error";
+// // // //   return score.toFixed(2);
+// // // // };
+
+// // // // // --- Main Application ---
+// // // // export default function EditChildRegistration() {
+// // // //   const router = useRouter();
+// // // //   const params = useParams();
+// // // //   const childId = params.id as string;
+
+// // // //   const [loading, setLoading] = useState(false);
+// // // //   const [mounted, setMounted] = useState(false);
+// // // //   const [childData, setChildData] = useState<any>(null);
+  
+// // // //   const [masterData, setMasterData] = useState({
+// // // //     admissionTypes: [], referredBy: [], castes: [], districts: [],
+// // // //     sexes: [], relationships: [], odemas: [], breastFeeding: [], appetiteTests: [],
+// // // //     blocks: [], icdsProjects: [], anganwadis: []
+// // // //   });
+
+// // // //   const [admissionType, setAdmissionType] = useState("");
+// // // //   const [referredBy, setReferredBy] = useState("");
+// // // //   const [showAshaFields, setShowAshaFields] = useState(false);
+// // // //   const [selectedComplications, setSelectedComplications] = useState<string[]>([]);
+  
+// // // //   const [dateOfBirth, setDateOfBirth] = useState<string>("");
+// // // //   const [admissionDate, setAdmissionDate] = useState<string>("");
+// // // //   const [admissionTime, setAdmissionTime] = useState<string>("");
+
+// // // //   const [sex, setSex] = useState<string>("");
+// // // //   const [admissionWeight, setAdmissionWeight] = useState<string>("");
+// // // //   const [admissionHeight, setAdmissionHeight] = useState<string>("");
+// // // //   const [zScore, setZScore] = useState<string>("");
+
+// // // //   const [caste, setCaste] = useState("");
+// // // //   const [district, setDistrict] = useState("");
+// // // //   const [block, setBlock] = useState("");
+// // // //   const [icdsProject, setIcdsProject] = useState("");
+// // // //   const [anganwadiCenter, setAnganwadiCenter] = useState("");
+// // // //   const [relationship, setRelationship] = useState("");
+  
+// // // //   const [admissionOdema, setAdmissionOdema] = useState("");
+// // // //   const [breastFeeding, setBreastFeeding] = useState("");
+// // // //   const [complementaryFeeding, setComplementaryFeeding] = useState("");
+// // // //   const [appetiteTest, setAppetiteTest] = useState("");
+
+// // // //   useEffect(() => {
+// // // //     setMounted(true);
+    
+// // // //     // Fetch Master Data
+// // // //     const fetchMasterData = async () => {
+// // // //       try {
+// // // //         const response = await fetch('/api/master-data');
+// // // //         if (response.ok) {
+// // // //           const data = await response.json();
+// // // //           setMasterData(data);
+// // // //         }
+// // // //       } catch (error) {
+// // // //         toast.error("Failed to load dropdown options.");
+// // // //       }
+// // // //     };
+    
+// // // //     // Fetch Specific Child Data
+// // // //     const fetchChildData = async () => {
+// // // //       try {
+// // // //         const response = await fetch(`/api/child-registration/${childId}`);
+// // // //         if (response.ok) {
+// // // //           const patient = await response.json();
+// // // //           setChildData(patient);
+          
+// // // //           setAdmissionType(patient.admissionType || "");
+// // // //           setReferredBy(patient.referredBy || "");
+// // // //           setSex(patient.sex || "");
+// // // //           setRelationship(patient.relationship || "");
+// // // //           setCaste(patient.caste || "");
+// // // //           setDistrict(patient.district || "");
+// // // //           setBlock(patient.block || "");
+// // // //           setIcdsProject(patient.icdsProject || "");
+// // // //           setAnganwadiCenter(patient.anganwadiCenter || "");
+          
+// // // //           setDateOfBirth(patient.dateOfBirth || "");
+// // // //           setAdmissionDate(patient.admissionDate || "");
+// // // //           setAdmissionTime(patient.admissionTime || "");
+          
+// // // //           setAdmissionWeight(patient.admissionWeight || "");
+// // // //           setAdmissionHeight(patient.admissionHeight || "");
+// // // //           setZScore(patient.zScore || "");
+          
+// // // //           setAdmissionOdema(patient.admissionOdema || "");
+// // // //           setBreastFeeding(patient.breastFeeding || "");
+// // // //           setComplementaryFeeding(patient.complementaryFeeding || "");
+// // // //           setAppetiteTest(patient.appetiteTest || "");
+          
+// // // //           setSelectedComplications(patient.medicalComplications || []);
+// // // //         } else {
+// // // //           toast.error("Patient not found!");
+// // // //           router.push('/mtc-user/dashboard/child-registration');
+// // // //         }
+// // // //       } catch (error) {
+// // // //         toast.error("Error loading patient data.");
+// // // //       }
+// // // //     };
+
+// // // //     fetchMasterData();
+// // // //     if (childId) fetchChildData();
+// // // //   }, [childId, router]);
+
+// // // //   useEffect(() => {
+// // // //     if (admissionWeight && admissionHeight && sex) {
+// // // //       const score = calculateZScore(parseFloat(admissionWeight), parseFloat(admissionHeight), sex);
+// // // //       setZScore(score ? String(score) : "");
+// // // //     } else {
+// // // //       setZScore("");
+// // // //     }
+// // // //   }, [admissionWeight, admissionHeight, sex]);
+
+// // // //   useEffect(() => {
+// // // //     setShowAshaFields(referredBy === "6");
+// // // //   }, [referredBy]);
+
+// // // //   const handleComplicationToggle = (comp: string) => {
+// // // //     setSelectedComplications(prev => 
+// // // //       prev.includes(comp) ? prev.filter(c => c !== comp) : [...prev, comp]
+// // // //     );
+// // // //   };
+
+// // // //   // Filter blocks based on the currently selected district
+// // // //   const filteredBlocks = masterData.blocks.filter((b: any) => 
+// // // //     !district || b.districtId?.toString() === district
+// // // //   );
+
+// // // //   const handleSubmit = async (e: React.FormEvent) => {
+// // // //     e.preventDefault();
+// // // //     if (zScore === "Error") {
+// // // //       toast.error("Invalid Anthropometry data. Please check Height/Weight.");
+// // // //       return;
+// // // //     }
+// // // //     if (selectedComplications.length === 0) {
+// // // //       toast.error("Please select at least one medical complication status.");
+// // // //       return;
+// // // //     }
+
+// // // //     setLoading(true);
+// // // //     const formData = new FormData(e.currentTarget as HTMLFormElement);
+    
+// // // //     const payload = {
+// // // //       admissionType, referredBy,
+// // // //       referredByName: formData.get('referredByName'), referredByMobile: formData.get('referredByMobile'),
+// // // //       childName: formData.get('childName'), parentName: formData.get('parentName'),
+// // // //       relationship, mobileNumber: formData.get('mobileNumber'),
+// // // //       bplNumber: formData.get('bplNumber'), dateOfBirth, sex,
+// // // //       address: formData.get('address'), caste, district, block, // Uses controlled state
+// // // //       icdsProject, anganwadiCenter, village: formData.get('village'),
+// // // //       aadhaarNumber: formData.get('aadhaarNumber'), bankName: formData.get('bankName'),
+// // // //       accountHolderName: formData.get('accountHolderName'), accountNumber: formData.get('accountNumber'),
+// // // //       ifscCode: formData.get('ifscCode'), admissionDate, admissionTime,
+// // // //       admissionWeight, admissionHeight, admissionMuac: formData.get('admissionMuac'),
+// // // //       zScore: zScore, admissionOdema, breastFeeding, complementaryFeeding, appetiteTest,
+// // // //       medicalComplications: selectedComplications
+// // // //     };
+
+// // // //     try {
+// // // //       const response = await fetch(`/api/child-registration/${childId}`, {
+// // // //         method: 'PUT',
+// // // //         headers: { 'Content-Type': 'application/json' },
+// // // //         body: JSON.stringify(payload)
+// // // //       });
+      
+// // // //       if (!response.ok) throw new Error('Failed to update registration');
+      
+// // // //       toast.success("Patient updated successfully!");
+// // // //       setTimeout(() => router.push('/mtc-user/dashboard/child-registration'), 1000);
+      
+// // // //     } catch (error) {
+// // // //       toast.error("An error occurred while updating.");
+// // // //       setLoading(false);
+// // // //     }
+// // // //   };
+
+// // // //   if (!mounted || !childData) {
+// // // //     return <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+// // // //       <Loader2 className="animate-spin text-indigo-600 w-8 h-8" />
+// // // //     </div>;
+// // // //   }
+
+// // // //   const SectionTitle = ({ icon: Icon, title }: { icon: any, title: string }) => (
+// // // //     <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+// // // //       <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600"><Icon size={20} strokeWidth={2.5} /></div>
+// // // //       <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+// // // //     </div>
+// // // //   );
+
+// // // //   return (
+// // // //     <div className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 lg:px-8 font-sans pb-28">
+// // // //       <Toaster position="top-center" toastOptions={{ className: 'rounded-xl shadow-lg font-medium' }} />
+      
+// // // //       <div className="max-w-6xl mx-auto">
+// // // //         <div className="mb-2 flex items-center">
+// // // //           <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button" className="pl-0 text-slate-500 hover:text-indigo-600 hover:bg-transparent">
+// // // //             <ArrowLeft className="w-5 h-5 mr-2" /> Back
+// // // //           </Button>
+// // // //         </div>
+
+// // // //         <div className="mb-8 text-center md:text-left md:flex md:items-end md:justify-between">
+// // // //           <div>
+// // // //             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Edit Child Record</h1>
+// // // //             <p className="mt-2 text-sm text-slate-500">Update the information directly in the database.</p>
+// // // //           </div>
+// // // //           <div className="mt-4 md:mt-0 px-5 py-3 bg-white rounded-xl shadow-sm border border-slate-200 inline-block text-center md:text-right">
+// // // //             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">SAM Number</span>
+// // // //             <span className="text-lg font-mono font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-md">{childData.samNumber}</span>
+// // // //           </div>
+// // // //         </div>
+
+// // // //         <form onSubmit={handleSubmit} className="relative">
+// // // //           <div className="space-y-6">
+
+// // // //             {/* Admission Info */}
+// // // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // //               <CardContent className="p-6 sm:p-8">
+// // // //                 <SectionTitle icon={ClipboardCheck} title="Admission Details" />
+// // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // // //                   <div>
+// // // //                     <Label>Admission Type <span className="text-red-500">*</span></Label>
+// // // //                     <Select name="admissionType" value={admissionType} onValueChange={setAdmissionType} required>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.admissionTypes.map((type: any) => (<SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Referred By</Label>
+// // // //                     <Select name="referredBy" value={referredBy} onValueChange={setReferredBy}>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select Origin" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.referredBy.map((ref: any) => (<SelectItem key={ref.id} value={ref.id.toString()}>{ref.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   {showAshaFields && (
+// // // //                     <>
+// // // //                       <div>
+// // // //                         <Label>Name of Sahiya/Asha</Label>
+// // // //                         <Input name="referredByName" defaultValue={childData.referredByName || childData.parentName} placeholder="Enter Name" />
+// // // //                       </div>
+// // // //                       <div>
+// // // //                         <Label>Sahiya/Asha Mobile</Label>
+// // // //                         <Input name="referredByMobile" defaultValue={childData.referredByMobile || childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" />
+// // // //                       </div>
+// // // //                     </>
+// // // //                   )}
+// // // //                   <div>
+// // // //                     <Label>Admission Date <span className="text-red-500">*</span></Label>
+// // // //                     <Input type="date" name="admissionDate" value={admissionDate} onChange={(e) => setAdmissionDate(e.target.value)} required />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Admission Time <span className="text-red-500">*</span></Label>
+// // // //                     <div className="relative">
+// // // //                       <Input name="admissionTime" type="time" value={admissionTime} onChange={(e) => setAdmissionTime(e.target.value)} required className="pr-10" />
+// // // //                       <Clock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 pointer-events-none" />
+// // // //                     </div>
+// // // //                   </div>
+// // // //                 </div>
+// // // //               </CardContent>
+// // // //             </Card>
+
+// // // //             {/* Personal Info */}
+// // // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // //               <CardContent className="p-6 sm:p-8">
+// // // //                 <SectionTitle icon={Baby} title="Child & Guardian Information" />
+// // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // // //                   <div className="lg:col-span-2">
+// // // //                     <Label>Child Full Name <span className="text-red-500">*</span></Label>
+// // // //                     <Input name="childName" defaultValue={childData.childName} required />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Date of Birth <span className="text-red-500">*</span></Label>
+// // // //                     <Input type="date" name="dateOfBirth" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} required />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Sex <span className="text-red-500">*</span></Label>
+// // // //                     <Select name="sex" value={sex} onValueChange={setSex} required>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.sexes.map((s: any) => (<SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   <div className="lg:col-span-2">
+// // // //                     <Label>Name of Father/Mother/Caretaker <span className="text-red-500">*</span></Label>
+// // // //                     <Input name="parentName" defaultValue={childData.parentName} required />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Relationship <span className="text-red-500">*</span></Label>
+// // // //                     <Select name="relationship" value={relationship} onValueChange={setRelationship} required>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.relationships.map((rel: any) => (<SelectItem key={rel.id} value={rel.id.toString()}>{rel.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Mobile Number <span className="text-red-500">*</span></Label>
+// // // //                     <Input name="mobileNumber" defaultValue={childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" required />
+// // // //                   </div>
+// // // //                 </div>
+// // // //               </CardContent>
+// // // //             </Card>
+
+// // // //             {/* Financial Details */}
+// // // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // //               <CardContent className="p-6 sm:p-8">
+// // // //                 <SectionTitle icon={ShieldCheck} title="Identity & Financial Details" />
+// // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // // //                   <div>
+// // // //                     <Label>Parent Aadhaar Number</Label>
+// // // //                     <Input name="aadhaarNumber" defaultValue={childData.aadhaarNumber} maxLength={12} pattern="[0-9]{12}" />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>BPL Number</Label>
+// // // //                     <Input name="bplNumber" defaultValue={childData.bplNumber} />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Caste <span className="text-red-500">*</span></Label>
+// // // //                     <Select name="caste" value={caste} onValueChange={setCaste} required>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select Caste" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.castes.map((caste: any) => (<SelectItem key={caste.id} value={caste.id.toString()}>{caste.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   <div className="lg:col-span-4 mt-2">
+// // // //                     <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
+// // // //                       <Landmark className="w-4 h-4 text-indigo-500" /> Bank Account Details
+// // // //                     </h3>
+// // // //                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-slate-50 p-5 rounded-xl border border-slate-100">
+// // // //                       <div><Label>Bank Name</Label><Input name="bankName" defaultValue={childData.bankName} className="bg-white" /></div>
+// // // //                       <div><Label>Account Holder</Label><Input name="accountHolderName" defaultValue={childData.accountHolderName} className="bg-white" /></div>
+// // // //                       <div><Label>Account Number</Label><Input name="accountNumber" defaultValue={childData.accountNumber} className="bg-white" /></div>
+// // // //                       <div><Label>IFSC Code</Label><Input name="ifscCode" defaultValue={childData.ifscCode} className="bg-white" /></div>
+// // // //                     </div>
+// // // //                   </div>
+// // // //                 </div>
+// // // //               </CardContent>
+// // // //             </Card>
+
+// // // //             {/* DEPENDENT LOCATION DETAILS */}
+// // // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // //               <CardContent className="p-6 sm:p-8">
+// // // //                 <SectionTitle icon={MapPin} title="Location Details" />
+// // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+// // // //                   <div className="lg:col-span-3">
+// // // //                     <Label>Full Address <span className="text-red-500">*</span></Label>
+// // // //                     <Textarea name="address" defaultValue={childData.address} rows={2} required />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>District <span className="text-red-500">*</span></Label>
+// // // //                     <Select 
+// // // //                       name="district" 
+// // // //                       value={district} 
+// // // //                       onValueChange={(val: string) => {
+// // // //                         setDistrict(val);
+// // // //                         setBlock(""); // Clear the block whenever a new district is selected
+// // // //                       }} 
+// // // //                       required
+// // // //                     >
+// // // //                       <SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.districts.map((dist: any) => (<SelectItem key={dist.id} value={dist.id.toString()}>{dist.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Block</Label>
+// // // //                     <Select 
+// // // //                       name="block" 
+// // // //                       value={block} 
+// // // //                       onValueChange={setBlock}
+// // // //                       disabled={!district} // Disable if no district is selected
+// // // //                     >
+// // // //                       <SelectTrigger>
+// // // //                         <SelectValue placeholder={district ? "Select Block" : "Select District First"} />
+// // // //                       </SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {filteredBlocks.map((b: any) => (<SelectItem key={b.id} value={b.id.toString()}>{b.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Village</Label>
+// // // //                     <Input name="village" defaultValue={childData.village} />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>ICDS Project</Label>
+// // // //                     <Select name="icdsProject" value={icdsProject} onValueChange={setIcdsProject}>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.icdsProjects.map((project: any) => (<SelectItem key={project.id} value={project.id.toString()}>{project.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   <div className="lg:col-span-2">
+// // // //                     <Label>Anganwadi Center</Label>
+// // // //                     <Select name="anganwadiCenter" value={anganwadiCenter} onValueChange={setAnganwadiCenter}>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select Center" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.anganwadis.map((center: any) => (<SelectItem key={center.id} value={center.id.toString()}>{center.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                 </div>
+// // // //               </CardContent>
+// // // //             </Card>
+
+// // // //             {/* Anthropometry Details */}
+// // // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // //               <CardContent className="p-6 sm:p-8">
+// // // //                 <SectionTitle icon={Activity} title="Anthropometry & Feeding" />
+// // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // // //                   <div>
+// // // //                     <Label>Admission Weight (kg) <span className="text-red-500">*</span></Label>
+// // // //                     <Input name="admissionWeight" type="number" step="0.1" value={admissionWeight} onChange={(e) => setAdmissionWeight(e.target.value)} required />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Length/Height (cm) <span className="text-red-500">*</span></Label>
+// // // //                     <Input name="admissionHeight" type="number" step="0.1" value={admissionHeight} onChange={(e) => setAdmissionHeight(e.target.value)} required />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>MUAC (cm) <span className="text-red-500">*</span></Label>
+// // // //                     <Input name="admissionMuac" type="number" step="0.1" defaultValue={childData.admissionMuac} required />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Z-Score (SD)</Label>
+// // // //                     <Input name="zScore" readOnly value={zScore} className={cn("font-semibold focus:ring-0 cursor-not-allowed", zScore === "Error" ? "bg-red-50 text-red-600" : "bg-slate-100 text-indigo-700")} />
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Admission Odema <span className="text-red-500">*</span></Label>
+// // // //                     <Select name="admissionOdema" value={admissionOdema} onValueChange={setAdmissionOdema} required>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.odemas.map((odema: any) => (<SelectItem key={odema.id} value={odema.id.toString()}>{odema.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Breast Feeding <span className="text-red-500">*</span></Label>
+// // // //                     <Select name="breastFeeding" value={breastFeeding} onValueChange={setBreastFeeding} required>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.breastFeeding.map((bf: any) => (<SelectItem key={bf.id} value={bf.id.toString()}>{bf.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Complementary Feeding <span className="text-red-500">*</span></Label>
+// // // //                     <Select name="complementaryFeeding" value={complementaryFeeding} onValueChange={setComplementaryFeeding} required>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         <SelectItem value="1">Yes</SelectItem><SelectItem value="2">No</SelectItem>
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                   <div>
+// // // //                     <Label>Appetite Test <span className="text-red-500">*</span></Label>
+// // // //                     <Select name="appetiteTest" value={appetiteTest} onValueChange={setAppetiteTest} required>
+// // // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // // //                       <SelectContent>
+// // // //                         {masterData.appetiteTests.map((at: any) => (<SelectItem key={at.id} value={at.id.toString()}>{at.name}</SelectItem>))}
+// // // //                       </SelectContent>
+// // // //                     </Select>
+// // // //                   </div>
+// // // //                 </div>
+// // // //               </CardContent>
+// // // //             </Card>
+
+// // // //             <Card className="overflow-hidden border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // // //               <CardContent className="p-6 sm:p-8">
+// // // //                 <SectionTitle icon={Stethoscope} title="Medical Complications" />
+// // // //                 <p className="text-sm font-semibold text-slate-700 mb-4 block">Select all present complications: <span className="text-red-500">*</span></p>
+                
+// // // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6 bg-slate-50/50 p-6 rounded-xl border border-slate-200">
+// // // //                   {MEDICAL_COMPLICATIONS_LIST.map((comp) => (
+// // // //                     <label key={comp} className="flex items-start space-x-3 cursor-pointer group">
+// // // //                       <div className="flex items-center h-5">
+// // // //                         <input
+// // // //                           type="checkbox"
+// // // //                           className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/30 transition duration-150 ease-in-out cursor-pointer"
+// // // //                           checked={selectedComplications.includes(comp)}
+// // // //                           onChange={() => handleComplicationToggle(comp)}
+// // // //                         />
+// // // //                       </div>
+// // // //                       <span className="text-sm font-medium text-slate-600 leading-tight group-hover:text-slate-900 transition-colors">
+// // // //                         {comp}
+// // // //                       </span>
+// // // //                     </label>
+// // // //                   ))}
+// // // //                 </div>
+// // // //               </CardContent>
+// // // //             </Card>
+
+// // // //           </div>
+
+// // // //           <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200 p-4 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50 flex justify-end gap-4 sm:justify-center md:justify-end md:px-12">
+// // // //             <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button">Cancel</Button>
+// // // //             <Button type="submit" disabled={loading || zScore === "Error"} className="min-w-40">
+// // // //               {loading ? "Saving to Database..." : "Update Patient"}
+// // // //             </Button>
+// // // //           </div>
+// // // //         </form>
+// // // //       </div>
+// // // //     </div>
+// // // //   );
+// // // // }
+
+// // // "use client";
+
+// // // import React, { useState, useEffect } from "react";
+// // // import { useRouter, useParams } from "next/navigation";
+// // // import { Clock, Landmark, ClipboardCheck, MapPin, Activity, Stethoscope, Baby, ShieldCheck, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
+// // // import toast, { Toaster } from "react-hot-toast";
+// // // import { clsx, type ClassValue } from "clsx";
+// // // import { twMerge } from "tailwind-merge";
+
+// // // function cn(...inputs: ClassValue[]) {
+// // //   return twMerge(clsx(inputs));
+// // // }
+
+// // // // --- Reusable UI Components ---
+// // // const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+// // //   ({ className, type, ...props }, ref) => (
+// // //     <input type={type} className={cn("flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+// // //   )
+// // // );
+// // // Input.displayName = "Input";
+
+// // // const Button = React.forwardRef<any, any>(
+// // //   ({ className, variant = 'default', href, ...props }, ref) => {
+// // //     const classes = cn(
+// // //       "inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]",
+// // //       variant === 'default' ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 h-11 py-2 px-6" : "",
+// // //       variant === 'outline' ? "border border-slate-200 bg-white shadow-sm hover:bg-slate-50 hover:text-slate-900 h-11 py-2 px-6 text-slate-700" : "",
+// // //       variant === 'ghost' ? "hover:bg-slate-100 hover:text-slate-900 h-11 py-2 px-6 text-slate-600" : "",
+// // //       className
+// // //     );
+// // //     if (href) return <a href={href} className={classes} ref={ref} {...props} />;
+// // //     return <button ref={ref} className={classes} {...props} />;
+// // //   }
+// // // );
+// // // Button.displayName = "Button";
+
+// // // const Card = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+// // //   <div className={cn("rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-sm", className)} {...props} />
+// // // );
+// // // const CardContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+// // //   <div className={cn("p-6 md:p-8", className)} {...props} />
+// // // );
+// // // const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
+// // //   ({ className, ...props }, ref) => (
+// // //     <label ref={ref} className={cn("text-sm font-semibold text-slate-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block", className)} {...props} />
+// // //   )
+// // // );
+// // // Label.displayName = "Label";
+
+// // // const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+// // //   ({ className, ...props }, ref) => (
+// // //     <textarea className={cn("flex min-h-[80px] w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+// // //   )
+// // // );
+// // // Textarea.displayName = "Textarea";
+
+// // // const Select = ({ name, value, onValueChange, required, children, disabled }: any) => {
+// // //   const [internalValue, setInternalValue] = useState(value || "");
+  
+// // //   useEffect(() => {
+// // //     if (value !== undefined) setInternalValue(value);
+// // //   }, [value]);
+
+// // //   const options: {value: string, label: string}[] = [];
+// // //   let placeholder = "Select";
+  
+// // //   React.Children.forEach(children, child => {
+// // //     if (child && child.type?.name === 'SelectTrigger') {
+// // //       React.Children.forEach(child.props.children, triggerChild => {
+// // //         if (triggerChild && triggerChild.type?.name === 'SelectValue') {
+// // //           placeholder = triggerChild.props.placeholder || "Select";
+// // //         }
+// // //       });
+// // //     }
+// // //     if (child && child.type?.name === 'SelectContent') {
+// // //       const contentChildren = Array.isArray(child.props.children) ? child.props.children.flat() : [child.props.children];
+// // //       React.Children.forEach(contentChildren, itemChild => {
+// // //         if (itemChild && itemChild.type?.name === 'SelectItem') {
+// // //           options.push({ value: itemChild.props.value, label: itemChild.props.children });
+// // //         }
+// // //       });
+// // //     }
+// // //   });
+
+// // //   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+// // //     setInternalValue(e.target.value);
+// // //     if (onValueChange) onValueChange(e.target.value);
+// // //   };
+
+// // //   return (
+// // //     <select name={name} value={internalValue} onChange={handleChange} required={required} disabled={disabled} className="flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100 appearance-none">
+// // //       <option value="" disabled>{placeholder}</option>
+// // //       {options.map((opt, i) => (<option key={i} value={opt.value}>{opt.label}</option>))}
+// // //     </select>
+// // //   );
+// // // };
+// // // const SelectTrigger = ({ children }: any) => <>{children}</>;
+// // // const SelectValue = ({ placeholder }: any) => <>{placeholder}</>;
+// // // const SelectContent = ({ children }: any) => <>{children}</>;
+// // // const SelectItem = ({ children, value }: any) => <>{children}</>;
+
+// // // // --- Constants & Math Functions ---
+// // // const MEDICAL_COMPLICATIONS_LIST = [
+// // //   "NO COMPLICATION", "PRESENCE OF ANY OF EMERGENCY SIGNS", "VERY WEAK, APATHETIC",
+// // //   "ODEMA OF BOTH FEET", "SEVERE PALMAR PALLOR", "SICK YOUNG INFANT LESS THAN 2 MONTHS",
+// // //   "LETHARGY/ DROWSINESS/ UNCONSCIOUSNESS", "CONTINUALLY IRRITABLE AND RESTLESS", "ANY RESPIRATORY DISTRESS",
+// // //   "SEVERE DEHYDRATION WITH DIARRHOEA", "PERSISTENT VOMITING", "HYPOTHERMIA (<35°C)",
+// // //   "SEVERE ANEMIA", "FEVER (>38.5°C)", "EXTENSIVE SKIN LESIONS",
+// // //   "TUBERCULOSIS", "MALARIA", "OTHERS"
+// // // ];
+
+// // // const calculateZScore = (weight: number, height: number, sex: string) => {
+// // //   if (!weight || !height || height <= 0) return "";
+// // //   const score = (weight / (height / 100) ** 2) - 15;
+// // //   if (!isFinite(score) || score > 99 || score < -99) return "Error";
+// // //   return score.toFixed(2);
+// // // };
+
+// // // // --- Main Application ---
+// // // export default function EditChildRegistration() {
+// // //   const router = useRouter();
+// // //   const params = useParams();
+// // //   const childId = params.id as string;
+
+// // //   const [loading, setLoading] = useState(false);
+// // //   const [mounted, setMounted] = useState(false);
+// // //   const [childData, setChildData] = useState<any>(null);
+  
+// // //   const [masterData, setMasterData] = useState({
+// // //     admissionTypes: [], referredBy: [], castes: [], districts: [],
+// // //     sexes: [], relationships: [], odemas: [], breastFeeding: [], appetiteTests: [],
+// // //     blocks: [], icdsProjects: [], anganwadis: []
+// // //   });
+
+// // //   const [admissionType, setAdmissionType] = useState("");
+// // //   const [referredBy, setReferredBy] = useState("");
+// // //   const [showAshaFields, setShowAshaFields] = useState(false);
+// // //   const [selectedComplications, setSelectedComplications] = useState<string[]>([]);
+// // //   const [otherComplicationDetail, setOtherComplicationDetail] = useState(""); // <-- ADDED OTHERS STATE
+  
+// // //   const [dateOfBirth, setDateOfBirth] = useState<string>("");
+// // //   const [admissionDate, setAdmissionDate] = useState<string>("");
+// // //   const [admissionTime, setAdmissionTime] = useState<string>("");
+// // //   const [ageYears, setAgeYears] = useState<string>(""); // <-- ADDED AGE YEARS STATE
+// // //   const [ageMonths, setAgeMonths] = useState<string>(""); // <-- ADDED AGE MONTHS STATE
+
+// // //   const [sex, setSex] = useState<string>("");
+// // //   const [admissionWeight, setAdmissionWeight] = useState<string>("");
+// // //   const [admissionHeight, setAdmissionHeight] = useState<string>("");
+// // //   const [zScore, setZScore] = useState<string>("");
+
+// // //   const [caste, setCaste] = useState("");
+// // //   const [district, setDistrict] = useState("");
+// // //   const [block, setBlock] = useState("");
+// // //   const [icdsProject, setIcdsProject] = useState("");
+// // //   const [anganwadiCenter, setAnganwadiCenter] = useState("");
+// // //   const [relationship, setRelationship] = useState("");
+  
+// // //   const [admissionOdema, setAdmissionOdema] = useState("");
+// // //   const [breastFeeding, setBreastFeeding] = useState("");
+// // //   const [complementaryFeeding, setComplementaryFeeding] = useState("");
+// // //   const [appetiteTest, setAppetiteTest] = useState("");
+
+// // //   // ---> DYNAMIC MUAC VISIBILITY LOGIC <---
+// // //   const showMuac = !(ageYears === "0" && parseInt(ageMonths || "0") <= 6);
+
+// // //   useEffect(() => {
+// // //     setMounted(true);
+    
+// // //     // Fetch Master Data
+// // //     const fetchMasterData = async () => {
+// // //       try {
+// // //         const response = await fetch('/api/master-data');
+// // //         if (response.ok) {
+// // //           const data = await response.json();
+// // //           setMasterData(data);
+// // //         }
+// // //       } catch (error) {
+// // //         toast.error("Failed to load dropdown options.");
+// // //       }
+// // //     };
+    
+// // //     // Fetch Specific Child Data
+// // //     const fetchChildData = async () => {
+// // //       try {
+// // //         const response = await fetch(`/api/child-registration/${childId}`);
+// // //         if (response.ok) {
+// // //           const patient = await response.json();
+// // //           setChildData(patient);
+          
+// // //           setAdmissionType(patient.admissionType || "");
+// // //           setReferredBy(patient.referredBy || "");
+// // //           setSex(patient.sex || "");
+// // //           setRelationship(patient.relationship || "");
+// // //           setCaste(patient.caste || "");
+// // //           setDistrict(patient.district || "");
+// // //           setBlock(patient.block || "");
+// // //           setIcdsProject(patient.icdsProject || "");
+// // //           setAnganwadiCenter(patient.anganwadiCenter || "");
+          
+// // //           setDateOfBirth(patient.dateOfBirth || "");
+// // //           setAdmissionDate(patient.admissionDate || "");
+// // //           setAdmissionTime(patient.admissionTime || "");
+// // //           setAgeYears(patient.ageYears?.toString() || "");
+// // //           setAgeMonths(patient.ageMonths?.toString() || "");
+          
+// // //           setAdmissionWeight(patient.admissionWeight || "");
+// // //           setAdmissionHeight(patient.admissionHeight || "");
+// // //           setZScore(patient.zScore || "");
+          
+// // //           setAdmissionOdema(patient.admissionOdema || "");
+// // //           setBreastFeeding(patient.breastFeeding || "");
+// // //           setComplementaryFeeding(patient.complementaryFeeding || "");
+// // //           setAppetiteTest(patient.appetiteTest || "");
+          
+// // //           // ---> PARSE OTHERS FROM DB ARRAY <---
+// // //           const comps = patient.medicalComplications || [];
+// // //           const standardComps: string[] = [];
+// // //           let othersText = "";
+          
+// // //           comps.forEach((c: string) => {
+// // //             if (c.startsWith("OTHERS: ")) { 
+// // //               standardComps.push("OTHERS"); 
+// // //               othersText = c.replace("OTHERS: ", ""); 
+// // //             } else if (c === "OTHERS") {
+// // //               standardComps.push("OTHERS");
+// // //             } else {
+// // //               standardComps.push(c);
+// // //             }
+// // //           });
+          
+// // //           setSelectedComplications(standardComps);
+// // //           setOtherComplicationDetail(othersText);
+
+// // //         } else {
+// // //           toast.error("Patient not found!");
+// // //           router.push('/mtc-user/dashboard/child-registration');
+// // //         }
+// // //       } catch (error) {
+// // //         toast.error("Error loading patient data.");
+// // //       }
+// // //     };
+
+// // //     fetchMasterData();
+// // //     if (childId) fetchChildData();
+// // //   }, [childId, router]);
+
+// // //   useEffect(() => {
+// // //     if (admissionWeight && admissionHeight && sex) {
+// // //       const score = calculateZScore(parseFloat(admissionWeight), parseFloat(admissionHeight), sex);
+// // //       setZScore(score ? String(score) : "");
+// // //     } else {
+// // //       setZScore("");
+// // //     }
+// // //   }, [admissionWeight, admissionHeight, sex]);
+
+// // //   useEffect(() => {
+// // //     setShowAshaFields(referredBy === "6");
+// // //   }, [referredBy]);
+
+// // //   const handleComplicationToggle = (comp: string) => {
+// // //     setSelectedComplications(prev => {
+// // //       if (comp === "OTHERS" && prev.includes("OTHERS")) {
+// // //         setOtherComplicationDetail(""); // Clear text if unchecked
+// // //       }
+// // //       return prev.includes(comp) ? prev.filter(c => c !== comp) : [...prev, comp];
+// // //     });
+// // //   };
+
+// // //   // Filter blocks based on the currently selected district
+// // //   const filteredBlocks = masterData.blocks.filter((b: any) => 
+// // //     !district || b.districtId?.toString() === district
+// // //   );
+
+// // //   const handleSubmit = async (e: React.FormEvent) => {
+// // //     e.preventDefault();
+// // //     if (zScore === "Error") {
+// // //       toast.error("Invalid Anthropometry data. Please check Height/Weight.");
+// // //       return;
+// // //     }
+// // //     if (selectedComplications.length === 0) {
+// // //       toast.error("Please select at least one medical complication status.");
+// // //       return;
+// // //     }
+// // //     if (selectedComplications.includes("OTHERS") && !otherComplicationDetail.trim()) {
+// // //       toast.error("Please specify the details for the 'Others' complication.");
+// // //       return;
+// // //     }
+
+// // //     setLoading(true);
+
+// // //     // --- MERGE OTHERS TEXT FOR PAYLOAD ---
+// // //     let finalComplications = [...selectedComplications];
+// // //     if (finalComplications.includes("OTHERS")) {
+// // //       finalComplications = finalComplications.filter(c => c !== "OTHERS");
+// // //       finalComplications.push(`OTHERS: ${otherComplicationDetail.trim()}`);
+// // //     }
+
+// // //     const formData = new FormData(e.currentTarget as HTMLFormElement);
+    
+// // //     const payload = {
+// // //       admissionType, referredBy,
+// // //       referredByName: formData.get('referredByName'), referredByMobile: formData.get('referredByMobile'),
+// // //       childName: formData.get('childName'), 
+// // //       motherName: formData.get('motherName'), // Mapped properly
+// // //       parentName: formData.get('parentName'),
+// // //       relationship, mobileNumber: formData.get('mobileNumber'),
+// // //       bplNumber: formData.get('bplNumber'), dateOfBirth, sex,
+// // //       ageYears: ageYears, ageMonths: ageMonths,
+// // //       address: formData.get('address'), caste, district, block, 
+// // //       icdsProject, anganwadiCenter, village: formData.get('village'),
+// // //       aadhaarNumber: formData.get('aadhaarNumber'), bankName: formData.get('bankName'),
+// // //       accountHolderName: formData.get('accountHolderName'), accountNumber: formData.get('accountNumber'),
+// // //       ifscCode: formData.get('ifscCode'), admissionDate, admissionTime,
+// // //       admissionWeight, admissionHeight, 
+// // //       admissionMuac: showMuac ? formData.get('admissionMuac') : null, // Handled properly
+// // //       zScore: zScore, admissionOdema, breastFeeding, complementaryFeeding, appetiteTest,
+// // //       medicalComplications: finalComplications
+// // //     };
+
+// // //     try {
+// // //       const response = await fetch(`/api/child-registration/${childId}`, {
+// // //         method: 'PUT',
+// // //         headers: { 'Content-Type': 'application/json' },
+// // //         body: JSON.stringify(payload)
+// // //       });
+      
+// // //       if (!response.ok) throw new Error('Failed to update registration');
+      
+// // //       toast.success("Patient updated successfully!");
+// // //       setTimeout(() => router.push('/mtc-user/dashboard/child-registration'), 1000);
+      
+// // //     } catch (error) {
+// // //       toast.error("An error occurred while updating.");
+// // //       setLoading(false);
+// // //     }
+// // //   };
+
+// // //   if (!mounted || !childData) {
+// // //     return <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+// // //       <Loader2 className="animate-spin text-indigo-600 w-8 h-8" />
+// // //     </div>;
+// // //   }
+
+// // //   const SectionTitle = ({ icon: Icon, title }: { icon: any, title: string }) => (
+// // //     <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+// // //       <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600"><Icon size={20} strokeWidth={2.5} /></div>
+// // //       <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+// // //     </div>
+// // //   );
+
+// // //   return (
+// // //     <div className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 lg:px-8 font-sans pb-28">
+// // //       <Toaster position="top-center" toastOptions={{ className: 'rounded-xl shadow-lg font-medium' }} />
+      
+// // //       <div className="max-w-6xl mx-auto">
+// // //         <div className="mb-2 flex items-center">
+// // //           <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button" className="pl-0 text-slate-500 hover:text-indigo-600 hover:bg-transparent">
+// // //             <ArrowLeft className="w-5 h-5 mr-2" /> Back
+// // //           </Button>
+// // //         </div>
+
+// // //         <div className="mb-8 text-center md:text-left md:flex md:items-end md:justify-between">
+// // //           <div>
+// // //             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Edit Child Record</h1>
+// // //             <p className="mt-2 text-sm text-slate-500">Update the information directly in the database.</p>
+// // //           </div>
+// // //           <div className="mt-4 md:mt-0 px-5 py-3 bg-white rounded-xl shadow-sm border border-slate-200 inline-block text-center md:text-right">
+// // //             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">SAM Number</span>
+// // //             <span className="text-lg font-mono font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-md">{childData.samNumber}</span>
+// // //           </div>
+// // //         </div>
+
+// // //         <form onSubmit={handleSubmit} className="relative">
+// // //           <div className="space-y-6">
+
+// // //             {/* Admission Info */}
+// // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // //               <CardContent className="p-6 sm:p-8">
+// // //                 <SectionTitle icon={ClipboardCheck} title="Admission Details" />
+// // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // //                   <div>
+// // //                     <Label>Admission Type <span className="text-red-500">*</span></Label>
+// // //                     <Select name="admissionType" value={admissionType} onValueChange={setAdmissionType} required>
+// // //                       <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.admissionTypes.map((type: any) => (<SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Referred By</Label>
+// // //                     <Select name="referredBy" value={referredBy} onValueChange={setReferredBy}>
+// // //                       <SelectTrigger><SelectValue placeholder="Select Origin" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.referredBy.map((ref: any) => (<SelectItem key={ref.id} value={ref.id.toString()}>{ref.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   {showAshaFields && (
+// // //                     <>
+// // //                       <div>
+// // //                         <Label>Name of Sahiya/Asha</Label>
+// // //                         <Input name="referredByName" defaultValue={childData.referredByName || childData.parentName} placeholder="Enter Name" />
+// // //                       </div>
+// // //                       <div>
+// // //                         <Label>Sahiya/Asha Mobile</Label>
+// // //                         <Input name="referredByMobile" defaultValue={childData.referredByMobile || childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" />
+// // //                       </div>
+// // //                     </>
+// // //                   )}
+// // //                   <div>
+// // //                     <Label>Admission Date <span className="text-red-500">*</span></Label>
+// // //                     <Input type="date" name="admissionDate" value={admissionDate} onChange={(e) => setAdmissionDate(e.target.value)} required />
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Admission Time <span className="text-red-500">*</span></Label>
+// // //                     <div className="relative">
+// // //                       <Input name="admissionTime" type="time" value={admissionTime} onChange={(e) => setAdmissionTime(e.target.value)} required className="pr-10" />
+// // //                       <Clock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 pointer-events-none" />
+// // //                     </div>
+// // //                   </div>
+// // //                 </div>
+// // //               </CardContent>
+// // //             </Card>
+
+// // //             {/* Personal Info */}
+// // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // //               <CardContent className="p-6 sm:p-8">
+// // //                 <SectionTitle icon={Baby} title="Child & Guardian Information" />
+// // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // //                   <div className="lg:col-span-2">
+// // //                     <Label>Child Full Name <span className="text-red-500">*</span></Label>
+// // //                     <Input name="childName" defaultValue={childData.childName} required />
+// // //                   </div>
+// // //                   <div className="lg:col-span-2">
+// // //                     <Label>Date of Birth</Label>
+// // //                     <Input type="date" name="dateOfBirth" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Age (Years) <span className="text-red-500">*</span></Label>
+// // //                     <Input type="number" min="0" value={ageYears} onChange={(e) => setAgeYears(e.target.value)} required />
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Age (Months) <span className="text-red-500">*</span></Label>
+// // //                     <Input type="number" min="0" max="11" value={ageMonths} onChange={(e) => setAgeMonths(e.target.value)} required />
+// // //                   </div>
+// // //                   <div className="lg:col-span-2">
+// // //                     <Label>Sex <span className="text-red-500">*</span></Label>
+// // //                     <Select name="sex" value={sex} onValueChange={setSex} required>
+// // //                       <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.sexes.map((s: any) => (<SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   <div className="lg:col-span-2">
+// // //                     <Label>Mother's Name <span className="text-red-500">*</span></Label>
+// // //                     <Input name="motherName" defaultValue={childData.motherName} required />
+// // //                   </div>
+// // //                   <div className="lg:col-span-2">
+// // //                     <Label>Name of Caretaker / Guardian <span className="text-red-500">*</span></Label>
+// // //                     <Input name="parentName" defaultValue={childData.parentName} required />
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Relationship <span className="text-red-500">*</span></Label>
+// // //                     <Select name="relationship" value={relationship} onValueChange={setRelationship} required>
+// // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.relationships.map((rel: any) => (<SelectItem key={rel.id} value={rel.id.toString()}>{rel.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Mobile Number <span className="text-red-500">*</span></Label>
+// // //                     <Input name="mobileNumber" defaultValue={childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" required />
+// // //                   </div>
+// // //                 </div>
+// // //               </CardContent>
+// // //             </Card>
+
+// // //             {/* Financial Details */}
+// // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // //               <CardContent className="p-6 sm:p-8">
+// // //                 <SectionTitle icon={ShieldCheck} title="Identity & Financial Details" />
+// // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // //                   <div>
+// // //                     <Label>Parent Aadhaar Number</Label>
+// // //                     <Input name="aadhaarNumber" defaultValue={childData.aadhaarNumber} maxLength={12} pattern="[0-9]{12}" />
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>BPL Number</Label>
+// // //                     <Input name="bplNumber" defaultValue={childData.bplNumber} />
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Caste <span className="text-red-500">*</span></Label>
+// // //                     <Select name="caste" value={caste} onValueChange={setCaste} required>
+// // //                       <SelectTrigger><SelectValue placeholder="Select Caste" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.castes.map((caste: any) => (<SelectItem key={caste.id} value={caste.id.toString()}>{caste.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   <div className="lg:col-span-4 mt-2">
+// // //                     <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
+// // //                       <Landmark className="w-4 h-4 text-indigo-500" /> Bank Account Details
+// // //                     </h3>
+// // //                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-slate-50 p-5 rounded-xl border border-slate-100">
+// // //                       <div><Label>Bank Name</Label><Input name="bankName" defaultValue={childData.bankName} className="bg-white" /></div>
+// // //                       <div><Label>Account Holder</Label><Input name="accountHolderName" defaultValue={childData.accountHolderName} className="bg-white" /></div>
+// // //                       <div><Label>Account Number</Label><Input name="accountNumber" defaultValue={childData.accountNumber} className="bg-white" /></div>
+// // //                       <div><Label>IFSC Code</Label><Input name="ifscCode" defaultValue={childData.ifscCode} className="bg-white" /></div>
+// // //                     </div>
+// // //                   </div>
+// // //                 </div>
+// // //               </CardContent>
+// // //             </Card>
+
+// // //             {/* DEPENDENT LOCATION DETAILS */}
+// // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // //               <CardContent className="p-6 sm:p-8">
+// // //                 <SectionTitle icon={MapPin} title="Location Details" />
+// // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+// // //                   <div className="lg:col-span-3">
+// // //                     <Label>Full Address <span className="text-red-500">*</span></Label>
+// // //                     <Textarea name="address" defaultValue={childData.address} rows={2} required />
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>District <span className="text-red-500">*</span></Label>
+// // //                     <Select 
+// // //                       name="district" 
+// // //                       value={district} 
+// // //                       onValueChange={(val: string) => {
+// // //                         setDistrict(val);
+// // //                         setBlock(""); 
+// // //                       }} 
+// // //                       required
+// // //                     >
+// // //                       <SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.districts.map((dist: any) => (<SelectItem key={dist.id} value={dist.id.toString()}>{dist.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Block</Label>
+// // //                     <Select 
+// // //                       name="block" 
+// // //                       value={block} 
+// // //                       onValueChange={setBlock}
+// // //                       disabled={!district} 
+// // //                     >
+// // //                       <SelectTrigger>
+// // //                         <SelectValue placeholder={district ? "Select Block" : "Select District First"} />
+// // //                       </SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {filteredBlocks.map((b: any) => (<SelectItem key={b.id} value={b.id.toString()}>{b.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Village</Label>
+// // //                     <Input name="village" defaultValue={childData.village} />
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>ICDS Project</Label>
+// // //                     <Select name="icdsProject" value={icdsProject} onValueChange={setIcdsProject}>
+// // //                       <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.icdsProjects.map((project: any) => (<SelectItem key={project.id} value={project.id.toString()}>{project.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   <div className="lg:col-span-2">
+// // //                     <Label>Anganwadi Center</Label>
+// // //                     <Select name="anganwadiCenter" value={anganwadiCenter} onValueChange={setAnganwadiCenter}>
+// // //                       <SelectTrigger><SelectValue placeholder="Select Center" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.anganwadis.map((center: any) => (<SelectItem key={center.id} value={center.id.toString()}>{center.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                 </div>
+// // //               </CardContent>
+// // //             </Card>
+
+// // //             {/* Anthropometry Details */}
+// // //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // //               <CardContent className="p-6 sm:p-8">
+// // //                 <SectionTitle icon={Activity} title="Anthropometry & Feeding" />
+// // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// // //                   <div>
+// // //                     <Label>Admission Weight (kg) <span className="text-red-500">*</span></Label>
+// // //                     <Input name="admissionWeight" type="number" step="0.1" value={admissionWeight} onChange={(e) => setAdmissionWeight(e.target.value)} required />
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Length/Height (cm) <span className="text-red-500">*</span></Label>
+// // //                     <Input name="admissionHeight" type="number" step="0.1" value={admissionHeight} onChange={(e) => setAdmissionHeight(e.target.value)} required />
+// // //                   </div>
+                  
+// // //                   {/* ---> CONDITIONAL MUAC FIELD <--- */}
+// // //                   {showMuac && (
+// // //                     <div>
+// // //                       <Label>MUAC (cm) <span className="text-red-500">*</span></Label>
+// // //                       <Input name="admissionMuac" type="number" step="0.1" defaultValue={childData.admissionMuac} required />
+// // //                     </div>
+// // //                   )}
+
+// // //                   <div>
+// // //                     <Label>Z-Score (SD)</Label>
+// // //                     <Input name="zScore" readOnly value={zScore} className={cn("font-semibold focus:ring-0 cursor-not-allowed", zScore === "Error" ? "bg-red-50 text-red-600" : "bg-slate-100 text-indigo-700")} />
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Admission Odema <span className="text-red-500">*</span></Label>
+// // //                     <Select name="admissionOdema" value={admissionOdema} onValueChange={setAdmissionOdema} required>
+// // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.odemas.map((odema: any) => (<SelectItem key={odema.id} value={odema.id.toString()}>{odema.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Breast Feeding <span className="text-red-500">*</span></Label>
+// // //                     <Select name="breastFeeding" value={breastFeeding} onValueChange={setBreastFeeding} required>
+// // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.breastFeeding.map((bf: any) => (<SelectItem key={bf.id} value={bf.id.toString()}>{bf.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Complementary Feeding <span className="text-red-500">*</span></Label>
+// // //                     <Select name="complementaryFeeding" value={complementaryFeeding} onValueChange={setComplementaryFeeding} required>
+// // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         <SelectItem value="1">Yes</SelectItem><SelectItem value="2">No</SelectItem>
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                   <div>
+// // //                     <Label>Appetite Test <span className="text-red-500">*</span></Label>
+// // //                     <Select name="appetiteTest" value={appetiteTest} onValueChange={setAppetiteTest} required>
+// // //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// // //                       <SelectContent>
+// // //                         {masterData.appetiteTests.map((at: any) => (<SelectItem key={at.id} value={at.id.toString()}>{at.name}</SelectItem>))}
+// // //                       </SelectContent>
+// // //                     </Select>
+// // //                   </div>
+// // //                 </div>
+// // //               </CardContent>
+// // //             </Card>
+
+// // //             <Card className="overflow-hidden border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// // //               <CardContent className="p-6 sm:p-8">
+// // //                 <SectionTitle icon={Stethoscope} title="Medical Complications" />
+// // //                 <p className="text-sm font-semibold text-slate-700 mb-4 block">Select all present complications: <span className="text-red-500">*</span></p>
+                
+// // //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6 bg-slate-50/50 p-6 rounded-xl border border-slate-200">
+// // //                   {MEDICAL_COMPLICATIONS_LIST.map((comp) => (
+// // //                     <label key={comp} className="flex items-start space-x-3 cursor-pointer group">
+// // //                       <div className="flex items-center h-5">
+// // //                         <input
+// // //                           type="checkbox"
+// // //                           className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/30 transition duration-150 ease-in-out cursor-pointer"
+// // //                           checked={selectedComplications.includes(comp)}
+// // //                           onChange={() => handleComplicationToggle(comp)}
+// // //                         />
+// // //                       </div>
+// // //                       <span className="text-sm font-medium text-slate-600 leading-tight group-hover:text-slate-900 transition-colors">
+// // //                         {comp}
+// // //                       </span>
+// // //                     </label>
+// // //                   ))}
+// // //                 </div>
+
+// // //                 {/* ---> DYNAMIC OTHERS TEXT BOX <--- */}
+// // //                 {selectedComplications.includes("OTHERS") && (
+// // //                   <div className="mt-5 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100">
+// // //                     <Label className="text-indigo-900">Please specify 'Others' complication details <span className="text-red-500">*</span></Label>
+// // //                     <Input 
+// // //                       value={otherComplicationDetail}
+// // //                       onChange={(e) => setOtherComplicationDetail(e.target.value)}
+// // //                       placeholder="e.g., Asthma, Severe Jaundice..."
+// // //                       className="mt-2 bg-white"
+// // //                       required={selectedComplications.includes("OTHERS")}
+// // //                     />
+// // //                   </div>
+// // //                 )}
+
+// // //               </CardContent>
+// // //             </Card>
+
+// // //           </div>
+
+// // //           <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200 p-4 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50 flex justify-end gap-4 sm:justify-center md:justify-end md:px-12">
+// // //             <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button">Cancel</Button>
+// // //             <Button type="submit" disabled={loading || zScore === "Error"} className="min-w-40">
+// // //               {loading ? "Saving to Database..." : "Update Patient"}
+// // //             </Button>
+// // //           </div>
+// // //         </form>
+// // //       </div>
+// // //     </div>
+// // //   );
+// // // }
+
 // // "use client";
 
-// // import { useState, useEffect, useCallback } from "react"; // Added useCallback import
+// // import React, { useState, useEffect } from "react";
 // // import { useRouter, useParams } from "next/navigation";
-// // import { Input } from "@/components/ui/input";
-// // import { Button } from "@/components/ui/button";
-// // import { Card, CardHeader, CardContent } from "@/components/ui/card";
-// // import { Label } from "@/components/ui/label";
-// // import {
-// //   Select,
-// //   SelectContent,
-// //   SelectItem,
-// //   SelectTrigger,
-// //   SelectValue,
-// // } from "@/components/ui/select";
-// // import { CalendarIcon, Upload, Clock, ArrowLeft } from "lucide-react";
+// // import { Clock, Landmark, ClipboardCheck, MapPin, Activity, Stethoscope, Baby, ShieldCheck, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 // // import toast, { Toaster } from "react-hot-toast";
-// // import { Textarea } from "@/components/ui/textarea";
-// // import { Calendar } from "@/components/ui/calendar";
-// // import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-// // import { format, parse } from "date-fns";
-// // import { cn } from "@/lib/utils";
-// // import Image from "next/image"; // Import Image component
+// // import { clsx, type ClassValue } from "clsx";
+// // import { twMerge } from "tailwind-merge";
 
-// // interface ChildData {
-// //   id: string;
-// //   recordNo: string;
-// //   samNumber: string;
-// //   admissionType: string;
-// //   referredBy: string;
-// //   referredByName?: string;
-// //   referredByMobile?: string;
-// //   childName: string;
-// //   parentName: string;
-// //   relationship: string;
-// //   mobileNumber: string;
-// //   bplNumber?: string;
-// //   dateOfBirth: string;
-// //   sex: string;
-// //   address: string;
-// //   caste: string;
-// //   district: string;
-// //   block?: string;
-// //   icdsProject?: string;
-// //   anganwadiCenter?: string;
-// //   village?: string;
-// //   admissionDate: string;
-// //   admissionTime: string;
-// //   admissionWeight: string;
-// //   admissionHeight: string;
-// //   admissionOdema: string;
-// //   admissionMuac: string;
-// //   breastFeeding: string;
-// //   complementaryFeeding: string;
-// //   appetiteTest: string;
-// //   complications: string[];
-// //   otherComplication?: string;
-// //   photo?: string;
-// //   createdAt: string;
+// // function cn(...inputs: ClassValue[]) {
+// //   return twMerge(clsx(inputs));
 // // }
 
+// // // --- Reusable UI Components ---
+// // const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+// //   ({ className, type, ...props }, ref) => (
+// //     <input type={type} className={cn("flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+// //   )
+// // );
+// // Input.displayName = "Input";
+
+// // const Button = React.forwardRef<any, any>(
+// //   ({ className, variant = 'default', href, ...props }, ref) => {
+// //     const classes = cn(
+// //       "inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]",
+// //       variant === 'default' ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 h-11 py-2 px-6" : "",
+// //       variant === 'outline' ? "border border-slate-200 bg-white shadow-sm hover:bg-slate-50 hover:text-slate-900 h-11 py-2 px-6 text-slate-700" : "",
+// //       variant === 'ghost' ? "hover:bg-slate-100 hover:text-slate-900 h-11 py-2 px-6 text-slate-600" : "",
+// //       className
+// //     );
+// //     if (href) return <a href={href} className={classes} ref={ref} {...props} />;
+// //     return <button ref={ref} className={classes} {...props} />;
+// //   }
+// // );
+// // Button.displayName = "Button";
+
+// // const Card = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+// //   <div className={cn("rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-sm", className)} {...props} />
+// // );
+// // const CardContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+// //   <div className={cn("p-6 md:p-8", className)} {...props} />
+// // );
+// // const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
+// //   ({ className, ...props }, ref) => (
+// //     <label ref={ref} className={cn("text-sm font-semibold text-slate-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block", className)} {...props} />
+// //   )
+// // );
+// // Label.displayName = "Label";
+
+// // const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+// //   ({ className, ...props }, ref) => (
+// //     <textarea className={cn("flex min-h-[80px] w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+// //   )
+// // );
+// // Textarea.displayName = "Textarea";
+
+// // const Select = ({ name, value, onValueChange, required, children, disabled }: any) => {
+// //   const [internalValue, setInternalValue] = useState(value || "");
+  
+// //   useEffect(() => {
+// //     if (value !== undefined) setInternalValue(value);
+// //   }, [value]);
+
+// //   const options: {value: string, label: string}[] = [];
+// //   let placeholder = "Select";
+  
+// //   React.Children.forEach(children, child => {
+// //     if (child && child.type?.name === 'SelectTrigger') {
+// //       React.Children.forEach(child.props.children, triggerChild => {
+// //         if (triggerChild && triggerChild.type?.name === 'SelectValue') {
+// //           placeholder = triggerChild.props.placeholder || "Select";
+// //         }
+// //       });
+// //     }
+// //     if (child && child.type?.name === 'SelectContent') {
+// //       const contentChildren = Array.isArray(child.props.children) ? child.props.children.flat() : [child.props.children];
+// //       React.Children.forEach(contentChildren, itemChild => {
+// //         if (itemChild && itemChild.type?.name === 'SelectItem') {
+// //           options.push({ value: itemChild.props.value, label: itemChild.props.children });
+// //         }
+// //       });
+// //     }
+// //   });
+
+// //   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+// //     setInternalValue(e.target.value);
+// //     if (onValueChange) onValueChange(e.target.value);
+// //   };
+
+// //   return (
+// //     <select name={name} value={internalValue} onChange={handleChange} required={required} disabled={disabled} className="flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100 appearance-none">
+// //       <option value="" disabled>{placeholder}</option>
+// //       {options.map((opt, i) => (<option key={i} value={opt.value}>{opt.label}</option>))}
+// //     </select>
+// //   );
+// // };
+// // const SelectTrigger = ({ children }: any) => <>{children}</>;
+// // const SelectValue = ({ placeholder }: any) => <>{placeholder}</>;
+// // const SelectContent = ({ children }: any) => <>{children}</>;
+// // const SelectItem = ({ children, value }: any) => <>{children}</>;
+
+// // // --- Constants & Math Functions ---
+// // const MEDICAL_COMPLICATIONS_LIST = [
+// //   "NO COMPLICATION", "PRESENCE OF ANY OF EMERGENCY SIGNS", "VERY WEAK, APATHETIC",
+// //   "ODEMA OF BOTH FEET", "SEVERE PALMAR PALLOR", "SICK YOUNG INFANT LESS THAN 2 MONTHS",
+// //   "LETHARGY/ DROWSINESS/ UNCONSCIOUSNESS", "CONTINUALLY IRRITABLE AND RESTLESS", "ANY RESPIRATORY DISTRESS",
+// //   "SEVERE DEHYDRATION WITH DIARRHOEA", "PERSISTENT VOMITING", "HYPOTHERMIA (<35°C)",
+// //   "SEVERE ANEMIA", "FEVER (>38.5°C)", "EXTENSIVE SKIN LESIONS",
+// //   "TUBERCULOSIS", "MALARIA", "OTHERS"
+// // ];
+
+// // const calculateZScore = (weight: number, height: number, sex: string) => {
+// //   if (!weight || !height || height <= 0) return "";
+// //   const score = (weight / (height / 100) ** 2) - 15;
+// //   if (!isFinite(score) || score > 99 || score < -99) return "Error";
+// //   return score.toFixed(2);
+// // };
+
+// // // --- Main Application ---
 // // export default function EditChildRegistration() {
 // //   const router = useRouter();
 // //   const params = useParams();
 // //   const childId = params.id as string;
-  
+
 // //   const [loading, setLoading] = useState(false);
 // //   const [mounted, setMounted] = useState(false);
-// //   const [childData, setChildData] = useState<ChildData | null>(null);
+// //   const [childData, setChildData] = useState<any>(null);
+  
+// //   // ✅ MTC Identity States
+// //   const [userMtcId, setUserMtcId] = useState<number | null>(null);
+// //   const [userMtcCode, setUserMtcCode] = useState<string>("");
+
+// //   const [masterData, setMasterData] = useState({
+// //     admissionTypes: [], referredBy: [], castes: [], districts: [],
+// //     sexes: [], relationships: [], odemas: [], breastFeeding: [], appetiteTests: [],
+// //     blocks: [], icdsProjects: [], anganwadis: []
+// //   });
+
+// //   const [admissionType, setAdmissionType] = useState("");
 // //   const [referredBy, setReferredBy] = useState("");
 // //   const [showAshaFields, setShowAshaFields] = useState(false);
-// //   const [selectedComplications, setSelectedComplications] = useState<{ [key: string]: boolean }>({});
-// //   const [otherComplication, setOtherComplication] = useState("");
-// //   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-// //   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-// //   const [admissionDate, setAdmissionDate] = useState<Date | undefined>(undefined);
+// //   const [selectedComplications, setSelectedComplications] = useState<string[]>([]);
+// //   const [otherComplicationDetail, setOtherComplicationDetail] = useState(""); 
+  
+// //   const [dateOfBirth, setDateOfBirth] = useState<string>("");
+// //   const [admissionDate, setAdmissionDate] = useState<string>("");
 // //   const [admissionTime, setAdmissionTime] = useState<string>("");
+// //   const [ageYears, setAgeYears] = useState<string>(""); 
+// //   const [ageMonths, setAgeMonths] = useState<string>(""); 
 
-// //   // Memoize the loadChildData function using useCallback
-// //   const loadChildData = useCallback(() => {
-// //     const storedChildren = localStorage.getItem('registeredChildren');
-// //     if (storedChildren) {
-// //       const children = JSON.parse(storedChildren);
-// //       const child = children.find((c: ChildData) => c.id === childId);
-      
-// //       if (child) {
-// //         setChildData(child);
-        
-// //         // Set form values
-// //         setReferredBy(child.referredBy || "");
-// //         setOtherComplication(child.otherComplication || "");
-// //         setPhotoPreview(child.photo || null);
-// //         setAdmissionTime(child.admissionTime || "");
-        
-// //         // Parse dates
-// //         if (child.dateOfBirth) {
-// //           try {
-// //             const parsedDate = parse(child.dateOfBirth, "dd-MMM-yyyy", new Date());
-// //             setDateOfBirth(parsedDate);
-// //           } catch (e) {
-// //             console.error("Error parsing date of birth:", e);
-// //           }
-// //         }
-        
-// //         if (child.admissionDate) {
-// //           try {
-// //             const parsedDate = parse(child.admissionDate, "dd-MMM-yyyy", new Date());
-// //             setAdmissionDate(parsedDate);
-// //           } catch (e) {
-// //             console.error("Error parsing admission date:", e);
-// //           }
-// //         }
-        
-// //         // Set complications
-// //         const complicationsObj: { [key: string]: boolean } = {};
-// //         if (child.complications && Array.isArray(child.complications)) {
-// //           child.complications.forEach((comp: string) => {
-// //             complicationsObj[comp] = true;
-// //           });
-// //         }
-// //         setSelectedComplications(complicationsObj);
-// //       } else {
-// //         toast.error("Child record not found");
-// //         router.push("/mtc-user/dashboard/child-registration");
-// //       }
-// //     } else {
-// //       toast.error("No records found");
-// //       router.push("/mtc-user/dashboard/child-registration");
-// //     }
-// //   }, [childId, router]); // Dependencies for useCallback
+// //   const [sex, setSex] = useState<string>("");
+// //   const [admissionWeight, setAdmissionWeight] = useState<string>("");
+// //   const [admissionHeight, setAdmissionHeight] = useState<string>("");
+// //   const [zScore, setZScore] = useState<string>("");
+
+// //   const [caste, setCaste] = useState("");
+// //   const [district, setDistrict] = useState("");
+// //   const [block, setBlock] = useState("");
+// //   const [icdsProject, setIcdsProject] = useState("");
+// //   const [anganwadiCenter, setAnganwadiCenter] = useState("");
+// //   const [relationship, setRelationship] = useState("");
+  
+// //   const [admissionOdema, setAdmissionOdema] = useState("");
+// //   const [breastFeeding, setBreastFeeding] = useState("");
+// //   const [complementaryFeeding, setComplementaryFeeding] = useState("");
+// //   const [appetiteTest, setAppetiteTest] = useState("");
+
+// //   const showMuac = !(ageYears === "0" && parseInt(ageMonths || "0") <= 6);
 
 // //   useEffect(() => {
 // //     setMounted(true);
-// //     loadChildData();
-// //   }, [loadChildData]); // Now safe to use loadChildData as dependency
+    
+// //     // ✅ 1. Read MTC Identity from Session
+// //     const sessionData = sessionStorage.getItem("mtc_user");
+// //     if (sessionData) {
+// //       try {
+// //         const user = JSON.parse(sessionData);
+// //         setUserMtcId(user.mtcId || null);
+// //         setUserMtcCode(user.mtcCode || "");
+// //       } catch (err) {
+// //         console.error("Session parse error", err);
+// //       }
+// //     }
+    
+// //     // Fetch Master Data
+// //     const fetchMasterData = async () => {
+// //       try {
+// //         const response = await fetch('/api/master-data');
+// //         if (response.ok) {
+// //           const data = await response.json();
+// //           // ✅ SAFE MERGE: Prevents undefined crashes if API misses a key
+// //           setMasterData(prev => ({ ...prev, ...data }));
+// //         }
+// //       } catch (error) {
+// //         toast.error("Failed to load dropdown options.");
+// //       }
+// //     };
+    
+// //     // Fetch Specific Child Data
+// //     const fetchChildData = async () => {
+// //       try {
+// //         const response = await fetch(`/api/child-registration/${childId}`);
+// //         if (response.ok) {
+// //           const patient = await response.json();
+// //           setChildData(patient);
+          
+// //           setAdmissionType(patient.admissionType || "");
+// //           setReferredBy(patient.referredBy || "");
+// //           setSex(patient.sex || "");
+// //           setRelationship(patient.relationship || "");
+// //           setCaste(patient.caste || "");
+// //           setDistrict(patient.district || "");
+// //           setBlock(patient.block || "");
+// //           setIcdsProject(patient.icdsProject || "");
+// //           setAnganwadiCenter(patient.anganwadiCenter || "");
+          
+// //           setDateOfBirth(patient.dateOfBirth || "");
+// //           setAdmissionDate(patient.admissionDate || "");
+// //           setAdmissionTime(patient.admissionTime || "");
+// //           setAgeYears(patient.ageYears?.toString() || "");
+// //           setAgeMonths(patient.ageMonths?.toString() || "");
+          
+// //           setAdmissionWeight(patient.admissionWeight || "");
+// //           setAdmissionHeight(patient.admissionHeight || "");
+// //           setZScore(patient.zScore || "");
+          
+// //           setAdmissionOdema(patient.admissionOdema || "");
+// //           setBreastFeeding(patient.breastFeeding || "");
+// //           setComplementaryFeeding(patient.complementaryFeeding || "");
+// //           setAppetiteTest(patient.appetiteTest || "");
+          
+// //           const comps = patient.medicalComplications || [];
+// //           const standardComps: string[] = [];
+// //           let othersText = "";
+          
+// //           comps.forEach((c: string) => {
+// //             if (c.startsWith("OTHERS: ")) { 
+// //               standardComps.push("OTHERS"); 
+// //               othersText = c.replace("OTHERS: ", ""); 
+// //             } else if (c === "OTHERS") {
+// //               standardComps.push("OTHERS");
+// //             } else {
+// //               standardComps.push(c);
+// //             }
+// //           });
+          
+// //           setSelectedComplications(standardComps);
+// //           setOtherComplicationDetail(othersText);
+
+// //         } else {
+// //           toast.error("Patient not found!");
+// //           router.push('/mtc-user/dashboard/child-registration');
+// //         }
+// //       } catch (error) {
+// //         toast.error("Error loading patient data.");
+// //       }
+// //     };
+
+// //     fetchMasterData();
+// //     if (childId) fetchChildData();
+// //   }, [childId, router]);
+
+// //   useEffect(() => {
+// //     if (admissionWeight && admissionHeight && sex) {
+// //       const score = calculateZScore(parseFloat(admissionWeight), parseFloat(admissionHeight), sex);
+// //       setZScore(score ? String(score) : "");
+// //     } else {
+// //       setZScore("");
+// //     }
+// //   }, [admissionWeight, admissionHeight, sex]);
 
 // //   useEffect(() => {
 // //     setShowAshaFields(referredBy === "6");
 // //   }, [referredBy]);
 
-// //   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-// //     const file = e.target.files?.[0];
-// //     if (file) {
-// //       // Validate file size (2MB max)
-// //       if (file.size > 2 * 1024 * 1024) {
-// //         toast.error("Photo size must be less than 2MB");
-// //         return;
+// //   const handleComplicationToggle = (comp: string) => {
+// //     setSelectedComplications(prev => {
+// //       if (comp === "OTHERS" && prev.includes("OTHERS")) {
+// //         setOtherComplicationDetail(""); // Clear text if unchecked
 // //       }
-      
-// //       // Validate file type (JPEG/PNG only)
-// //       if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
-// //         toast.error("Only JPEG and PNG images are allowed");
-// //         return;
-// //       }
-      
-// //       // Create preview
-// //       const reader = new FileReader();
-// //       reader.onload = () => {
-// //         setPhotoPreview(reader.result as string);
-// //       };
-// //       reader.readAsDataURL(file);
-// //     }
+// //       return prev.includes(comp) ? prev.filter(c => c !== comp) : [...prev, comp];
+// //     });
 // //   };
 
-// //   const handleComplicationChange = (id: string, checked: boolean) => {
-// //     setSelectedComplications(prev => ({
-// //       ...prev,
-// //       [id]: checked
-// //     }));
-// //   };
+// //   // ✅ SAFE FILTER: Protects against undefined "masterData.blocks"
+// //   const filteredBlocks = (masterData.blocks || []).filter((b: any) => 
+// //     !district || b.districtId?.toString() === district
+// //   );
 
-// //   const handleSubmit = (e: React.FormEvent) => {
+// //   const handleSubmit = async (e: React.FormEvent) => {
 // //     e.preventDefault();
-// //     setLoading(true);
-
-// //     if (!childData) {
-// //       toast.error("No child data to update");
-// //       setLoading(false);
+// //     if (zScore === "Error") {
+// //       toast.error("Invalid Anthropometry data. Please check Height/Weight.");
+// //       return;
+// //     }
+// //     if (selectedComplications.length === 0) {
+// //       toast.error("Please select at least one medical complication status.");
+// //       return;
+// //     }
+// //     if (selectedComplications.includes("OTHERS") && !otherComplicationDetail.trim()) {
+// //       toast.error("Please specify the details for the 'Others' complication.");
+// //       return;
+// //     }
+    
+// //     if (!userMtcId) {
+// //       toast.error("Security Error: Unknown MTC ID. Please log out and log back in.");
 // //       return;
 // //     }
 
-// //     // Get form data
+// //     setLoading(true);
+
+// //     let finalComplications = [...selectedComplications];
+// //     if (finalComplications.includes("OTHERS")) {
+// //       finalComplications = finalComplications.filter(c => c !== "OTHERS");
+// //       finalComplications.push(`OTHERS: ${otherComplicationDetail.trim()}`);
+// //     }
+
 // //     const formData = new FormData(e.currentTarget as HTMLFormElement);
     
-// //     // Collect all form values
-// //     const updatedChild: ChildData = {
-// //       ...childData,
-// //       admissionType: formData.get('admissionType') as string,
-// //       referredBy: formData.get('referredBy') as string,
-// //       referredByName: formData.get('referredByName') as string,
-// //       referredByMobile: formData.get('referredByMobile') as string,
-// //       childName: formData.get('childName') as string,
-// //       parentName: formData.get('parentName') as string,
-// //       relationship: formData.get('relationship') as string,
-// //       mobileNumber: formData.get('mobileNumber') as string,
-// //       bplNumber: formData.get('bplNumber') as string,
-// //       dateOfBirth: dateOfBirth ? format(dateOfBirth, "dd-MMM-yyyy") : "",
-// //       sex: formData.get('sex') as string,
-// //       address: formData.get('address') as string,
-// //       caste: formData.get('caste') as string,
-// //       district: formData.get('district') as string,
-// //       block: formData.get('block') as string,
-// //       icdsProject: formData.get('icdsProject') as string,
-// //       anganwadiCenter: formData.get('anganwadiCenter') as string,
-// //       village: formData.get('village') as string,
-// //       admissionDate: admissionDate ? format(admissionDate, "dd-MMM-yyyy") : "",
-// //       admissionTime: formData.get('admissionTime') as string,
-// //       admissionWeight: formData.get('admissionWeight') as string,
-// //       admissionHeight: formData.get('admissionHeight') as string,
-// //       admissionOdema: formData.get('admissionOdema') as string,
-// //       admissionMuac: formData.get('admissionMuac') as string,
-// //       breastFeeding: formData.get('breastFeeding') as string,
-// //       complementaryFeeding: formData.get('complementaryFeeding') as string,
-// //       appetiteTest: formData.get('appetiteTest') as string,
-// //       complications: Object.keys(selectedComplications).filter(key => selectedComplications[key]),
-// //       otherComplication,
-// //       photo: photoPreview || undefined,
+// //     const payload = {
+// //       mtcId: userMtcId, // ✅ Secured MTC DB association
+// //       admissionType, referredBy,
+// //       referredByName: formData.get('referredByName'), referredByMobile: formData.get('referredByMobile'),
+// //       childName: formData.get('childName'), 
+// //       motherName: formData.get('motherName'), 
+// //       parentName: formData.get('parentName'),
+// //       relationship, mobileNumber: formData.get('mobileNumber'),
+// //       bplNumber: formData.get('bplNumber'), dateOfBirth, sex,
+// //       ageYears: ageYears, ageMonths: ageMonths,
+// //       address: formData.get('address'), caste, district, block, 
+// //       icdsProject, anganwadiCenter, village: formData.get('village'),
+// //       aadhaarNumber: formData.get('aadhaarNumber'), bankName: formData.get('bankName'),
+// //       accountHolderName: formData.get('accountHolderName'), accountNumber: formData.get('accountNumber'),
+// //       ifscCode: formData.get('ifscCode'), admissionDate, admissionTime,
+// //       admissionWeight, admissionHeight, 
+// //       admissionMuac: showMuac ? formData.get('admissionMuac') : null, 
+// //       zScore: zScore, admissionOdema, breastFeeding, complementaryFeeding, appetiteTest,
+// //       medicalComplications: finalComplications
 // //     };
 
-// //     // Get existing children from localStorage
-// //     const existingChildren = JSON.parse(localStorage.getItem('registeredChildren') || '[]');
-    
-// //     // Update the specific child
-// //     const updatedChildren = existingChildren.map((c: ChildData) => 
-// //       c.id === childId ? updatedChild : c
-// //     );
-    
-// //     // Save to localStorage
-// //     localStorage.setItem('registeredChildren', JSON.stringify(updatedChildren));
-
-// //     // Simulate API call
-// //     setTimeout(() => {
-// //       toast.success("Child record updated successfully!");
-// //       setLoading(false);
+// //     try {
+// //       const response = await fetch(`/api/child-registration/${childId}`, {
+// //         method: 'PUT',
+// //         headers: { 'Content-Type': 'application/json' },
+// //         body: JSON.stringify(payload)
+// //       });
       
-// //       // Redirect to the list page
-// //       router.push('/mtc-user/dashboard/child-registration');
-// //     }, 1500);
+// //       if (!response.ok) throw new Error('Failed to update registration');
+      
+// //       toast.success("Patient updated successfully!");
+// //       setTimeout(() => router.push('/mtc-user/dashboard/child-registration'), 1000);
+      
+// //     } catch (error) {
+// //       toast.error("An error occurred while updating.");
+// //       setLoading(false);
+// //     }
 // //   };
 
 // //   if (!mounted || !childData) {
-// //     return (
-// //       <div className="min-h-screen bg-gray-100 py-10 px-6 flex items-center justify-center">
-// //         <div className="text-lg">Loading...</div>
-// //       </div>
-// //     );
+// //     return <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+// //       <Loader2 className="animate-spin text-indigo-600 w-8 h-8" />
+// //     </div>;
 // //   }
 
+// //   const SectionTitle = ({ icon: Icon, title }: { icon: any, title: string }) => (
+// //     <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+// //       <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600"><Icon size={20} strokeWidth={2.5} /></div>
+// //       <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+// //     </div>
+// //   );
+
 // //   return (
-// //     <div className="min-h-screen bg-gray-100 py-10 px-6">
-// //       <Toaster position="top-right" />
-// //       <div className="max-w-7xl mx-auto">
-// //         <Card className="shadow-md border border-gray-200">
-// //           <CardHeader>
-// //             <div className="flex items-center gap-3">
-// //               <Button
-// //                 variant="outline"
-// //                 onClick={() => router.push('/mtc-user/dashboard/child-registration')}
-// //                 className="mb-2"
-// //               >
-// //                 <ArrowLeft className="h-4 w-4 mr-2" />
-// //                 Back
-// //               </Button>
-// //               <h1 className="text-2xl font-bold text-teal-700">
-// //                 Edit Child Registration
-// //               </h1>
-// //             </div>
-// //           </CardHeader>
+// //     <div className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 lg:px-8 font-sans pb-28">
+// //       <Toaster position="top-center" toastOptions={{ className: 'rounded-xl shadow-lg font-medium' }} />
+      
+// //       <div className="max-w-6xl mx-auto">
+// //         <div className="mb-2 flex items-center">
+// //           <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button" className="pl-0 text-slate-500 hover:text-indigo-600 hover:bg-transparent">
+// //             <ArrowLeft className="w-5 h-5 mr-2" /> Back
+// //           </Button>
+// //         </div>
 
-// //           <CardContent>
-// //             <form onSubmit={handleSubmit} className="space-y-6">
-// //               {/* SAM Number + Admission Info */}
-// //               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-// //                 <div>
-// //                   <Label>SAM Number</Label>
-// //                   <Input
-// //                     value={childData.samNumber}
-// //                     readOnly
-// //                     className="bg-gray-100 font-mono text-gray-700"
-// //                   />
-// //                 </div>
-// //                 <div>
-// //                   <Label>Admission Type <span className="text-red-500">*</span></Label>
-// //                   <Select name="admissionType" defaultValue={childData.admissionType} required>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select Type" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="1">NEW ADMISSION</SelectItem>
-// //                       <SelectItem value="2">RE ADMISSION</SelectItem>
-// //                       <SelectItem value="3">RELAPSE</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //                 <div>
-// //                   <Label>Referred By</Label>
-// //                   <Select name="referredBy" defaultValue={childData.referredBy} onValueChange={(val) => setReferredBy(val)}>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="6">Sahiya/ASHA</SelectItem>
-// //                       <SelectItem value="1">ANGANWADI</SelectItem>
-// //                       <SelectItem value="2">ANM</SelectItem>
-// //                       <SelectItem value="7">Poshan Sakhi</SelectItem>
-// //                       <SelectItem value="8">RBSK Team</SelectItem>
-// //                       <SelectItem value="3">OPD</SelectItem>
-// //                       <SelectItem value="4">SELF</SelectItem>
-// //                       <SelectItem value="5">OTHER</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //                 {showAshaFields && (
+// //         <div className="mb-8 text-center md:text-left md:flex md:items-end md:justify-between">
+// //           <div>
+// //             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Edit Child Record</h1>
+// //             <p className="mt-2 text-sm text-slate-500">Update the information directly in the database.</p>
+// //           </div>
+// //           <div className="mt-4 md:mt-0 px-5 py-3 bg-white rounded-xl shadow-sm border border-slate-200 inline-block text-center md:text-right">
+// //             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">SAM Number</span>
+// //             <span className="text-lg font-mono font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-md">{childData.samNumber}</span>
+// //           </div>
+// //         </div>
+
+// //         <form onSubmit={handleSubmit} className="relative">
+// //           <div className="space-y-6">
+
+// //             {/* Admission Info */}
+// //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// //               <CardContent className="p-6 sm:p-8">
+// //                 <SectionTitle icon={ClipboardCheck} title="Admission Details" />
+// //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 // //                   <div>
-// //                     <Label>Name of Sahiya/Asha</Label>
-// //                     <Input name="referredByName" defaultValue={childData.referredByName || ""} placeholder="Enter Sahiya/Asha Name" />
+// //                     <Label>Admission Type <span className="text-red-500">*</span></Label>
+// //                     <Select name="admissionType" value={admissionType} onValueChange={setAdmissionType} required>
+// //                       <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.admissionTypes.map((type: any) => (<SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
 // //                   </div>
-// //                 )}
-// //               </div>
-
-// //               {/* ASHA Mobile Number */}
-// //               {showAshaFields && (
-// //                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 // //                   <div>
-// //                     <Label>Sahiya/Asha Mobile</Label>
-// //                     <Input
-// //                       name="referredByMobile"
-// //                       type="tel"
-// //                       defaultValue={childData.referredByMobile || ""}
-// //                       placeholder="Enter Mobile Number"
-// //                       maxLength={10}
-// //                       pattern="[0-9]{10}"
-// //                     />
+// //                     <Label>Referred By</Label>
+// //                     <Select name="referredBy" value={referredBy} onValueChange={setReferredBy}>
+// //                       <SelectTrigger><SelectValue placeholder="Select Origin" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.referredBy.map((ref: any) => (<SelectItem key={ref.id} value={ref.id.toString()}>{ref.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
 // //                   </div>
-// //                 </div>
-// //               )}
-
-// //               {/* Child Info */}
-// //               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-// //                 <div>
-// //                   <Label>Child Name <span className="text-red-500">*</span></Label>
-// //                   <Input name="childName" defaultValue={childData.childName} placeholder="Enter Child Name" required />
-// //                 </div>
-// //                 <div>
-// //                   <Label>Name of the Father/Mother/Caretaker <span className="text-red-500">*</span></Label>
-// //                   <Input name="parentName" defaultValue={childData.parentName} placeholder="Enter Name" required />
-// //                 </div>
-// //                 <div>
-// //                   <Label>Relationship with child <span className="text-red-500">*</span></Label>
-// //                   <Select name="relationship" defaultValue={childData.relationship} required>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="1">Father</SelectItem>
-// //                       <SelectItem value="2">Mother</SelectItem>
-// //                       <SelectItem value="3">Any Other</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //                 <div>
-// //                   <Label>Mobile Number <span className="text-red-500">*</span></Label>
-// //                   <Input
-// //                     name="mobileNumber"
-// //                     type="tel"
-// //                     defaultValue={childData.mobileNumber}
-// //                     placeholder="Enter Mobile Number"
-// //                     maxLength={10}
-// //                     pattern="[0-9]{10}"
-// //                     required
-// //                   />
-// //                 </div>
-// //               </div>
-
-// //               {/* BPL Number, DOB, Sex */}
-// //               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-// //                 <div>
-// //                   <Label>BPL Number</Label>
-// //                   <Input name="bplNumber" defaultValue={childData.bplNumber || ""} placeholder="Enter BPL Number" />
-// //                 </div>
-// //                 <div>
-// //                   <Label>Date of Birth <span className="text-red-500">*</span></Label>
-// //                   <Popover>
-// //                     <PopoverTrigger asChild>
-// //                       <Button
-// //                         variant="outline"
-// //                         className={cn(
-// //                           "w-full justify-start text-left font-normal",
-// //                           !dateOfBirth && "text-muted-foreground"
-// //                         )}
-// //                       >
-// //                         <CalendarIcon className="mr-2 h-4 w-4" />
-// //                         {dateOfBirth ? format(dateOfBirth, "PPP") : "Pick a date"}
-// //                       </Button>
-// //                     </PopoverTrigger>
-// //                     <PopoverContent className="w-auto p-0">
-// //                       <Calendar
-// //                         mode="single"
-// //                         selected={dateOfBirth}
-// //                         onSelect={setDateOfBirth}
-// //                         initialFocus
-// //                       />
-// //                     </PopoverContent>
-// //                   </Popover>
-// //                 </div>
-// //                 <div>
-// //                   <Label>Sex <span className="text-red-500">*</span></Label>
-// //                   <Select name="sex" defaultValue={childData.sex} required>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="1">Male</SelectItem>
-// //                       <SelectItem value="2">Female</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //                 <div>
-// //                   <Label>Address <span className="text-red-500">*</span></Label>
-// //                   <Textarea name="address" defaultValue={childData.address} placeholder="Enter Address" rows={1} />
-// //                 </div>
-// //               </div>
-
-// //               {/* Photo Upload */}
-// //               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-// //                 <div>
-// //                   <Label>Upload Photo (max 2MB, png/jpeg only)</Label>
-// //                   <div className="flex items-center gap-2">
-// //                     <Input 
-// //                       type="file" 
-// //                       accept=".jpg,.jpeg,.png" 
-// //                       onChange={handlePhotoUpload}
-// //                       className="hidden"
-// //                       id="photo-upload"
-// //                     />
-// //                     <Button
-// //                       type="button"
-// //                       variant="outline"
-// //                       onClick={() => document.getElementById('photo-upload')?.click()}
-// //                       className="flex items-center gap-2"
-// //                     >
-// //                       <Upload className="h-4 w-4" />
-// //                       Choose File
-// //                     </Button>
+// //                   {showAshaFields && (
+// //                     <>
+// //                       <div>
+// //                         <Label>Name of Sahiya/Asha</Label>
+// //                         <Input name="referredByName" defaultValue={childData.referredByName || childData.parentName} placeholder="Enter Name" />
+// //                       </div>
+// //                       <div>
+// //                         <Label>Sahiya/Asha Mobile</Label>
+// //                         <Input name="referredByMobile" defaultValue={childData.referredByMobile || childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" />
+// //                       </div>
+// //                     </>
+// //                   )}
+// //                   <div>
+// //                     <Label>Admission Date <span className="text-red-500">*</span></Label>
+// //                     <Input type="date" name="admissionDate" value={admissionDate} onChange={(e) => setAdmissionDate(e.target.value)} required />
 // //                   </div>
-// //                 </div>
-// //                 {photoPreview && (
-// //                   <div className="col-span-3">
-// //                     {/* Replaced img with Next.js Image component */}
-// //                     <div className="relative h-32 w-auto">
-// //                       <Image 
-// //                         src={photoPreview} 
-// //                         alt="Child Photo" 
-// //                         fill
-// //                         className="rounded border object-contain"
-// //                         unoptimized // Required for data URLs
-// //                       />
+// //                   <div>
+// //                     <Label>Admission Time <span className="text-red-500">*</span></Label>
+// //                     <div className="relative">
+// //                       <Input name="admissionTime" type="time" value={admissionTime} onChange={(e) => setAdmissionTime(e.target.value)} required className="pr-10" />
+// //                       <Clock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 pointer-events-none" />
 // //                     </div>
 // //                   </div>
-// //                 )}
-// //               </div>
+// //                 </div>
+// //               </CardContent>
+// //             </Card>
 
-// //               {/* Caste, District, Block */}
-// //               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-// //                 <div>
-// //                   <Label>Caste <span className="text-red-500">*</span></Label>
-// //                   <Select name="caste" defaultValue={childData.caste} required>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="1">ST</SelectItem>
-// //                       <SelectItem value="2">SC</SelectItem>
-// //                       <SelectItem value="3">OBC</SelectItem>
-// //                       <SelectItem value="4">OTHERS</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
+// //             {/* Personal Info */}
+// //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// //               <CardContent className="p-6 sm:p-8">
+// //                 <SectionTitle icon={Baby} title="Child & Guardian Information" />
+// //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// //                   <div className="lg:col-span-2">
+// //                     <Label>Child Full Name <span className="text-red-500">*</span></Label>
+// //                     <Input name="childName" defaultValue={childData.childName} required />
+// //                   </div>
+// //                   <div className="lg:col-span-2">
+// //                     <Label>Date of Birth</Label>
+// //                     <Input type="date" name="dateOfBirth" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+// //                   </div>
+// //                   <div>
+// //                     <Label>Age (Years) <span className="text-red-500">*</span></Label>
+// //                     <Input type="number" min="0" value={ageYears} onChange={(e) => setAgeYears(e.target.value)} required />
+// //                   </div>
+// //                   <div>
+// //                     <Label>Age (Months) <span className="text-red-500">*</span></Label>
+// //                     <Input type="number" min="0" max="11" value={ageMonths} onChange={(e) => setAgeMonths(e.target.value)} required />
+// //                   </div>
+// //                   <div className="lg:col-span-2">
+// //                     <Label>Sex <span className="text-red-500">*</span></Label>
+// //                     <Select name="sex" value={sex} onValueChange={setSex} required>
+// //                       <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.sexes.map((s: any) => (<SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
+// //                   </div>
+// //                   <div className="lg:col-span-2">
+// //                     <Label>Mother's Name <span className="text-red-500">*</span></Label>
+// //                     <Input name="motherName" defaultValue={childData.motherName} required />
+// //                   </div>
+// //                   <div className="lg:col-span-2">
+// //                     <Label>Name of Caretaker / Guardian <span className="text-red-500">*</span></Label>
+// //                     <Input name="parentName" defaultValue={childData.parentName} required />
+// //                   </div>
+// //                   <div>
+// //                     <Label>Relationship <span className="text-red-500">*</span></Label>
+// //                     <Select name="relationship" value={relationship} onValueChange={setRelationship} required>
+// //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.relationships.map((rel: any) => (<SelectItem key={rel.id} value={rel.id.toString()}>{rel.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
+// //                   </div>
+// //                   <div>
+// //                     <Label>Mobile Number <span className="text-red-500">*</span></Label>
+// //                     <Input name="mobileNumber" defaultValue={childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" required />
+// //                   </div>
 // //                 </div>
-// //                 <div>
-// //                   <Label>District <span className="text-red-500">*</span></Label>
-// //                   <Select name="district" defaultValue={childData.district} required>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select District" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="1">BOKARO</SelectItem>
-// //                       <SelectItem value="2">CHATRA</SelectItem>
-// //                       <SelectItem value="16">DEOGHAR</SelectItem>
-// //                       <SelectItem value="4">DHANBAD</SelectItem>
-// //                       <SelectItem value="17">DUMKA</SelectItem>
-// //                       <SelectItem value="22">EAST SINGHBHUM</SelectItem>
-// //                       <SelectItem value="14">GARHWA</SelectItem>
-// //                       <SelectItem value="3">GIRIDIH</SelectItem>
-// //                       <SelectItem value="18">GODDA</SelectItem>
-// //                       <SelectItem value="9">GUMLA</SelectItem>
-// //                       <SelectItem value="6">HAZARIBAGH</SelectItem>
-// //                       <SelectItem value="19">JAMTARA</SelectItem>
-// //                       <SelectItem value="10">KHUNTI</SelectItem>
-// //                       <SelectItem value="7">KODERMA</SelectItem>
-// //                       <SelectItem value="15">LATEHAR</SelectItem>
-// //                       <SelectItem value="11">LOHARDAGA</SelectItem>
-// //                       <SelectItem value="20">PAKUR</SelectItem>
-// //                       <SelectItem value="13">PALAMU</SelectItem>
-// //                       <SelectItem value="5">RAMGARH</SelectItem>
-// //                       <SelectItem value="8">RANCHI</SelectItem>
-// //                       <SelectItem value="21">SAHIBGANJ</SelectItem>
-// //                       <SelectItem value="23">SERAIKELA</SelectItem>
-// //                       <SelectItem value="12">SIMDEGA</SelectItem>
-// //                       <SelectItem value="24">WEST SINGHBHUM</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //                 <div>
-// //                   <Label>Block</Label>
-// //                   <Select name="block" defaultValue={childData.block || ""}>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select Block" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="block1">Block 1</SelectItem>
-// //                       <SelectItem value="block2">Block 2</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //                 <div>
-// //                   <Label>ICDS Project</Label>
-// //                   <Select name="icdsProject" defaultValue={childData.icdsProject || ""}>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select ICDS Project" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="icds1">ICDS Project 1</SelectItem>
-// //                       <SelectItem value="icds2">ICDS Project 2</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //               </div>
+// //               </CardContent>
+// //             </Card>
 
-// //               {/* Anganwadi Center, Village, Admission Date and Time */}
-// //               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-// //                 <div>
-// //                   <Label>Anganwadi Center</Label>
-// //                   <Select name="anganwadiCenter" defaultValue={childData.anganwadiCenter || ""}>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select Anganwadi Center" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="anganwadi1">Anganwadi Center 1</SelectItem>
-// //                       <SelectItem value="anganwadi2">Anganwadi Center 2</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
+// //             {/* Financial Details */}
+// //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// //               <CardContent className="p-6 sm:p-8">
+// //                 <SectionTitle icon={ShieldCheck} title="Identity & Financial Details" />
+// //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// //                   <div>
+// //                     <Label>Parent Aadhaar Number</Label>
+// //                     <Input name="aadhaarNumber" defaultValue={childData.aadhaarNumber} maxLength={12} pattern="[0-9]{12}" />
+// //                   </div>
+// //                   <div>
+// //                     <Label>BPL Number</Label>
+// //                     <Input name="bplNumber" defaultValue={childData.bplNumber} />
+// //                   </div>
+// //                   <div>
+// //                     <Label>Caste <span className="text-red-500">*</span></Label>
+// //                     <Select name="caste" value={caste} onValueChange={setCaste} required>
+// //                       <SelectTrigger><SelectValue placeholder="Select Caste" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.castes.map((caste: any) => (<SelectItem key={caste.id} value={caste.id.toString()}>{caste.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
+// //                   </div>
+// //                   <div className="lg:col-span-4 mt-2">
+// //                     <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
+// //                       <Landmark className="w-4 h-4 text-indigo-500" /> Bank Account Details
+// //                     </h3>
+// //                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-slate-50 p-5 rounded-xl border border-slate-100">
+// //                       <div><Label>Bank Name</Label><Input name="bankName" defaultValue={childData.bankName} className="bg-white" /></div>
+// //                       <div><Label>Account Holder</Label><Input name="accountHolderName" defaultValue={childData.accountHolderName} className="bg-white" /></div>
+// //                       <div><Label>Account Number</Label><Input name="accountNumber" defaultValue={childData.accountNumber} className="bg-white" /></div>
+// //                       <div><Label>IFSC Code</Label><Input name="ifscCode" defaultValue={childData.ifscCode} className="bg-white" /></div>
+// //                     </div>
+// //                   </div>
 // //                 </div>
-// //                 <div>
-// //                   <Label>Village</Label>
-// //                   <Input name="village" defaultValue={childData.village || ""} placeholder="Enter Village" />
-// //                 </div>
-// //                 <div>
-// //                   <Label>Admission Date <span className="text-red-500">*</span></Label>
-// //                   <Popover>
-// //                     <PopoverTrigger asChild>
-// //                       <Button
-// //                         variant="outline"
-// //                         className={cn(
-// //                           "w-full justify-start text-left font-normal",
-// //                           !admissionDate && "text-muted-foreground"
-// //                         )}
-// //                       >
-// //                         <CalendarIcon className="mr-2 h-4 w-4" />
-// //                         {admissionDate ? format(admissionDate, "PPP") : "Pick a date"}
-// //                       </Button>
-// //                     </PopoverTrigger>
-// //                     <PopoverContent className="w-auto p-0">
-// //                       <Calendar
-// //                         mode="single"
-// //                         selected={admissionDate}
-// //                         onSelect={setAdmissionDate}
-// //                         initialFocus
-// //                       />
-// //                     </PopoverContent>
-// //                   </Popover>
-// //                 </div>
-// //                 <div>
-// //                   <Label>Admission Time <span className="text-red-500">*</span></Label>
-// //                   <div className="relative">
-// //                     <Input
-// //                       name="admissionTime"
-// //                       type="time"
-// //                       value={admissionTime}
-// //                       onChange={(e) => setAdmissionTime(e.target.value)}
+// //               </CardContent>
+// //             </Card>
+
+// //             {/* DEPENDENT LOCATION DETAILS */}
+// //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// //               <CardContent className="p-6 sm:p-8">
+// //                 <SectionTitle icon={MapPin} title="Location Details" />
+// //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+// //                   <div className="lg:col-span-3">
+// //                     <Label>Full Address <span className="text-red-500">*</span></Label>
+// //                     <Textarea name="address" defaultValue={childData.address} rows={2} required />
+// //                   </div>
+// //                   <div>
+// //                     <Label>District <span className="text-red-500">*</span></Label>
+// //                     <Select 
+// //                       name="district" 
+// //                       value={district} 
+// //                       onValueChange={(val: string) => {
+// //                         setDistrict(val);
+// //                         setBlock(""); 
+// //                       }} 
 // //                       required
-// //                       className="pr-10"
-// //                     />
-// //                     <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+// //                     >
+// //                       <SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.districts.map((dist: any) => (<SelectItem key={dist.id} value={dist.id.toString()}>{dist.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
+// //                   </div>
+// //                   <div>
+// //                     <Label>Block</Label>
+// //                     <Select 
+// //                       name="block" 
+// //                       value={block} 
+// //                       onValueChange={setBlock}
+// //                       disabled={!district} 
+// //                     >
+// //                       <SelectTrigger>
+// //                         <SelectValue placeholder={district ? "Select Block" : "Select District First"} />
+// //                       </SelectTrigger>
+// //                       <SelectContent>
+// //                         {filteredBlocks.map((b: any) => (<SelectItem key={b.id} value={b.id.toString()}>{b.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
+// //                   </div>
+// //                   <div>
+// //                     <Label>Village</Label>
+// //                     <Input name="village" defaultValue={childData.village} />
+// //                   </div>
+// //                   <div>
+// //                     <Label>ICDS Project</Label>
+// //                     <Select name="icdsProject" value={icdsProject} onValueChange={setIcdsProject}>
+// //                       <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.icdsProjects.map((project: any) => (<SelectItem key={project.id} value={project.id.toString()}>{project.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
+// //                   </div>
+// //                   <div className="lg:col-span-2">
+// //                     <Label>Anganwadi Center</Label>
+// //                     <Select name="anganwadiCenter" value={anganwadiCenter} onValueChange={setAnganwadiCenter}>
+// //                       <SelectTrigger><SelectValue placeholder="Select Center" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.anganwadis.map((center: any) => (<SelectItem key={center.id} value={center.id.toString()}>{center.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
 // //                   </div>
 // //                 </div>
-// //               </div>
+// //               </CardContent>
+// //             </Card>
 
-// //               {/* Height, Z-Score, Odema, MUAC */}
-// //               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-// //                 <div>
-// //                   <Label>Admission Weight (kg) <span className="text-red-500">*</span></Label>
-// //                   <Input name="admissionWeight" type="number" step="0.1" defaultValue={childData.admissionWeight} placeholder="Enter Weight" required />
-// //                 </div>
-// //                 <div>
-// //                   <Label>Admission Length/Height (cm) <span className="text-red-500">*</span></Label>
-// //                   <Input name="admissionHeight" type="number" step="0.1" defaultValue={childData.admissionHeight} placeholder="Enter Height" required />
-// //                 </div>
-// //                 <div>
-// //                   <Label>Z-Score (SD)</Label>
-// //                   <Input readOnly placeholder="Auto-calculated" />
-// //                 </div>
-// //                 <div>
-// //                   <Label>Admission Odema <span className="text-red-500">*</span></Label>
-// //                   <Select name="admissionOdema" defaultValue={childData.admissionOdema} required>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="1">+</SelectItem>
-// //                       <SelectItem value="2">++</SelectItem>
-// //                       <SelectItem value="3">+++</SelectItem>
-// //                       <SelectItem value="4">No</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //               </div>
-
-// //               {/* MUAC */}
-// //               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-// //                 <div>
-// //                   <Label>Admission MUAC (cm) <span className="text-red-500">*</span></Label>
-// //                   <Input name="admissionMuac" type="number" step="0.1" defaultValue={childData.admissionMuac} placeholder="Enter MUAC" required />
-// //                 </div>
-// //               </div>
-
-// //               {/* Feeding Information */}
-// //               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-// //                 <div>
-// //                   <Label>Breast Feeding <span className="text-red-500">*</span></Label>
-// //                   <Select name="breastFeeding" defaultValue={childData.breastFeeding} required>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="1">Yes</SelectItem>
-// //                       <SelectItem value="2">No</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //                 <div>
-// //                   <Label>Complementary Feeding <span className="text-red-500">*</span></Label>
-// //                   <Select name="complementaryFeeding" defaultValue={childData.complementaryFeeding} required>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="1">Yes</SelectItem>
-// //                       <SelectItem value="2">No</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //                 <div>
-// //                   <Label>Appetite Test <span className="text-red-500">*</span></Label>
-// //                   <Select name="appetiteTest" defaultValue={childData.appetiteTest} required>
-// //                     <SelectTrigger>
-// //                       <SelectValue placeholder="Select" />
-// //                     </SelectTrigger>
-// //                     <SelectContent>
-// //                       <SelectItem value="1">PASS</SelectItem>
-// //                       <SelectItem value="2">FAIL</SelectItem>
-// //                       <SelectItem value="3">NOT DONE</SelectItem>
-// //                     </SelectContent>
-// //                   </Select>
-// //                 </div>
-// //               </div>
-
-// //               {/* Medical Complications */}
-// //               <div>
-// //                 <Label className="block text-sm font-medium text-gray-700 mb-2">
-// //                   Medical Complications <span className="text-red-500">*</span>
-// //                 </Label>
-// //                 <div className="border rounded-md p-4">
-// //                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-// //                     {[
-// //                       { id: "0", label: "NO COMPLICATION" },
-// //                       { id: "1", label: "PRESENCE OF ANY OF EMERGENCY SIGNS" },
-// //                       { id: "2", label: "VERY WEAK, APATHETIC" },
-// //                       { id: "3", label: "ODEMA OF BOTH FEET" },
-// //                       { id: "4", label: "SEVERE PALMAR PALLOR" },
-// //                       { id: "5", label: "SICK YOUNG INFANT LESS THAN 2 MONTHS" },
-// //                       { id: "6", label: "LETHARGY/ DROWSINESS/ UNCONSCIOUSNESS" },
-// //                       { id: "7", label: "CONTINUALLY IRRITABLE AND RESTLESS" },
-// //                       { id: "8", label: "ANY RESPIRATORY DISTRESS" },
-// //                       { id: "9", label: "SIGN SUGGESTING SEVERE DEHYDRATION WITH DIARRHOEA" },
-// //                       { id: "10", label: "PRESISTENT VOMITING" },
-// //                       { id: "11", label: "HYPOTHERMIA (<35 DEGREE CENTIGRADE)" },
-// //                       { id: "12", label: "SEVERE ANEMIA" },
-// //                       { id: "13", label: "FEVER (>38.5 DEGREE CENTIGRADE)" },
-// //                       { id: "14", label: "EXTENSIVE SKIN LESIONS, EYE LESIONS, POST-MEASLES STATES" },
-// //                       { id: "15", label: "TUBERCULOSIS" },
-// //                       { id: "16", label: "MALARIA" },
-// //                       { id: "17", label: "OTHERS" },
-// //                     ].map((item) => (
-// //                       <div key={item.id} className="flex items-center space-x-2">
-// //                         <input
-// //                           type="checkbox"
-// //                           id={`complication-${item.id}`}
-// //                           checked={selectedComplications[item.id] || false}
-// //                           onChange={(e) => handleComplicationChange(item.id, e.target.checked)}
-// //                           className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
-// //                         />
-// //                         <Label htmlFor={`complication-${item.id}`} className="text-sm">
-// //                           {item.label}
-// //                         </Label>
-// //                       </div>
-// //                     ))}
+// //             {/* Anthropometry Details */}
+// //             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// //               <CardContent className="p-6 sm:p-8">
+// //                 <SectionTitle icon={Activity} title="Anthropometry & Feeding" />
+// //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+// //                   <div>
+// //                     <Label>Admission Weight (kg) <span className="text-red-500">*</span></Label>
+// //                     <Input name="admissionWeight" type="number" step="0.1" value={admissionWeight} onChange={(e) => setAdmissionWeight(e.target.value)} required />
 // //                   </div>
-// //                   {selectedComplications["17"] && (
-// //                     <div className="mt-3">
-// //                       <Label htmlFor="other-complication">Other Complication Details</Label>
-// //                       <Input
-// //                         id="other-complication"
-// //                         value={otherComplication}
-// //                         onChange={(e) => setOtherComplication(e.target.value)}
-// //                         placeholder="Please specify other complication"
-// //                       />
+// //                   <div>
+// //                     <Label>Length/Height (cm) <span className="text-red-500">*</span></Label>
+// //                     <Input name="admissionHeight" type="number" step="0.1" value={admissionHeight} onChange={(e) => setAdmissionHeight(e.target.value)} required />
+// //                   </div>
+                  
+// //                   {/* ---> CONDITIONAL MUAC FIELD <--- */}
+// //                   {showMuac && (
+// //                     <div>
+// //                       <Label>MUAC (cm) <span className="text-red-500">*</span></Label>
+// //                       <Input name="admissionMuac" type="number" step="0.1" defaultValue={childData.admissionMuac} required />
 // //                     </div>
 // //                   )}
-// //                 </div>
-// //               </div>
 
-// //               {/* Buttons */}
-// //               <div className="flex justify-end gap-3">
-// //                 <Button
-// //                   type="button"
-// //                   variant="outline"
-// //                   onClick={() => router.push('/mtc-user/dashboard/child-registration')}
-// //                   className="bg-gray-100"
-// //                 >
-// //                   ✕ Cancel
-// //                 </Button>
-// //                 <Button
-// //                   type="submit"
-// //                   disabled={loading}
-// //                   className="bg-teal-600 hover:bg-teal-700"
-// //                 >
-// //                   {loading ? "Updating..." : "✔ Update"}
-// //                 </Button>
-// //               </div>
-// //             </form>
-// //           </CardContent>
-// //         </Card>
+// //                   <div>
+// //                     <Label>Z-Score (SD)</Label>
+// //                     <Input name="zScore" readOnly value={zScore} className={cn("font-semibold focus:ring-0 cursor-not-allowed", zScore === "Error" ? "bg-red-50 text-red-600" : "bg-slate-100 text-indigo-700")} />
+// //                   </div>
+// //                   <div>
+// //                     <Label>Admission Odema <span className="text-red-500">*</span></Label>
+// //                     <Select name="admissionOdema" value={admissionOdema} onValueChange={setAdmissionOdema} required>
+// //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.odemas.map((odema: any) => (<SelectItem key={odema.id} value={odema.id.toString()}>{odema.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
+// //                   </div>
+// //                   <div>
+// //                     <Label>Breast Feeding <span className="text-red-500">*</span></Label>
+// //                     <Select name="breastFeeding" value={breastFeeding} onValueChange={setBreastFeeding} required>
+// //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.breastFeeding.map((bf: any) => (<SelectItem key={bf.id} value={bf.id.toString()}>{bf.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
+// //                   </div>
+// //                   <div>
+// //                     <Label>Complementary Feeding <span className="text-red-500">*</span></Label>
+// //                     <Select name="complementaryFeeding" value={complementaryFeeding} onValueChange={setComplementaryFeeding} required>
+// //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         <SelectItem value="1">Yes</SelectItem><SelectItem value="2">No</SelectItem>
+// //                       </SelectContent>
+// //                     </Select>
+// //                   </div>
+// //                   <div>
+// //                     <Label>Appetite Test <span className="text-red-500">*</span></Label>
+// //                     <Select name="appetiteTest" value={appetiteTest} onValueChange={setAppetiteTest} required>
+// //                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+// //                       <SelectContent>
+// //                         {masterData.appetiteTests.map((at: any) => (<SelectItem key={at.id} value={at.id.toString()}>{at.name}</SelectItem>))}
+// //                       </SelectContent>
+// //                     </Select>
+// //                   </div>
+// //                 </div>
+// //               </CardContent>
+// //             </Card>
+
+// //             <Card className="overflow-hidden border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+// //               <CardContent className="p-6 sm:p-8">
+// //                 <SectionTitle icon={Stethoscope} title="Medical Complications" />
+// //                 <p className="text-sm font-semibold text-slate-700 mb-4 block">Select all present complications: <span className="text-red-500">*</span></p>
+                
+// //                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6 bg-slate-50/50 p-6 rounded-xl border border-slate-200">
+// //                   {MEDICAL_COMPLICATIONS_LIST.map((comp) => (
+// //                     <label key={comp} className="flex items-start space-x-3 cursor-pointer group">
+// //                       <div className="flex items-center h-5">
+// //                         <input
+// //                           type="checkbox"
+// //                           className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/30 transition duration-150 ease-in-out cursor-pointer"
+// //                           checked={selectedComplications.includes(comp)}
+// //                           onChange={() => handleComplicationToggle(comp)}
+// //                         />
+// //                       </div>
+// //                       <span className="text-sm font-medium text-slate-600 leading-tight group-hover:text-slate-900 transition-colors">
+// //                         {comp}
+// //                       </span>
+// //                     </label>
+// //                   ))}
+// //                 </div>
+
+// //                 {/* ---> DYNAMIC OTHERS TEXT BOX <--- */}
+// //                 {selectedComplications.includes("OTHERS") && (
+// //                   <div className="mt-5 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100">
+// //                     <Label className="text-indigo-900">Please specify 'Others' complication details <span className="text-red-500">*</span></Label>
+// //                     <Input 
+// //                       value={otherComplicationDetail}
+// //                       onChange={(e) => setOtherComplicationDetail(e.target.value)}
+// //                       placeholder="e.g., Asthma, Severe Jaundice..."
+// //                       className="mt-2 bg-white"
+// //                       required={selectedComplications.includes("OTHERS")}
+// //                     />
+// //                   </div>
+// //                 )}
+
+// //               </CardContent>
+// //             </Card>
+
+// //           </div>
+
+// //           <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200 p-4 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50 flex justify-end gap-4 sm:justify-center md:justify-end md:px-12">
+// //             <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button">Cancel</Button>
+// //             <Button type="submit" disabled={loading || zScore === "Error"} className="min-w-40">
+// //               {loading ? "Saving to Database..." : "Update Patient"}
+// //             </Button>
+// //           </div>
+// //         </form>
 // //       </div>
 // //     </div>
 // //   );
 // // }
 
+
 // "use client";
 
-// import { useState, useEffect, useCallback } from "react";
+// import React, { useState, useEffect } from "react";
 // import { useRouter, useParams } from "next/navigation";
-// import { Input } from "@/components/ui/input";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardHeader, CardContent } from "@/components/ui/card";
-// import { Label } from "@/components/ui/label";
-// import {
-//   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-// } from "@/components/ui/select";
-// import { CalendarIcon, Upload, Clock, ArrowLeft } from "lucide-react";
+// import { Clock, Landmark, ClipboardCheck, MapPin, Activity, Stethoscope, Baby, ShieldCheck, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
 // import toast, { Toaster } from "react-hot-toast";
-// import { Textarea } from "@/components/ui/textarea";
-// import { Calendar } from "@/components/ui/calendar";
-// import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-// import { format, parseISO } from "date-fns";
-// import { cn } from "@/lib/utils";
-// import Image from "next/image";
+// import { clsx, type ClassValue } from "clsx";
+// import { twMerge } from "tailwind-merge";
 
-// // Interface matches the API response structure
-// interface ChildData {
-//   id: string;
-//   samNumber: string;
-//   admissionType: string;
-//   referredBy: string;
-//   childName: string;
-//   parentName: string;
-//   relationship: string;
-//   mobileNumber: string;
-//   bplNumber?: string;
-//   dateOfBirth: string;
-//   sex: string;
-//   address: string;
-//   caste: string;
-//   district: string;
-//   block?: string;
-//   icdsProject?: string;
-//   anganwadiCenter?: string;
-//   village?: string;
-//   admissionDate: string;
-//   admissionTime: string;
-//   admissionWeight: string;
-//   admissionHeight: string;
-//   admissionOdema: string;
-//   admissionMuac: string;
-//   breastFeeding: string;
-//   complementaryFeeding: string;
-//   appetiteTest: string;
-//   complications: string[];
-//   otherComplication?: string;
-//   photo?: string;
+// function cn(...inputs: ClassValue[]) {
+//   return twMerge(clsx(inputs));
 // }
 
+// // --- TypeScript Interfaces ---
+// interface DropdownItem {
+//   id: number | string;
+//   name: string;
+//   districtId?: number | string;
+// }
+
+// interface MasterDataState {
+//   admissionTypes: DropdownItem[];
+//   referredBy: DropdownItem[];
+//   castes: DropdownItem[];
+//   districts: DropdownItem[];
+//   sexes: DropdownItem[];
+//   relationships: DropdownItem[];
+//   odemas: DropdownItem[];
+//   breastFeeding: DropdownItem[];
+//   appetiteTests: DropdownItem[];
+//   blocks: DropdownItem[];
+//   icdsProjects: DropdownItem[];
+//   anganwadis: DropdownItem[];
+// }
+
+// // --- Reusable UI Components ---
+// const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+//   ({ className, type, ...props }, ref) => (
+//     <input type={type} className={cn("flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+//   )
+// );
+// Input.displayName = "Input";
+
+// const Button = React.forwardRef<any, any>(
+//   ({ className, variant = 'default', href, ...props }, ref) => {
+//     const classes = cn(
+//       "inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]",
+//       variant === 'default' ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 h-11 py-2 px-6" : "",
+//       variant === 'outline' ? "border border-slate-200 bg-white shadow-sm hover:bg-slate-50 hover:text-slate-900 h-11 py-2 px-6 text-slate-700" : "",
+//       variant === 'ghost' ? "hover:bg-slate-100 hover:text-slate-900 h-11 py-2 px-6 text-slate-600" : "",
+//       className
+//     );
+//     if (href) return <a href={href} className={classes} ref={ref} {...props} />;
+//     return <button ref={ref} className={classes} {...props} />;
+//   }
+// );
+// Button.displayName = "Button";
+
+// const Card = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+//   <div className={cn("rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-sm", className)} {...props} />
+// );
+// const CardContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+//   <div className={cn("p-6 md:p-8", className)} {...props} />
+// );
+// const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
+//   ({ className, ...props }, ref) => (
+//     <label ref={ref} className={cn("text-sm font-semibold text-slate-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block", className)} {...props} />
+//   )
+// );
+// Label.displayName = "Label";
+
+// const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+//   ({ className, ...props }, ref) => (
+//     <textarea className={cn("flex min-h-20 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+//   )
+// );
+// Textarea.displayName = "Textarea";
+
+// const Select = ({ name, value, onValueChange, required, children, disabled }: any) => {
+//   const [internalValue, setInternalValue] = useState(value || "");
+  
+//   useEffect(() => {
+//     if (value !== undefined) setInternalValue(value);
+//   }, [value]);
+
+//   const options: {value: string, label: string}[] = [];
+//   let placeholder = "Select";
+  
+//   React.Children.forEach(children, child => {
+//     if (child && child.type?.name === 'SelectTrigger') {
+//       React.Children.forEach(child.props.children, triggerChild => {
+//         if (triggerChild && triggerChild.type?.name === 'SelectValue') {
+//           placeholder = triggerChild.props.placeholder || "Select";
+//         }
+//       });
+//     }
+//     if (child && child.type?.name === 'SelectContent') {
+//       const contentChildren = Array.isArray(child.props.children) ? child.props.children.flat() : [child.props.children];
+//       React.Children.forEach(contentChildren, itemChild => {
+//         if (itemChild && itemChild.type?.name === 'SelectItem') {
+//           options.push({ value: itemChild.props.value, label: itemChild.props.children });
+//         }
+//       });
+//     }
+//   });
+
+//   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+//     setInternalValue(e.target.value);
+//     if (onValueChange) onValueChange(e.target.value);
+//   };
+
+//   return (
+//     <select name={name} value={internalValue} onChange={handleChange} required={required} disabled={disabled} className="flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100 appearance-none">
+//       <option value="" disabled>{placeholder}</option>
+//       {options.map((opt, i) => (<option key={i} value={opt.value}>{opt.label}</option>))}
+//     </select>
+//   );
+// };
+// const SelectTrigger = ({ children }: any) => <>{children}</>;
+// const SelectValue = ({ placeholder }: any) => <>{placeholder}</>;
+// const SelectContent = ({ children }: any) => <>{children}</>;
+// const SelectItem = ({ children, value }: any) => <>{children}</>;
+
+// // --- Constants & Math Functions ---
+// const MEDICAL_COMPLICATIONS_LIST = [
+//   "NO COMPLICATION", "PRESENCE OF ANY OF EMERGENCY SIGNS", "VERY WEAK, APATHETIC",
+//   "ODEMA OF BOTH FEET", "SEVERE PALMAR PALLOR", "SICK YOUNG INFANT LESS THAN 2 MONTHS",
+//   "LETHARGY/ DROWSINESS/ UNCONSCIOUSNESS", "CONTINUALLY IRRITABLE AND RESTLESS", "ANY RESPIRATORY DISTRESS",
+//   "SEVERE DEHYDRATION WITH DIARRHOEA", "PERSISTENT VOMITING", "HYPOTHERMIA (<35°C)",
+//   "SEVERE ANEMIA", "FEVER (>38.5°C)", "EXTENSIVE SKIN LESIONS",
+//   "TUBERCULOSIS", "MALARIA", "OTHERS"
+// ];
+
+// const calculateZScore = (weight: number, height: number, sex: string) => {
+//   if (!weight || !height || height <= 0) return "";
+//   const score = (weight / (height / 100) ** 2) - 15;
+//   if (!isFinite(score) || score > 99 || score < -99) return "Error";
+//   return score.toFixed(2);
+// };
+
+// // --- Main Application ---
 // export default function EditChildRegistration() {
 //   const router = useRouter();
 //   const params = useParams();
-//   const childId = params.id as string; // This is likely the encoded SAM No (e.g. JH%2FWSB)
+//   const childId = params.id as string;
 
 //   const [loading, setLoading] = useState(false);
 //   const [mounted, setMounted] = useState(false);
-//   const [childData, setChildData] = useState<ChildData | null>(null);
+//   const [childData, setChildData] = useState<any>(null);
   
-//   // Local state for controlled inputs
+//   // ✅ MTC Identity States
+//   const [userMtcId, setUserMtcId] = useState<number | null>(null);
+//   const [userMtcCode, setUserMtcCode] = useState<string>("");
+
+//   const [masterData, setMasterData] = useState<MasterDataState>({
+//     admissionTypes: [], referredBy: [], castes: [], districts: [],
+//     sexes: [], relationships: [], odemas: [], breastFeeding: [], appetiteTests: [],
+//     blocks: [], icdsProjects: [], anganwadis: []
+//   });
+
+//   const [admissionType, setAdmissionType] = useState("");
 //   const [referredBy, setReferredBy] = useState("");
-//   const [selectedComplications, setSelectedComplications] = useState<{ [key: string]: boolean }>({});
-//   const [otherComplication, setOtherComplication] = useState("");
-//   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-//   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-//   const [admissionDate, setAdmissionDate] = useState<Date | undefined>(undefined);
+//   const [showAshaFields, setShowAshaFields] = useState(false);
+  
+//   // ✅ SAAMAR Control States
+//   const [showSamarTracker, setShowSamarTracker] = useState(false);
+//   const [isSamar, setIsSamar] = useState<string>("no");
+//   const [samarUuid, setSamarUuid] = useState<string>("");
+
+//   const [selectedComplications, setSelectedComplications] = useState<string[]>([]);
+//   const [otherComplicationDetail, setOtherComplicationDetail] = useState(""); 
+  
+//   const [dateOfBirth, setDateOfBirth] = useState<string>("");
+//   const [admissionDate, setAdmissionDate] = useState<string>("");
 //   const [admissionTime, setAdmissionTime] = useState<string>("");
+//   const [ageYears, setAgeYears] = useState<string>(""); 
+//   const [ageMonths, setAgeMonths] = useState<string>(""); 
 
-//   // Load Data from API
-//   const loadChildData = useCallback(async () => {
-//     try {
-//       const response = await fetch(`/api/child/${childId}`);
-//       const result = await response.json();
+//   const [sex, setSex] = useState<string>("");
+//   const [admissionWeight, setAdmissionWeight] = useState<string>("");
+//   const [admissionHeight, setAdmissionHeight] = useState<string>("");
+//   const [zScore, setZScore] = useState<string>("");
 
-//       if (result.success && result.data) {
-//         const data = result.data;
-//         setChildData(data);
+//   const [caste, setCaste] = useState("");
+//   const [district, setDistrict] = useState("");
+//   const [block, setBlock] = useState("");
+//   const [icdsProject, setIcdsProject] = useState("");
+//   const [anganwadiCenter, setAnganwadiCenter] = useState("");
+//   const [relationship, setRelationship] = useState("");
+  
+//   const [admissionOdema, setAdmissionOdema] = useState("");
+//   const [breastFeeding, setBreastFeeding] = useState("");
+//   const [complementaryFeeding, setComplementaryFeeding] = useState("");
+//   const [appetiteTest, setAppetiteTest] = useState("");
 
-//         // Populate State
-//         setReferredBy(data.referredBy || "");
-//         setOtherComplication(data.otherComplication || "");
-//         setPhotoPreview(data.photo || null);
-//         setAdmissionTime(data.admissionTime || "");
-
-//         // Handle Dates (API returns ISO strings usually)
-//         if (data.dateOfBirth) {
-//           setDateOfBirth(new Date(data.dateOfBirth));
-//         }
-//         if (data.admissionDate) {
-//           setAdmissionDate(new Date(data.admissionDate));
-//         }
-
-//         // Handle Complications
-//         const comps: { [key: string]: boolean } = {};
-//         if (Array.isArray(data.complications)) {
-//           data.complications.forEach((c: string) => comps[c] = true);
-//         }
-//         setSelectedComplications(comps);
-//       } else {
-//         toast.error("Child record not found");
-//       }
-//     } catch (error) {
-//       console.error("Fetch Error", error);
-//       toast.error("Failed to load child data");
-//     }
-//   }, [childId]);
+//   const showMuac = !(ageYears === "0" && parseInt(ageMonths || "0") <= 6);
 
 //   useEffect(() => {
 //     setMounted(true);
-//     if (childId) {
-//       loadChildData();
-//     }
-//   }, [childId, loadChildData]);
-
-//   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const file = e.target.files?.[0];
-//     if (file) {
-//       if (file.size > 2 * 1024 * 1024) {
-//         toast.error("Photo size must be less than 2MB");
-//         return;
+    
+//     // ✅ 1. Read MTC Identity from Session
+//     const sessionData = sessionStorage.getItem("mtc_user");
+//     if (sessionData) {
+//       try {
+//         const user = JSON.parse(sessionData);
+//         setUserMtcId(user.mtcId || null);
+//         setUserMtcCode(user.mtcCode || "");
+//       } catch (err) {
+//         console.error("Session parse error", err);
 //       }
-//       // Preview logic
-//       const reader = new FileReader();
-//       reader.onload = () => setPhotoPreview(reader.result as string);
-//       reader.readAsDataURL(file);
 //     }
+    
+//     // Fetch Master Data
+//     const fetchMasterData = async () => {
+//       try {
+//         const response = await fetch('/api/master-data');
+//         if (response.ok) {
+//           const data = await response.json();
+//           // ✅ SAFE MERGE: Prevents undefined crashes if API misses a key
+//           setMasterData(prev => ({ ...prev, ...data }));
+//         }
+//       } catch (error) {
+//         toast.error("Failed to load dropdown options.");
+//       }
+//     };
+    
+//     // Fetch Specific Child Data
+//     const fetchChildData = async () => {
+//       try {
+//         const response = await fetch(`/api/child-registration/${childId}`);
+//         if (response.ok) {
+//           const patient = await response.json();
+//           setChildData(patient);
+          
+//           setAdmissionType(patient.admissionType?.toString() || "");
+//           setReferredBy(patient.referredBy?.toString() || "");
+//           setSex(patient.sex?.toString() || "");
+//           setRelationship(patient.relationship?.toString() || "");
+//           setCaste(patient.caste?.toString() || "");
+//           setDistrict(patient.district?.toString() || "");
+//           setBlock(patient.block?.toString() || "");
+//           setIcdsProject(patient.icdsProject?.toString() || "");
+//           setAnganwadiCenter(patient.anganwadiCenter?.toString() || "");
+          
+//           setDateOfBirth(patient.dateOfBirth || "");
+//           setAdmissionDate(patient.admissionDate || "");
+//           setAdmissionTime(patient.admissionTime || "");
+//           setAgeYears(patient.ageYears?.toString() || "");
+//           setAgeMonths(patient.ageMonths?.toString() || "");
+          
+//           setAdmissionWeight(patient.admissionWeight?.toString() || "");
+//           setAdmissionHeight(patient.admissionHeight?.toString() || "");
+//           setZScore(patient.zScore?.toString() || "");
+          
+//           setAdmissionOdema(patient.admissionOdema?.toString() || "");
+//           setBreastFeeding(patient.breastFeeding?.toString() || "");
+//           setComplementaryFeeding(patient.complementaryFeeding?.toString() || "");
+//           setAppetiteTest(patient.appetiteTest?.toString() || "");
+
+//           // Load SAAMAR Data if it exists
+//           if (patient.isSamarRegistered) {
+//             setIsSamar("yes");
+//             setSamarUuid(patient.samarUuid || "");
+//           } else {
+//             setIsSamar("no");
+//           }
+          
+//           const comps = patient.medicalComplications || [];
+//           const standardComps: string[] = [];
+//           let othersText = "";
+          
+//           comps.forEach((c: string) => {
+//             if (c.startsWith("OTHERS: ")) { 
+//               standardComps.push("OTHERS"); 
+//               othersText = c.replace("OTHERS: ", ""); 
+//             } else if (c === "OTHERS") {
+//               standardComps.push("OTHERS");
+//             } else {
+//               standardComps.push(c);
+//             }
+//           });
+          
+//           setSelectedComplications(standardComps);
+//           setOtherComplicationDetail(othersText);
+
+//         } else {
+//           toast.error("Patient not found!");
+//           router.push('/mtc-user/dashboard/child-registration');
+//         }
+//       } catch (error) {
+//         toast.error("Error loading patient data.");
+//       }
+//     };
+
+//     fetchMasterData();
+//     if (childId) fetchChildData();
+//   }, [childId, router]);
+
+//   useEffect(() => {
+//     if (admissionWeight && admissionHeight && sex) {
+//       const score = calculateZScore(parseFloat(admissionWeight), parseFloat(admissionHeight), sex);
+//       setZScore(score ? String(score) : "");
+//     } else {
+//       setZScore("");
+//     }
+//   }, [admissionWeight, admissionHeight, sex]);
+
+//   // --- Dependency Logic for Referral & SAAMAR ---
+//   useEffect(() => {
+//     setShowAshaFields(referredBy === "6");
+    
+//     // Check if the selected referral type is "Other" or "SAAMAR"
+//     if (!masterData.referredBy.length || !referredBy) return;
+
+//     const selectedRef = masterData.referredBy.find((r: DropdownItem) => r.id.toString() === referredBy);
+//     const isOther = selectedRef && (
+//       selectedRef.name.toLowerCase().includes('other') || 
+//       selectedRef.name.toLowerCase().includes('saamar') ||
+//       selectedRef.name.toLowerCase().includes('samar')
+//     );
+    
+//     setShowSamarTracker(!!isOther);
+
+//   }, [referredBy, masterData.referredBy]);
+
+//   const handleComplicationToggle = (comp: string) => {
+//     setSelectedComplications(prev => {
+//       if (comp === "OTHERS" && prev.includes("OTHERS")) {
+//         setOtherComplicationDetail(""); // Clear text if unchecked
+//       }
+//       return prev.includes(comp) ? prev.filter(c => c !== comp) : [...prev, comp];
+//     });
 //   };
 
-//   const handleComplicationChange = (id: string, checked: boolean) => {
-//     setSelectedComplications(prev => ({ ...prev, [id]: checked }));
-//   };
+//   // ✅ SAFE FILTER: Protects against undefined "masterData.blocks"
+//   const filteredBlocks = (masterData.blocks || []).filter((b: DropdownItem) => 
+//     !district || b.districtId?.toString() === district
+//   );
 
 //   const handleSubmit = async (e: React.FormEvent) => {
 //     e.preventDefault();
+//     if (zScore === "Error") {
+//       toast.error("Invalid Anthropometry data. Please check Height/Weight.");
+//       return;
+//     }
+//     if (selectedComplications.length === 0) {
+//       toast.error("Please select at least one medical complication status.");
+//       return;
+//     }
+//     if (selectedComplications.includes("OTHERS") && !otherComplicationDetail.trim()) {
+//       toast.error("Please specify the details for the 'Others' complication.");
+//       return;
+//     }
+//     if (showSamarTracker && isSamar === "yes" && !samarUuid.trim()) {
+//       toast.error("Please enter the SAAMAR Child UUID."); return;
+//     }
+    
+//     if (!userMtcId) {
+//       toast.error("Security Error: Unknown MTC ID. Please log out and log back in.");
+//       return;
+//     }
+
 //     setLoading(true);
 
+//     let finalComplications = [...selectedComplications];
+//     if (finalComplications.includes("OTHERS")) {
+//       finalComplications = finalComplications.filter(c => c !== "OTHERS");
+//       finalComplications.push(`OTHERS: ${otherComplicationDetail.trim()}`);
+//     }
+
+//     const formData = new FormData(e.currentTarget as HTMLFormElement);
+    
+//     const payload = {
+//       mtcId: userMtcId, // ✅ Secured MTC DB association
+//       isSamarRegistered: showSamarTracker && isSamar === "yes", 
+//       samarUuid: (showSamarTracker && isSamar === "yes") ? samarUuid : null,
+//       admissionType, referredBy,
+//       referredByName: formData.get('referredByName'), referredByMobile: formData.get('referredByMobile'),
+//       childName: formData.get('childName'), 
+//       motherName: formData.get('motherName'), 
+//       parentName: formData.get('parentName'),
+//       relationship, mobileNumber: formData.get('mobileNumber'),
+//       bplNumber: formData.get('bplNumber'), dateOfBirth, sex,
+//       ageYears: ageYears, ageMonths: ageMonths,
+//       address: formData.get('address'), caste, district, block, 
+//       icdsProject, anganwadiCenter, village: formData.get('village'),
+//       aadhaarNumber: formData.get('aadhaarNumber'), bankName: formData.get('bankName'),
+//       accountHolderName: formData.get('accountHolderName'), accountNumber: formData.get('accountNumber'),
+//       ifscCode: formData.get('ifscCode'), admissionDate, admissionTime,
+//       admissionWeight, admissionHeight, 
+//       admissionMuac: showMuac ? formData.get('admissionMuac') : null, 
+//       zScore: zScore, admissionOdema, breastFeeding, complementaryFeeding, appetiteTest,
+//       medicalComplications: finalComplications
+//     };
+
 //     try {
-//       const formData = new FormData(e.currentTarget as HTMLFormElement);
-
-//       // Explicitly append dates (Date objects -> string)
-//       if (dateOfBirth) formData.set('dateOfBirth', dateOfBirth.toISOString());
-//       if (admissionDate) formData.set('admissionDate', admissionDate.toISOString().split('T')[0]); // Just date part
-//       formData.set('admissionTime', admissionTime);
-
-//       // Handle Complications manually
-//       formData.delete('complications'); // Clear default behavior
-//       Object.keys(selectedComplications).forEach(key => {
-//         if (selectedComplications[key]) formData.append('complications', key);
-//       });
-
-//       // Handle File: Check if a new file exists in the input
-//       const fileInput = document.getElementById('photo-upload') as HTMLInputElement;
-//       if (fileInput?.files?.[0]) {
-//         formData.set('photo', fileInput.files[0]);
-//       } else {
-//         formData.delete('photo'); // Don't send if no new file
-//       }
-
-//       const res = await fetch(`/api/child/${childId}`, {
+//       const response = await fetch(`/api/child-registration/${childId}`, {
 //         method: 'PUT',
-//         body: formData,
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(payload)
 //       });
-
-//       const json = await res.json();
-
-//       if (json.success) {
-//         toast.success("Child record updated successfully!");
-//         setTimeout(() => {
-//           router.push('/mtc-user/dashboard/child-registration');
-//         }, 1000);
-//       } else {
-//         throw new Error(json.message || "Update failed");
-//       }
+      
+//       if (!response.ok) throw new Error('Failed to update registration');
+      
+//       toast.success("Patient updated successfully!");
+//       setTimeout(() => router.push('/mtc-user/dashboard/child-registration'), 1000);
+      
 //     } catch (error) {
-//       console.error(error);
-//       toast.error("Failed to update record");
-//     } finally {
+//       toast.error("An error occurred while updating.");
 //       setLoading(false);
 //     }
 //   };
 
-//   if (!mounted || !childData) return <div className="p-10">Loading...</div>;
+//   if (!mounted || !childData) {
+//     return <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+//       <Loader2 className="animate-spin text-indigo-600 w-8 h-8" />
+//     </div>;
+//   }
+
+//   const SectionTitle = ({ icon: Icon, title }: { icon: any, title: string }) => (
+//     <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+//       <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600"><Icon size={20} strokeWidth={2.5} /></div>
+//       <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+//     </div>
+//   );
 
 //   return (
-//     <div className="min-h-screen bg-gray-100 py-10 px-6">
-//       <Toaster position="top-right" />
-//       <div className="max-w-7xl mx-auto">
-//         <Card className="shadow-md border border-gray-200">
-//           <CardHeader>
-//             <div className="flex items-center gap-3">
-//               <Button variant="outline" onClick={() => router.back()} className="mb-2">
-//                 <ArrowLeft className="h-4 w-4 mr-2" /> Back
-//               </Button>
-//               <h1 className="text-2xl font-bold text-teal-700">Edit Child Registration</h1>
-//             </div>
-//           </CardHeader>
+//     <div className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 lg:px-8 font-sans pb-28">
+//       <Toaster position="top-center" toastOptions={{ className: 'rounded-xl shadow-lg font-medium' }} />
+      
+//       <div className="max-w-6xl mx-auto">
+//         <div className="mb-2 flex items-center">
+//           <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button" className="pl-0 text-slate-500 hover:text-indigo-600 hover:bg-transparent">
+//             <ArrowLeft className="w-5 h-5 mr-2" /> Back
+//           </Button>
+//         </div>
 
-//           <CardContent>
-//             <form onSubmit={handleSubmit} className="space-y-6">
-              
-//               {/* --- SAM Number & Basic Info --- */}
-//               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-//                 <div>
-//                   <Label>SAM Number</Label>
-//                   <Input value={childData.samNumber} readOnly className="bg-gray-100 font-mono" />
-//                 </div>
-//                 <div>
-//                   <Label>Admission Type *</Label>
-//                   <Select name="admissionType" defaultValue={childData.admissionType}>
-//                     <SelectTrigger><SelectValue /></SelectTrigger>
-//                     <SelectContent>
-//                       <SelectItem value="1">NEW ADMISSION</SelectItem>
-//                       <SelectItem value="2">RE ADMISSION</SelectItem>
-//                       <SelectItem value="3">RELAPSE</SelectItem>
-//                     </SelectContent>
-//                   </Select>
-//                 </div>
-//                 <div>
-//                   <Label>Referred By</Label>
-//                   <Select name="referredBy" defaultValue={childData.referredBy} onValueChange={setReferredBy}>
-//                     <SelectTrigger><SelectValue /></SelectTrigger>
-//                     <SelectContent>
-//                       <SelectItem value="6">Sahiya/ASHA</SelectItem>
-//                       <SelectItem value="1">ANGANWADI</SelectItem>
-//                       <SelectItem value="2">ANM</SelectItem>
-//                       <SelectItem value="3">OPD</SelectItem>
-//                       <SelectItem value="4">SELF</SelectItem>
-//                     </SelectContent>
-//                   </Select>
-//                 </div>
-//               </div>
+//         <div className="mb-8 text-center md:text-left md:flex md:items-end md:justify-between">
+//           <div>
+//             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Edit Child Record</h1>
+//             <p className="mt-2 text-sm text-slate-500">Update the information directly in the database.</p>
+//           </div>
+//           <div className="mt-4 md:mt-0 px-5 py-3 bg-white rounded-xl shadow-sm border border-slate-200 inline-block text-center md:text-right">
+//             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">SAM Number</span>
+//             <span className="text-lg font-mono font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-md">{childData.samNumber}</span>
+//           </div>
+//         </div>
 
-//               {/* --- Personal Info --- */}
-//               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-//                 <div>
-//                   <Label>Child Name *</Label>
-//                   <Input name="childName" defaultValue={childData.childName} required />
-//                 </div>
-//                 <div>
-//                   <Label>Parent Name *</Label>
-//                   <Input name="parentName" defaultValue={childData.parentName} required />
-//                 </div>
-//                 <div>
-//                   <Label>Relationship *</Label>
-//                   <Select name="relationship" defaultValue={childData.relationship}>
-//                     <SelectTrigger><SelectValue /></SelectTrigger>
-//                     <SelectContent>
-//                       <SelectItem value="1">Father</SelectItem>
-//                       <SelectItem value="2">Mother</SelectItem>
-//                       <SelectItem value="3">Other</SelectItem>
-//                     </SelectContent>
-//                   </Select>
-//                 </div>
-//                 <div>
-//                   <Label>Mobile Number *</Label>
-//                   <Input name="mobileNumber" defaultValue={childData.mobileNumber} required maxLength={10} />
-//                 </div>
-//               </div>
+//         <form onSubmit={handleSubmit} className="relative">
+//           <div className="space-y-6">
 
-//               {/* --- BPL, DOB, Sex --- */}
-//               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-//                 <div>
-//                   <Label>BPL Number</Label>
-//                   <Input name="bplNumber" defaultValue={childData.bplNumber || ""} />
-//                 </div>
-//                 <div>
-//                   <Label>Date of Birth *</Label>
-//                   <Popover>
-//                     <PopoverTrigger asChild>
-//                       <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateOfBirth && "text-muted-foreground")}>
-//                         <CalendarIcon className="mr-2 h-4 w-4" />
-//                         {dateOfBirth ? format(dateOfBirth, "PPP") : "Pick a date"}
-//                       </Button>
-//                     </PopoverTrigger>
-//                     <PopoverContent className="w-auto p-0">
-//                       <Calendar mode="single" selected={dateOfBirth} onSelect={setDateOfBirth} initialFocus />
-//                     </PopoverContent>
-//                   </Popover>
-//                 </div>
-//                 <div>
-//                   <Label>Sex *</Label>
-//                   <Select name="sex" defaultValue={childData.sex}>
-//                     <SelectTrigger><SelectValue /></SelectTrigger>
-//                     <SelectContent>
-//                       <SelectItem value="1">Male</SelectItem>
-//                       <SelectItem value="2">Female</SelectItem>
-//                     </SelectContent>
-//                   </Select>
-//                 </div>
-//                 <div>
-//                   <Label>Address *</Label>
-//                   <Input name="address" defaultValue={childData.address} required />
-//                 </div>
-//               </div>
-
-//               {/* --- Photo --- */}
-//               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-//                  <div>
-//                     <Label>Upload Photo</Label>
-//                     <Input id="photo-upload" type="file" accept="image/*" onChange={handlePhotoUpload} className="cursor-pointer"/>
-//                  </div>
-//                  {photoPreview && (
-//                    <div className="relative h-20 w-20">
-//                      <Image src={photoPreview} alt="Preview" fill className="object-cover rounded border" unoptimized />
-//                    </div>
-//                  )}
-//               </div>
-
-//               {/* --- Demographics --- */}
-//               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-//                 <div>
-//                   <Label>Caste *</Label>
-//                   <Select name="caste" defaultValue={childData.caste}>
-//                     <SelectTrigger><SelectValue /></SelectTrigger>
-//                     <SelectContent>
-//                       <SelectItem value="1">ST</SelectItem>
-//                       <SelectItem value="2">SC</SelectItem>
-//                       <SelectItem value="3">OBC</SelectItem>
-//                       <SelectItem value="4">GEN</SelectItem>
-//                     </SelectContent>
-//                   </Select>
-//                 </div>
-//                 <div>
-//                   <Label>District *</Label>
-//                   <Select name="district" defaultValue={childData.district}>
-//                      <SelectTrigger><SelectValue /></SelectTrigger>
-//                      <SelectContent>
-//                         {/* Populate this dynamically if you have the master data API, hardcoded for now */}
-//                         <SelectItem value="8">RANCHI</SelectItem>
-//                         <SelectItem value="1">BOKARO</SelectItem>
-//                      </SelectContent>
-//                   </Select>
-//                 </div>
-//                 <div>
-//                    <Label>Village</Label>
-//                    <Input name="village" defaultValue={childData.village || ""} />
-//                 </div>
-//               </div>
-
-//               {/* --- Admission Vitals --- */}
-//               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-//                  <div>
-//                     <Label>Admission Date *</Label>
-//                     <Popover>
-//                     <PopoverTrigger asChild>
-//                       <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !admissionDate && "text-muted-foreground")}>
-//                         <CalendarIcon className="mr-2 h-4 w-4" />
-//                         {admissionDate ? format(admissionDate, "PPP") : "Pick a date"}
-//                       </Button>
-//                     </PopoverTrigger>
-//                     <PopoverContent className="w-auto p-0">
-//                       <Calendar mode="single" selected={admissionDate} onSelect={setAdmissionDate} initialFocus />
-//                     </PopoverContent>
-//                   </Popover>
-//                  </div>
-//                  <div>
-//                     <Label>Admission Time</Label>
-//                     <Input type="time" value={admissionTime} onChange={(e) => setAdmissionTime(e.target.value)} required />
-//                  </div>
-//                  <div>
-//                     <Label>Weight (kg) *</Label>
-//                     <Input name="admissionWeight" type="number" step="0.01" defaultValue={childData.admissionWeight} required />
-//                  </div>
-//                  <div>
-//                     <Label>Height (cm) *</Label>
-//                     <Input name="admissionHeight" type="number" step="0.1" defaultValue={childData.admissionHeight} required />
-//                  </div>
-//               </div>
-              
-//               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-//                 <div>
-//                    <Label>Edema *</Label>
-//                    <Select name="admissionOdema" defaultValue={childData.admissionOdema}>
-//                       <SelectTrigger><SelectValue /></SelectTrigger>
-//                       <SelectContent>
-//                         <SelectItem value="4">No</SelectItem>
-//                         <SelectItem value="1">+</SelectItem>
-//                         <SelectItem value="2">++</SelectItem>
-//                         <SelectItem value="3">+++</SelectItem>
-//                       </SelectContent>
-//                    </Select>
-//                 </div>
-//                 <div>
-//                     <Label>MUAC (cm) *</Label>
-//                     <Input name="admissionMuac" type="number" step="0.1" defaultValue={childData.admissionMuac} required />
-//                  </div>
-//               </div>
-
-//                {/* --- Feeding --- */}
-//                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//             {/* Admission Info */}
+//             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+//               <CardContent className="p-6 sm:p-8">
+//                 <SectionTitle icon={ClipboardCheck} title="Admission Details" />
+//                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
 //                   <div>
-//                     <Label>Breast Feeding</Label>
-//                     <Select name="breastFeeding" defaultValue={childData.breastFeeding}>
-//                       <SelectTrigger><SelectValue/></SelectTrigger>
+//                     <Label>Admission Type <span className="text-red-500">*</span></Label>
+//                     <Select name="admissionType" value={admissionType} onValueChange={setAdmissionType} required>
+//                       <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
 //                       <SelectContent>
-//                         <SelectItem value="1">Yes</SelectItem>
-//                         <SelectItem value="2">No</SelectItem>
+//                         {masterData.admissionTypes.map((type: DropdownItem) => (<SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>))}
 //                       </SelectContent>
 //                     </Select>
 //                   </div>
 //                   <div>
-//                     <Label>Complementary Feeding</Label>
-//                     <Select name="complementaryFeeding" defaultValue={childData.complementaryFeeding}>
-//                       <SelectTrigger><SelectValue/></SelectTrigger>
+//                     <Label>Referred By <span className="text-red-500">*</span></Label>
+//                     <Select name="referredBy" value={referredBy} onValueChange={(val: string) => {
+//                       setReferredBy(val);
+//                       const selectedRef = masterData.referredBy.find((r: DropdownItem) => r.id.toString() === val);
+//                       const isOther = selectedRef && (
+//                         selectedRef.name.toLowerCase().includes('other') || 
+//                         selectedRef.name.toLowerCase().includes('saamar') ||
+//                         selectedRef.name.toLowerCase().includes('samar')
+//                       );
+//                       if (!isOther) {
+//                         setIsSamar("no");
+//                         setSamarUuid("");
+//                       }
+//                     }} required>
+//                       <SelectTrigger><SelectValue placeholder="Select Origin" /></SelectTrigger>
 //                       <SelectContent>
-//                         <SelectItem value="1">Yes</SelectItem>
-//                         <SelectItem value="2">No</SelectItem>
+//                         {masterData.referredBy.map((ref: DropdownItem) => (<SelectItem key={ref.id} value={ref.id.toString()}>{ref.name}</SelectItem>))}
 //                       </SelectContent>
 //                     </Select>
 //                   </div>
-//                   <div>
-//                     <Label>Appetite Test</Label>
-//                     <Select name="appetiteTest" defaultValue={childData.appetiteTest}>
-//                       <SelectTrigger><SelectValue/></SelectTrigger>
-//                       <SelectContent>
-//                         <SelectItem value="1">Pass</SelectItem>
-//                         <SelectItem value="2">Fail</SelectItem>
-//                       </SelectContent>
-//                     </Select>
-//                   </div>
-//                </div>
-
-//                {/* --- Complications Checkboxes --- */}
-//                <div className="p-4 border rounded">
-//                  <Label className="mb-2 block">Medical Complications</Label>
-//                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-//                     {[
-//                       {id:"0", label: "None"},
-//                       {id:"1", label: "Emergency Signs"},
-//                       {id:"2", label: "Very Weak"},
-//                       {id:"3", label: "Edema Both Feet"},
-//                       {id:"4", label: "Severe Pallor"},
-//                       {id:"13", label: "Fever"},
-//                       {id:"15", label: "TB"},
-//                     ].map(comp => (
-//                       <div key={comp.id} className="flex items-center space-x-2">
-//                         <input 
-//                           type="checkbox" 
-//                           id={`comp-${comp.id}`} 
-//                           checked={selectedComplications[comp.id] || false}
-//                           onChange={(e) => handleComplicationChange(comp.id, e.target.checked)}
-//                           className="rounded border-gray-300"
-//                         />
-//                         <label htmlFor={`comp-${comp.id}`} className="text-sm">{comp.label}</label>
+                  
+//                   {showAshaFields && (
+//                     <>
+//                       <div>
+//                         <Label>Name of Sahiya/Asha</Label>
+//                         <Input name="referredByName" defaultValue={childData.referredByName || childData.parentName} placeholder="Enter Name" />
 //                       </div>
-//                     ))}
-//                  </div>
-//                </div>
+//                       <div>
+//                         <Label>Sahiya/Asha Mobile</Label>
+//                         <Input name="referredByMobile" defaultValue={childData.referredByMobile || childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" />
+//                       </div>
+//                     </>
+//                   )}
+//                   <div>
+//                     <Label>Admission Date <span className="text-red-500">*</span></Label>
+//                     <Input type="date" name="admissionDate" value={admissionDate} onChange={(e) => setAdmissionDate(e.target.value)} required />
+//                   </div>
+//                   <div>
+//                     <Label>Admission Time <span className="text-red-500">*</span></Label>
+//                     <div className="relative">
+//                       <Input name="admissionTime" type="time" value={admissionTime} onChange={(e) => setAdmissionTime(e.target.value)} required className="pr-10" />
+//                       <Clock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 pointer-events-none" />
+//                     </div>
+//                   </div>
 
-//               <div className="flex justify-end gap-4">
-//                  <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
-//                  <Button type="submit" disabled={loading} className="bg-teal-600">
-//                    {loading ? "Saving..." : "Update Child"}
-//                  </Button>
-//               </div>
+//                   {/* --- SAAMAR TRACKER LOGIC --- */}
+//                   {showSamarTracker && (
+//                     <div className="lg:col-span-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 flex flex-col md:flex-row gap-4 items-end animate-in fade-in zoom-in duration-200 mt-2">
+//                       <div className="flex-1 w-full md:max-w-xs">
+//                         <Label className="text-indigo-800">Registered in SAAMAR? <span className="text-red-500">*</span></Label>
+//                         <Select name="isSamar" value={isSamar} onValueChange={(val: string) => { setIsSamar(val); if(val === "no") setSamarUuid(""); }} required={showSamarTracker}>
+//                           <SelectTrigger className="bg-white"><SelectValue placeholder="Select" /></SelectTrigger>
+//                           <SelectContent>
+//                             <SelectItem value="yes">Yes</SelectItem>
+//                             <SelectItem value="no">No</SelectItem>
+//                           </SelectContent>
+//                         </Select>
+//                       </div>
+                      
+//                       {isSamar === "yes" && (
+//                         <div className="flex-1 w-full">
+//                           <Label className="text-indigo-800">SAAMAR Child UUID <span className="text-red-500">*</span></Label>
+//                           <Input name="samarUuid" value={samarUuid} onChange={(e) => setSamarUuid(e.target.value)} placeholder="Enter UUID" className="bg-white" required />
+//                         </div>
+//                       )}
+//                     </div>
+//                   )}
+//                 </div>
+//               </CardContent>
+//             </Card>
 
-//             </form>
-//           </CardContent>
-//         </Card>
+//             {/* Personal Info */}
+//             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+//               <CardContent className="p-6 sm:p-8">
+//                 <SectionTitle icon={Baby} title="Child & Guardian Information" />
+//                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+//                   <div className="lg:col-span-2">
+//                     <Label>Child Full Name <span className="text-red-500">*</span></Label>
+//                     <Input name="childName" defaultValue={childData.childName} required />
+//                   </div>
+//                   <div className="lg:col-span-2">
+//                     <Label>Date of Birth</Label>
+//                     <Input type="date" name="dateOfBirth" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+//                   </div>
+//                   <div>
+//                     <Label>Age (Years) <span className="text-red-500">*</span></Label>
+//                     <Input type="number" min="0" value={ageYears} onChange={(e) => setAgeYears(e.target.value)} required />
+//                   </div>
+//                   <div>
+//                     <Label>Age (Months) <span className="text-red-500">*</span></Label>
+//                     <Input type="number" min="0" max="11" value={ageMonths} onChange={(e) => setAgeMonths(e.target.value)} required />
+//                   </div>
+//                   <div className="lg:col-span-2">
+//                     <Label>Sex <span className="text-red-500">*</span></Label>
+//                     <Select name="sex" value={sex} onValueChange={setSex} required>
+//                       <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
+//                       <SelectContent>
+//                         {masterData.sexes.map((s: DropdownItem) => (<SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                   <div className="lg:col-span-2">
+//                     <Label>Mother's Name <span className="text-red-500">*</span></Label>
+//                     <Input name="motherName" defaultValue={childData.motherName} required />
+//                   </div>
+//                   <div className="lg:col-span-2">
+//                     <Label>Name of Caretaker / Guardian <span className="text-red-500">*</span></Label>
+//                     <Input name="parentName" defaultValue={childData.parentName} required />
+//                   </div>
+//                   <div>
+//                     <Label>Relationship <span className="text-red-500">*</span></Label>
+//                     <Select name="relationship" value={relationship} onValueChange={setRelationship} required>
+//                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+//                       <SelectContent>
+//                         {masterData.relationships.map((rel: DropdownItem) => (<SelectItem key={rel.id} value={rel.id.toString()}>{rel.name}</SelectItem>))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                   <div>
+//                     <Label>Mobile Number <span className="text-red-500">*</span></Label>
+//                     <Input name="mobileNumber" defaultValue={childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" required />
+//                   </div>
+//                 </div>
+//               </CardContent>
+//             </Card>
+
+//             {/* Financial Details */}
+//             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+//               <CardContent className="p-6 sm:p-8">
+//                 <SectionTitle icon={ShieldCheck} title="Identity & Financial Details" />
+//                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+//                   <div>
+//                     <Label>Parent Aadhaar Number</Label>
+//                     <Input name="aadhaarNumber" defaultValue={childData.aadhaarNumber} maxLength={12} pattern="[0-9]{12}" />
+//                   </div>
+//                   <div>
+//                     <Label>BPL Number</Label>
+//                     <Input name="bplNumber" defaultValue={childData.bplNumber} />
+//                   </div>
+//                   <div>
+//                     <Label>Caste <span className="text-red-500">*</span></Label>
+//                     <Select name="caste" value={caste} onValueChange={setCaste} required>
+//                       <SelectTrigger><SelectValue placeholder="Select Caste" /></SelectTrigger>
+//                       <SelectContent>
+//                         {masterData.castes.map((caste: DropdownItem) => (<SelectItem key={caste.id} value={caste.id.toString()}>{caste.name}</SelectItem>))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                   <div className="lg:col-span-4 mt-2">
+//                     <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
+//                       <Landmark className="w-4 h-4 text-indigo-500" /> Bank Account Details
+//                     </h3>
+//                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-slate-50 p-5 rounded-xl border border-slate-100">
+//                       <div><Label>Bank Name</Label><Input name="bankName" defaultValue={childData.bankName} className="bg-white" /></div>
+//                       <div><Label>Account Holder</Label><Input name="accountHolderName" defaultValue={childData.accountHolderName} className="bg-white" /></div>
+//                       <div><Label>Account Number</Label><Input name="accountNumber" defaultValue={childData.accountNumber} className="bg-white" /></div>
+//                       <div><Label>IFSC Code</Label><Input name="ifscCode" defaultValue={childData.ifscCode} className="bg-white" /></div>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </CardContent>
+//             </Card>
+
+//             {/* DEPENDENT LOCATION DETAILS */}
+//             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+//               <CardContent className="p-6 sm:p-8">
+//                 <SectionTitle icon={MapPin} title="Location Details" />
+//                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//                   <div className="lg:col-span-3">
+//                     <Label>Full Address <span className="text-red-500">*</span></Label>
+//                     <Textarea name="address" defaultValue={childData.address} rows={2} required />
+//                   </div>
+//                   <div>
+//                     <Label>District <span className="text-red-500">*</span></Label>
+//                     <Select 
+//                       name="district" 
+//                       value={district} 
+//                       onValueChange={(val: string) => {
+//                         setDistrict(val);
+//                         setBlock(""); 
+//                       }} 
+//                       required
+//                     >
+//                       <SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger>
+//                       <SelectContent>
+//                         {masterData.districts.map((dist: DropdownItem) => (<SelectItem key={dist.id} value={dist.id.toString()}>{dist.name}</SelectItem>))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                   <div>
+//                     <Label>Block</Label>
+//                     <Select 
+//                       name="block" 
+//                       value={block} 
+//                       onValueChange={setBlock}
+//                       disabled={!district} 
+//                     >
+//                       <SelectTrigger>
+//                         <SelectValue placeholder={district ? "Select Block" : "Select District First"} />
+//                       </SelectTrigger>
+//                       <SelectContent>
+//                         {filteredBlocks.map((b: DropdownItem) => (<SelectItem key={b.id} value={b.id.toString()}>{b.name}</SelectItem>))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                   <div>
+//                     <Label>Village</Label>
+//                     <Input name="village" defaultValue={childData.village} />
+//                   </div>
+//                   <div>
+//                     <Label>ICDS Project</Label>
+//                     <Select name="icdsProject" value={icdsProject} onValueChange={setIcdsProject}>
+//                       <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
+//                       <SelectContent>
+//                         {masterData.icdsProjects.map((project: DropdownItem) => (<SelectItem key={project.id} value={project.id.toString()}>{project.name}</SelectItem>))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                   <div className="lg:col-span-2">
+//                     <Label>Anganwadi Center</Label>
+//                     <Select name="anganwadiCenter" value={anganwadiCenter} onValueChange={setAnganwadiCenter}>
+//                       <SelectTrigger><SelectValue placeholder="Select Center" /></SelectTrigger>
+//                       <SelectContent>
+//                         {masterData.anganwadis.map((center: DropdownItem) => (<SelectItem key={center.id} value={center.id.toString()}>{center.name}</SelectItem>))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                 </div>
+//               </CardContent>
+//             </Card>
+
+//             {/* Anthropometry Details */}
+//             <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+//               <CardContent className="p-6 sm:p-8">
+//                 <SectionTitle icon={Activity} title="Anthropometry & Feeding" />
+//                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+//                   <div>
+//                     <Label>Admission Weight (kg) <span className="text-red-500">*</span></Label>
+//                     <Input name="admissionWeight" type="number" step="0.1" value={admissionWeight} onChange={(e) => setAdmissionWeight(e.target.value)} required />
+//                   </div>
+//                   <div>
+//                     <Label>Length/Height (cm) <span className="text-red-500">*</span></Label>
+//                     <Input name="admissionHeight" type="number" step="0.1" value={admissionHeight} onChange={(e) => setAdmissionHeight(e.target.value)} required />
+//                   </div>
+                  
+//                   {/* ---> CONDITIONAL MUAC FIELD <--- */}
+//                   {showMuac && (
+//                     <div>
+//                       <Label>MUAC (cm) <span className="text-red-500">*</span></Label>
+//                       <Input name="admissionMuac" type="number" step="0.1" defaultValue={childData.admissionMuac} required />
+//                     </div>
+//                   )}
+
+//                   <div>
+//                     <Label>Z-Score (SD)</Label>
+//                     <Input name="zScore" readOnly value={zScore} className={cn("font-semibold focus:ring-0 cursor-not-allowed", zScore === "Error" ? "bg-red-50 text-red-600" : "bg-slate-100 text-indigo-700")} />
+//                   </div>
+//                   <div>
+//                     <Label>Admission Odema <span className="text-red-500">*</span></Label>
+//                     <Select name="admissionOdema" value={admissionOdema} onValueChange={setAdmissionOdema} required>
+//                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+//                       <SelectContent>
+//                         {masterData.odemas.map((odema: DropdownItem) => (<SelectItem key={odema.id} value={odema.id.toString()}>{odema.name}</SelectItem>))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                   <div>
+//                     <Label>Breast Feeding <span className="text-red-500">*</span></Label>
+//                     <Select name="breastFeeding" value={breastFeeding} onValueChange={setBreastFeeding} required>
+//                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+//                       <SelectContent>
+//                         {masterData.breastFeeding.map((bf: DropdownItem) => (<SelectItem key={bf.id} value={bf.id.toString()}>{bf.name}</SelectItem>))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                   <div>
+//                     <Label>Complementary Feeding <span className="text-red-500">*</span></Label>
+//                     <Select name="complementaryFeeding" value={complementaryFeeding} onValueChange={setComplementaryFeeding} required>
+//                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+//                       <SelectContent>
+//                         <SelectItem value="1">Yes</SelectItem><SelectItem value="2">No</SelectItem>
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                   <div>
+//                     <Label>Appetite Test <span className="text-red-500">*</span></Label>
+//                     <Select name="appetiteTest" value={appetiteTest} onValueChange={setAppetiteTest} required>
+//                       <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+//                       <SelectContent>
+//                         {masterData.appetiteTests.map((at: DropdownItem) => (<SelectItem key={at.id} value={at.id.toString()}>{at.name}</SelectItem>))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                 </div>
+//               </CardContent>
+//             </Card>
+
+//             <Card className="overflow-hidden border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+//               <CardContent className="p-6 sm:p-8">
+//                 <SectionTitle icon={Stethoscope} title="Medical Complications" />
+//                 <p className="text-sm font-semibold text-slate-700 mb-4 block">Select all present complications: <span className="text-red-500">*</span></p>
+                
+//                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6 bg-slate-50/50 p-6 rounded-xl border border-slate-200">
+//                   {MEDICAL_COMPLICATIONS_LIST.map((comp) => (
+//                     <label key={comp} className="flex items-start space-x-3 cursor-pointer group">
+//                       <div className="flex items-center h-5">
+//                         <input
+//                           type="checkbox"
+//                           className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/30 transition duration-150 ease-in-out cursor-pointer"
+//                           checked={selectedComplications.includes(comp)}
+//                           onChange={() => handleComplicationToggle(comp)}
+//                         />
+//                       </div>
+//                       <span className="text-sm font-medium text-slate-600 leading-tight group-hover:text-slate-900 transition-colors">
+//                         {comp}
+//                       </span>
+//                     </label>
+//                   ))}
+//                 </div>
+
+//                 {/* ---> DYNAMIC OTHERS TEXT BOX <--- */}
+//                 {selectedComplications.includes("OTHERS") && (
+//                   <div className="mt-5 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100">
+//                     <Label className="text-indigo-900">Please specify 'Others' complication details <span className="text-red-500">*</span></Label>
+//                     <Input 
+//                       value={otherComplicationDetail}
+//                       onChange={(e) => setOtherComplicationDetail(e.target.value)}
+//                       placeholder="e.g., Asthma, Severe Jaundice..."
+//                       className="mt-2 bg-white"
+//                       required={selectedComplications.includes("OTHERS")}
+//                     />
+//                   </div>
+//                 )}
+
+//               </CardContent>
+//             </Card>
+
+//           </div>
+
+//           <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200 p-4 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50 flex justify-end gap-4 sm:justify-center md:justify-end md:px-12">
+//             <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button" className="min-w-40">Cancel</Button>
+//             <Button type="submit" disabled={loading || zScore === "Error"} className="min-w-40">
+//               {loading ? "Saving to Database..." : "Update Patient"}
+//             </Button>
+//           </div>
+//         </form>
 //       </div>
 //     </div>
 //   );
-// };                                                                                                                                             
-
-
+// }
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-// Removed unused 'Upload' and 'Clock'
-import { CalendarIcon, ArrowLeft } from "lucide-react";
+import { Clock, Landmark, ClipboardCheck, MapPin, Activity, Stethoscope, Baby, ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
-// Removed unused 'Textarea'
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-// Removed unused 'parseISO'
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-// Interface matches the API response structure
-interface ChildData {
-  id: string;
-  samNumber: string;
-  admissionType: string;
-  referredBy: string;
-  childName: string;
-  parentName: string;
-  relationship: string;
-  mobileNumber: string;
-  bplNumber?: string;
-  dateOfBirth: string;
-  sex: string;
-  address: string;
-  caste: string;
-  district: string;
-  block?: string;
-  icdsProject?: string;
-  anganwadiCenter?: string;
-  village?: string;
-  admissionDate: string;
-  admissionTime: string;
-  admissionWeight: string;
-  admissionHeight: string;
-  admissionOdema: string;
-  admissionMuac: string;
-  breastFeeding: string;
-  complementaryFeeding: string;
-  appetiteTest: string;
-  complications: string[];
-  otherComplication?: string;
-  photo?: string;
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
 
+// --- TypeScript Interfaces ---
+interface DropdownItem {
+  id: number | string;
+  name: string;
+  districtId?: number | string;
+}
+
+interface MasterDataState {
+  admissionTypes: DropdownItem[];
+  referredBy: DropdownItem[];
+  castes: DropdownItem[];
+  districts: DropdownItem[];
+  sexes: DropdownItem[];
+  relationships: DropdownItem[];
+  odemas: DropdownItem[];
+  breastFeeding: DropdownItem[];
+  appetiteTests: DropdownItem[];
+  blocks: DropdownItem[];
+  icdsProjects: DropdownItem[];
+  anganwadis: DropdownItem[];
+}
+
+interface ChildDataPayload {
+  samNumber?: string;
+  admissionType?: number | string;
+  referredBy?: number | string;
+  sex?: number | string;
+  relationship?: number | string;
+  caste?: number | string;
+  district?: number | string;
+  block?: number | string;
+  icdsProject?: number | string;
+  anganwadiCenter?: number | string;
+  dateOfBirth?: string;
+  admissionDate?: string;
+  admissionTime?: string;
+  ageYears?: number | string;
+  ageMonths?: number | string;
+  admissionWeight?: number | string;
+  admissionHeight?: number | string;
+  zScore?: number | string;
+  admissionOdema?: number | string;
+  breastFeeding?: number | string;
+  complementaryFeeding?: number | string;
+  appetiteTest?: number | string;
+  isSamarRegistered?: boolean;
+  samarUuid?: string;
+  medicalComplications?: string[];
+  referredByName?: string;
+  referredByMobile?: string;
+  childName?: string;
+  motherName?: string;
+  parentName?: string;
+  mobileNumber?: string;
+  bplNumber?: string;
+  address?: string;
+  village?: string;
+  aadhaarNumber?: string;
+  bankName?: string;
+  accountHolderName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  admissionMuac?: number | string;
+}
+
+// --- Reusable UI Components ---
+const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  ({ className, type, ...props }, ref) => (
+    <input type={type} className={cn("flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+  )
+);
+Input.displayName = "Input";
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'default' | 'outline' | 'ghost';
+  href?: string;
+}
+
+const Button = React.forwardRef<HTMLButtonElement & HTMLAnchorElement, ButtonProps>(
+  ({ className, variant = 'default', href, ...props }, ref) => {
+    const classes = cn(
+      "inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98]",
+      variant === 'default' ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 hover:bg-indigo-700 h-11 py-2 px-6" : "",
+      variant === 'outline' ? "border border-slate-200 bg-white shadow-sm hover:bg-slate-50 hover:text-slate-900 h-11 py-2 px-6 text-slate-700" : "",
+      variant === 'ghost' ? "hover:bg-slate-100 hover:text-slate-900 h-11 py-2 px-6 text-slate-600" : "",
+      className
+    );
+    if (href) return <a href={href} className={classes} ref={ref} {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)} />;
+    return <button ref={ref} className={classes} {...props} />;
+  }
+);
+Button.displayName = "Button";
+
+const Card = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn("rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-sm", className)} {...props} />
+);
+const CardContent = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn("p-6 md:p-8", className)} {...props} />
+);
+const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
+  ({ className, ...props }, ref) => (
+    <label ref={ref} className={cn("text-sm font-semibold text-slate-700 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block", className)} {...props} />
+  )
+);
+Label.displayName = "Label";
+
+const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+  ({ className, ...props }, ref) => (
+    <textarea className={cn("flex min-h-20 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50", className)} ref={ref} {...props} />
+  )
+);
+Textarea.displayName = "Textarea";
+
+interface SelectProps {
+  name?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
+  required?: boolean;
+  children?: React.ReactNode;
+  disabled?: boolean;
+}
+
+interface ComponentWithName {
+  name?: string;
+}
+
+const Select = ({ name, value, onValueChange, required, children, disabled }: SelectProps) => {
+  const [internalValue, setInternalValue] = useState(value || "");
+  
+  useEffect(() => {
+    if (value !== undefined) setInternalValue(value);
+  }, [value]);
+
+  const options: {value: string, label: string}[] = [];
+  let placeholder = "Select";
+  
+  React.Children.forEach(children, child => {
+    if (React.isValidElement(child)) {
+      const element = child as React.ReactElement<{ children?: React.ReactNode }>;
+      const type = element.type as ComponentWithName;
+      
+      if (type?.name === 'SelectTrigger') {
+        React.Children.forEach(element.props.children, triggerChild => {
+          if (React.isValidElement(triggerChild)) {
+            const triggerElement = triggerChild as React.ReactElement<{ placeholder?: string }>;
+            const triggerType = triggerElement.type as ComponentWithName;
+            if (triggerType?.name === 'SelectValue') {
+              placeholder = triggerElement.props.placeholder || "Select";
+            }
+          }
+        });
+      }
+      if (type?.name === 'SelectContent') {
+        const contentChildren = Array.isArray(element.props.children) 
+          ? element.props.children.flat() 
+          : [element.props.children];
+          
+        React.Children.forEach(contentChildren, itemChild => {
+          if (React.isValidElement(itemChild)) {
+            const itemElement = itemChild as React.ReactElement<{ value?: string; children?: React.ReactNode }>;
+            const itemType = itemElement.type as ComponentWithName;
+            if (itemType?.name === 'SelectItem') {
+              options.push({ 
+                value: String(itemElement.props.value || ""), 
+                label: String(itemElement.props.children || "") 
+              });
+            }
+          }
+        });
+      }
+    }
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setInternalValue(e.target.value);
+    if (onValueChange) onValueChange(e.target.value);
+  };
+
+  return (
+    <select name={name} value={internalValue} onChange={handleChange} required={required} disabled={disabled} className="flex h-11 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 focus:bg-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100 appearance-none">
+      <option value="" disabled>{placeholder}</option>
+      {options.map((opt, i) => (<option key={i} value={opt.value}>{opt.label}</option>))}
+    </select>
+  );
+};
+
+interface TriggerProps { children: React.ReactNode; className?: string }
+interface ValueProps { placeholder?: string }
+interface ContentProps { children: React.ReactNode }
+interface ItemProps { children: React.ReactNode; value: string; className?: string }
+
+const SelectTrigger = ({ children }: TriggerProps) => <>{children}</>;
+const SelectValue = ({ placeholder }: ValueProps) => <>{placeholder}</>;
+const SelectContent = ({ children }: ContentProps) => <>{children}</>;
+const SelectItem = ({ children }: ItemProps) => <>{children}</>;
+
+// --- Constants & Math Functions ---
+const MEDICAL_COMPLICATIONS_LIST = [
+  "NO COMPLICATION", "PRESENCE OF ANY OF EMERGENCY SIGNS", "VERY WEAK, APATHETIC",
+  "ODEMA OF BOTH FEET", "SEVERE PALMAR PALLOR", "SICK YOUNG INFANT LESS THAN 2 MONTHS",
+  "LETHARGY/ DROWSINESS/ UNCONSCIOUSNESS", "CONTINUALLY IRRITABLE AND RESTLESS", "ANY RESPIRATORY DISTRESS",
+  "SEVERE DEHYDRATION WITH DIARRHOEA", "PERSISTENT VOMITING", "HYPOTHERMIA (<35°C)",
+  "SEVERE ANEMIA", "FEVER (>38.5°C)", "EXTENSIVE SKIN LESIONS",
+  "TUBERCULOSIS", "MALARIA", "OTHERS"
+];
+
+const calculateZScore = (weight: number, height: number) => {
+  if (!weight || !height || height <= 0) return "";
+  const score = (weight / (height / 100) ** 2) - 15;
+  if (!isFinite(score) || score > 99 || score < -99) return "Error";
+  return score.toFixed(2);
+};
+
+// --- Main Application ---
 export default function EditChildRegistration() {
   const router = useRouter();
   const params = useParams();
@@ -1288,407 +3739,667 @@ export default function EditChildRegistration() {
 
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [childData, setChildData] = useState<ChildData | null>(null);
+  const [childData, setChildData] = useState<ChildDataPayload | null>(null);
   
-  // Removed unused 'referredBy' and 'otherComplication' states
-  // We will rely on defaultValue and FormData for referredBy
+  // MTC Identity States
+  const [userMtcId, setUserMtcId] = useState<number | null>(null);
+
+  const [masterData, setMasterData] = useState<MasterDataState>({
+    admissionTypes: [], referredBy: [], castes: [], districts: [],
+    sexes: [], relationships: [], odemas: [], breastFeeding: [], appetiteTests: [],
+    blocks: [], icdsProjects: [], anganwadis: []
+  });
+
+  const [admissionType, setAdmissionType] = useState("");
+  const [referredBy, setReferredBy] = useState("");
+  const [showAshaFields, setShowAshaFields] = useState(false);
   
-  const [selectedComplications, setSelectedComplications] = useState<{ [key: string]: boolean }>({});
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
-  const [admissionDate, setAdmissionDate] = useState<Date | undefined>(undefined);
+  // SAAMAR Control States
+  const [showSamarTracker, setShowSamarTracker] = useState(false);
+  const [isSamar, setIsSamar] = useState<string>("no");
+  const [samarUuid, setSamarUuid] = useState<string>("");
+
+  const [selectedComplications, setSelectedComplications] = useState<string[]>([]);
+  const [otherComplicationDetail, setOtherComplicationDetail] = useState(""); 
+  
+  const [dateOfBirth, setDateOfBirth] = useState<string>("");
+  const [admissionDate, setAdmissionDate] = useState<string>("");
   const [admissionTime, setAdmissionTime] = useState<string>("");
+  const [ageYears, setAgeYears] = useState<string>(""); 
+  const [ageMonths, setAgeMonths] = useState<string>(""); 
 
-  // Load Data from API
-  const loadChildData = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/child/${childId}`);
-      const result = await response.json();
+  const [sex, setSex] = useState<string>("");
+  const [admissionWeight, setAdmissionWeight] = useState<string>("");
+  const [admissionHeight, setAdmissionHeight] = useState<string>("");
+  const [zScore, setZScore] = useState<string>("");
 
-      if (result.success && result.data) {
-        const data = result.data;
-        setChildData(data);
+  const [caste, setCaste] = useState("");
+  const [district, setDistrict] = useState("");
+  const [block, setBlock] = useState("");
+  const [icdsProject, setIcdsProject] = useState("");
+  const [anganwadiCenter, setAnganwadiCenter] = useState("");
+  const [relationship, setRelationship] = useState("");
+  
+  const [admissionOdema, setAdmissionOdema] = useState("");
+  const [breastFeeding, setBreastFeeding] = useState("");
+  const [complementaryFeeding, setComplementaryFeeding] = useState("");
+  const [appetiteTest, setAppetiteTest] = useState("");
 
-        // Populate State
-        setPhotoPreview(data.photo || null);
-        setAdmissionTime(data.admissionTime || "");
-
-        // Handle Dates
-        if (data.dateOfBirth) {
-          setDateOfBirth(new Date(data.dateOfBirth));
-        }
-        if (data.admissionDate) {
-          setAdmissionDate(new Date(data.admissionDate));
-        }
-
-        // Handle Complications
-        const comps: { [key: string]: boolean } = {};
-        if (Array.isArray(data.complications)) {
-          data.complications.forEach((c: string) => comps[c] = true);
-        }
-        setSelectedComplications(comps);
-      } else {
-        toast.error("Child record not found");
-      }
-    } catch (error) {
-      console.error("Fetch Error", error);
-      toast.error("Failed to load child data");
-    }
-  }, [childId]);
+  const showMuac = !(ageYears === "0" && parseInt(ageMonths || "0") <= 6);
 
   useEffect(() => {
     setMounted(true);
-    if (childId) {
-      loadChildData();
-    }
-  }, [childId, loadChildData]);
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("Photo size must be less than 2MB");
-        return;
+    
+    // Read MTC Identity from Session
+    const sessionData = sessionStorage.getItem("mtc_user");
+    if (sessionData) {
+      try {
+        const user = JSON.parse(sessionData);
+        setUserMtcId(user.mtcId || null);
+      } catch (err) {
+        console.error("Session parse error", err);
       }
-      // Preview logic
-      const reader = new FileReader();
-      reader.onload = () => setPhotoPreview(reader.result as string);
-      reader.readAsDataURL(file);
     }
+    
+    // Fetch Master Data
+    const fetchMasterData = async () => {
+      try {
+        const response = await fetch('/api/master-data');
+        if (response.ok) {
+          const data = await response.json();
+          setMasterData(prev => ({ ...prev, ...data }));
+        }
+      } catch {
+        toast.error("Failed to load dropdown options.");
+      }
+    };
+    
+    // Fetch Specific Child Data
+    const fetchChildData = async () => {
+      try {
+        const response = await fetch(`/api/child-registration/${childId}`);
+        if (response.ok) {
+          const patient: ChildDataPayload = await response.json();
+          setChildData(patient);
+          
+          setAdmissionType(patient.admissionType?.toString() || "");
+          setReferredBy(patient.referredBy?.toString() || "");
+          setSex(patient.sex?.toString() || "");
+          setRelationship(patient.relationship?.toString() || "");
+          setCaste(patient.caste?.toString() || "");
+          setDistrict(patient.district?.toString() || "");
+          setBlock(patient.block?.toString() || "");
+          setIcdsProject(patient.icdsProject?.toString() || "");
+          setAnganwadiCenter(patient.anganwadiCenter?.toString() || "");
+          
+          setDateOfBirth(patient.dateOfBirth || "");
+          setAdmissionDate(patient.admissionDate || "");
+          setAdmissionTime(patient.admissionTime || "");
+          setAgeYears(patient.ageYears?.toString() || "");
+          setAgeMonths(patient.ageMonths?.toString() || "");
+          
+          setAdmissionWeight(patient.admissionWeight?.toString() || "");
+          setAdmissionHeight(patient.admissionHeight?.toString() || "");
+          setZScore(patient.zScore?.toString() || "");
+          
+          setAdmissionOdema(patient.admissionOdema?.toString() || "");
+          setBreastFeeding(patient.breastFeeding?.toString() || "");
+          setComplementaryFeeding(patient.complementaryFeeding?.toString() || "");
+          setAppetiteTest(patient.appetiteTest?.toString() || "");
+
+          // Load SAAMAR Data if it exists
+          if (patient.isSamarRegistered) {
+            setIsSamar("yes");
+            setSamarUuid(patient.samarUuid || "");
+          } else {
+            setIsSamar("no");
+          }
+          
+          const comps = patient.medicalComplications || [];
+          const standardComps: string[] = [];
+          let othersText = "";
+          
+          comps.forEach((c: string) => {
+            if (c.startsWith("OTHERS: ")) { 
+              standardComps.push("OTHERS"); 
+              othersText = c.replace("OTHERS: ", ""); 
+            } else if (c === "OTHERS") {
+              standardComps.push("OTHERS");
+            } else {
+              standardComps.push(c);
+            }
+          });
+          
+          setSelectedComplications(standardComps);
+          setOtherComplicationDetail(othersText);
+
+        } else {
+          toast.error("Patient not found!");
+          router.push('/mtc-user/dashboard/child-registration');
+        }
+      } catch {
+        toast.error("Error loading patient data.");
+      }
+    };
+
+    fetchMasterData();
+    if (childId) fetchChildData();
+  }, [childId, router]);
+
+  useEffect(() => {
+    if (admissionWeight && admissionHeight) {
+      const score = calculateZScore(parseFloat(admissionWeight), parseFloat(admissionHeight));
+      setZScore(score ? String(score) : "");
+    } else {
+      setZScore("");
+    }
+  }, [admissionWeight, admissionHeight]);
+
+  // --- Dependency Logic for Referral & SAAMAR ---
+  useEffect(() => {
+    setShowAshaFields(referredBy === "6");
+    
+    // Check if the selected referral type is "Other" or "SAAMAR"
+    if (!masterData.referredBy.length || !referredBy) return;
+
+    const selectedRef = masterData.referredBy.find((r: DropdownItem) => r.id.toString() === referredBy);
+    const isOther = selectedRef && (
+      selectedRef.name.toLowerCase().includes('other') || 
+      selectedRef.name.toLowerCase().includes('saamar') ||
+      selectedRef.name.toLowerCase().includes('samar')
+    );
+    
+    setShowSamarTracker(!!isOther);
+
+  }, [referredBy, masterData.referredBy]);
+
+  const handleComplicationToggle = (comp: string) => {
+    setSelectedComplications(prev => {
+      if (comp === "OTHERS" && prev.includes("OTHERS")) {
+        setOtherComplicationDetail(""); // Clear text if unchecked
+      }
+      return prev.includes(comp) ? prev.filter(c => c !== comp) : [...prev, comp];
+    });
   };
 
-  const handleComplicationChange = (id: string, checked: boolean) => {
-    setSelectedComplications(prev => ({ ...prev, [id]: checked }));
-  };
+  const filteredBlocks = (masterData.blocks || []).filter((b: DropdownItem) => 
+    !district || b.districtId?.toString() === district
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (zScore === "Error") {
+      toast.error("Invalid Anthropometry data. Please check Height/Weight.");
+      return;
+    }
+    if (selectedComplications.length === 0) {
+      toast.error("Please select at least one medical complication status.");
+      return;
+    }
+    if (selectedComplications.includes("OTHERS") && !otherComplicationDetail.trim()) {
+      toast.error("Please specify the details for the 'Others' complication.");
+      return;
+    }
+    if (showSamarTracker && isSamar === "yes" && !samarUuid.trim()) {
+      toast.error("Please enter the SAAMAR Child UUID."); return;
+    }
+    
+    if (!userMtcId) {
+      toast.error("Security Error: Unknown MTC ID. Please log out and log back in.");
+      return;
+    }
+
     setLoading(true);
 
+    let finalComplications = [...selectedComplications];
+    if (finalComplications.includes("OTHERS")) {
+      finalComplications = finalComplications.filter(c => c !== "OTHERS");
+      finalComplications.push(`OTHERS: ${otherComplicationDetail.trim()}`);
+    }
+
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    
+    const payload = {
+      mtcId: userMtcId, 
+      isSamarRegistered: showSamarTracker && isSamar === "yes", 
+      samarUuid: (showSamarTracker && isSamar === "yes") ? samarUuid : null,
+      admissionType, referredBy,
+      referredByName: formData.get('referredByName'), referredByMobile: formData.get('referredByMobile'),
+      childName: formData.get('childName'), 
+      motherName: formData.get('motherName'), 
+      parentName: formData.get('parentName'),
+      relationship, mobileNumber: formData.get('mobileNumber'),
+      bplNumber: formData.get('bplNumber'), dateOfBirth, sex,
+      ageYears: ageYears, ageMonths: ageMonths,
+      address: formData.get('address'), caste, district, block, 
+      icdsProject, anganwadiCenter, village: formData.get('village'),
+      aadhaarNumber: formData.get('aadhaarNumber'), bankName: formData.get('bankName'),
+      accountHolderName: formData.get('accountHolderName'), accountNumber: formData.get('accountNumber'),
+      ifscCode: formData.get('ifscCode'), admissionDate, admissionTime,
+      admissionWeight, admissionHeight, 
+      admissionMuac: showMuac ? formData.get('admissionMuac') : null, 
+      zScore: zScore, admissionOdema, breastFeeding, complementaryFeeding, appetiteTest,
+      medicalComplications: finalComplications
+    };
+
     try {
-      const formData = new FormData(e.currentTarget as HTMLFormElement);
-
-      // Explicitly append dates (Date objects -> string)
-      if (dateOfBirth) formData.set('dateOfBirth', dateOfBirth.toISOString());
-      if (admissionDate) formData.set('admissionDate', admissionDate.toISOString().split('T')[0]);
-      formData.set('admissionTime', admissionTime);
-
-      // Handle Complications manually
-      formData.delete('complications'); // Clear default behavior
-      Object.keys(selectedComplications).forEach(key => {
-        if (selectedComplications[key]) formData.append('complications', key);
-      });
-
-      // Handle File: Check if a new file exists in the input
-      const fileInput = document.getElementById('photo-upload') as HTMLInputElement;
-      if (fileInput?.files?.[0]) {
-        formData.set('photo', fileInput.files[0]);
-      } else {
-        formData.delete('photo'); // Don't send if no new file
-      }
-
-      const res = await fetch(`/api/child/${childId}`, {
+      const response = await fetch(`/api/child-registration/${childId}`, {
         method: 'PUT',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
-
-      const json = await res.json();
-
-      if (json.success) {
-        toast.success("Child record updated successfully!");
-        setTimeout(() => {
-          router.push('/mtc-user/dashboard/child-registration');
-        }, 1000);
-      } else {
-        throw new Error(json.message || "Update failed");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update record");
-    } finally {
+      
+      if (!response.ok) throw new Error('Failed to update registration');
+      
+      toast.success("Patient updated successfully!");
+      setTimeout(() => router.push('/mtc-user/dashboard/child-registration'), 1000);
+      
+    } catch {
+      toast.error("An error occurred while updating.");
       setLoading(false);
     }
   };
 
-  if (!mounted || !childData) return <div className="p-10">Loading...</div>;
+  if (!mounted || !childData) {
+    return <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <Loader2 className="animate-spin text-indigo-600 w-8 h-8" />
+    </div>;
+  }
+
+  const SectionTitle = ({ icon: Icon, title }: { icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>, title: string }) => (
+    <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
+      <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600"><Icon size={20} strokeWidth={2.5} /></div>
+      <h2 className="text-lg font-bold text-slate-800">{title}</h2>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-6">
-      <Toaster position="top-right" />
-      <div className="max-w-7xl mx-auto">
-        <Card className="shadow-md border border-gray-200">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" onClick={() => router.back()} className="mb-2">
-                <ArrowLeft className="h-4 w-4 mr-2" /> Back
-              </Button>
-              <h1 className="text-2xl font-bold text-teal-700">Edit Child Registration</h1>
-            </div>
-          </CardHeader>
+    <div className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 lg:px-8 font-sans pb-28">
+      <Toaster position="top-center" toastOptions={{ className: 'rounded-xl shadow-lg font-medium' }} />
+      
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-2 flex items-center">
+          <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button" className="pl-0 text-slate-500 hover:text-indigo-600 hover:bg-transparent">
+            <ArrowLeft className="w-5 h-5 mr-2" /> Back
+          </Button>
+        </div>
 
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* --- SAM Number & Basic Info --- */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <Label>SAM Number</Label>
-                  <Input value={childData.samNumber} readOnly className="bg-gray-100 font-mono" />
-                </div>
-                <div>
-                  <Label>Admission Type *</Label>
-                  <Select name="admissionType" defaultValue={childData.admissionType}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">NEW ADMISSION</SelectItem>
-                      <SelectItem value="2">RE ADMISSION</SelectItem>
-                      <SelectItem value="3">RELAPSE</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Referred By</Label>
-                  {/* Removed onValueChange as local state was unused. defaultValue + name="referredBy" handles the data. */}
-                  <Select name="referredBy" defaultValue={childData.referredBy}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="6">Sahiya/ASHA</SelectItem>
-                      <SelectItem value="1">ANGANWADI</SelectItem>
-                      <SelectItem value="2">ANM</SelectItem>
-                      <SelectItem value="3">OPD</SelectItem>
-                      <SelectItem value="4">SELF</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+        <div className="mb-8 text-center md:text-left md:flex md:items-end md:justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Edit Child Record</h1>
+            <p className="mt-2 text-sm text-slate-500">Update the information directly in the database.</p>
+          </div>
+          <div className="mt-4 md:mt-0 px-5 py-3 bg-white rounded-xl shadow-sm border border-slate-200 inline-block text-center md:text-right">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">SAM Number</span>
+            <span className="text-lg font-mono font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-md">{childData.samNumber}</span>
+          </div>
+        </div>
 
-              {/* --- Personal Info --- */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <Label>Child Name *</Label>
-                  <Input name="childName" defaultValue={childData.childName} required />
-                </div>
-                <div>
-                  <Label>Parent Name *</Label>
-                  <Input name="parentName" defaultValue={childData.parentName} required />
-                </div>
-                <div>
-                  <Label>Relationship *</Label>
-                  <Select name="relationship" defaultValue={childData.relationship}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Father</SelectItem>
-                      <SelectItem value="2">Mother</SelectItem>
-                      <SelectItem value="3">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Mobile Number *</Label>
-                  <Input name="mobileNumber" defaultValue={childData.mobileNumber} required maxLength={10} />
-                </div>
-              </div>
+        <form onSubmit={handleSubmit} className="relative">
+          <div className="space-y-6">
 
-              {/* --- BPL, DOB, Sex --- */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <Label>BPL Number</Label>
-                  <Input name="bplNumber" defaultValue={childData.bplNumber || ""} />
-                </div>
-                <div>
-                  <Label>Date of Birth *</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateOfBirth && "text-muted-foreground")}>
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateOfBirth ? format(dateOfBirth, "PPP") : "Pick a date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar mode="single" selected={dateOfBirth} onSelect={setDateOfBirth} initialFocus />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                <div>
-                  <Label>Sex *</Label>
-                  <Select name="sex" defaultValue={childData.sex}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Male</SelectItem>
-                      <SelectItem value="2">Female</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Address *</Label>
-                  <Input name="address" defaultValue={childData.address} required />
-                </div>
-              </div>
-
-              {/* --- Photo --- */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                 <div>
-                    <Label>Upload Photo</Label>
-                    <Input id="photo-upload" type="file" accept="image/*" onChange={handlePhotoUpload} className="cursor-pointer"/>
-                 </div>
-                 {photoPreview && (
-                   <div className="relative h-20 w-20">
-                     <Image src={photoPreview} alt="Preview" fill className="object-cover rounded border" unoptimized />
-                   </div>
-                 )}
-              </div>
-
-              {/* --- Demographics --- */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <Label>Caste *</Label>
-                  <Select name="caste" defaultValue={childData.caste}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">ST</SelectItem>
-                      <SelectItem value="2">SC</SelectItem>
-                      <SelectItem value="3">OBC</SelectItem>
-                      <SelectItem value="4">GEN</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>District *</Label>
-                  <Select name="district" defaultValue={childData.district}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                         <SelectItem value="8">RANCHI</SelectItem>
-                         <SelectItem value="1">BOKARO</SelectItem>
-                      </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                   <Label>Village</Label>
-                   <Input name="village" defaultValue={childData.village || ""} />
-                </div>
-              </div>
-
-              {/* --- Admission Vitals --- */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                 <div>
-                    <Label>Admission Date *</Label>
-                    <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !admissionDate && "text-muted-foreground")}>
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {admissionDate ? format(admissionDate, "PPP") : "Pick a date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar mode="single" selected={admissionDate} onSelect={setAdmissionDate} initialFocus />
-                    </PopoverContent>
-                  </Popover>
-                 </div>
-                 <div>
-                    <Label>Admission Time</Label>
-                    <Input type="time" value={admissionTime} onChange={(e) => setAdmissionTime(e.target.value)} required />
-                 </div>
-                 <div>
-                    <Label>Weight (kg) *</Label>
-                    <Input name="admissionWeight" type="number" step="0.01" defaultValue={childData.admissionWeight} required />
-                 </div>
-                 <div>
-                    <Label>Height (cm) *</Label>
-                    <Input name="admissionHeight" type="number" step="0.1" defaultValue={childData.admissionHeight} required />
-                 </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                   <Label>Edema *</Label>
-                   <Select name="admissionOdema" defaultValue={childData.admissionOdema}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="4">No</SelectItem>
-                        <SelectItem value="1">+</SelectItem>
-                        <SelectItem value="2">++</SelectItem>
-                        <SelectItem value="3">+++</SelectItem>
-                      </SelectContent>
-                   </Select>
-                </div>
-                <div>
-                    <Label>MUAC (cm) *</Label>
-                    <Input name="admissionMuac" type="number" step="0.1" defaultValue={childData.admissionMuac} required />
-                 </div>
-              </div>
-
-               {/* --- Feeding --- */}
-               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Admission Info */}
+            <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+              <CardContent className="p-6 sm:p-8">
+                <SectionTitle icon={ClipboardCheck} title="Admission Details" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-end">
                   <div>
-                    <Label>Breast Feeding</Label>
-                    <Select name="breastFeeding" defaultValue={childData.breastFeeding}>
-                      <SelectTrigger><SelectValue/></SelectTrigger>
+                    <Label>Admission Type <span className="text-red-500">*</span></Label>
+                    <Select name="admissionType" value={admissionType} onValueChange={setAdmissionType} required>
+                      <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">Yes</SelectItem>
-                        <SelectItem value="2">No</SelectItem>
+                        {masterData.admissionTypes.map((type: DropdownItem) => (<SelectItem key={type.id} value={type.id.toString()}>{type.name}</SelectItem>))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label>Complementary Feeding</Label>
-                    <Select name="complementaryFeeding" defaultValue={childData.complementaryFeeding}>
-                      <SelectTrigger><SelectValue/></SelectTrigger>
+                    <Label>Referred By <span className="text-red-500">*</span></Label>
+                    <Select name="referredBy" value={referredBy} onValueChange={(val: string) => {
+                      setReferredBy(val);
+                      const selectedRef = masterData.referredBy.find((r: DropdownItem) => r.id.toString() === val);
+                      const isOther = selectedRef && (
+                        selectedRef.name.toLowerCase().includes('other') || 
+                        selectedRef.name.toLowerCase().includes('saamar') ||
+                        selectedRef.name.toLowerCase().includes('samar')
+                      );
+                      if (!isOther) {
+                        setIsSamar("no");
+                        setSamarUuid("");
+                      }
+                    }} required>
+                      <SelectTrigger><SelectValue placeholder="Select Origin" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">Yes</SelectItem>
-                        <SelectItem value="2">No</SelectItem>
+                        {masterData.referredBy.map((ref: DropdownItem) => (<SelectItem key={ref.id} value={ref.id.toString()}>{ref.name}</SelectItem>))}
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label>Appetite Test</Label>
-                    <Select name="appetiteTest" defaultValue={childData.appetiteTest}>
-                      <SelectTrigger><SelectValue/></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">Pass</SelectItem>
-                        <SelectItem value="2">Fail</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-               </div>
-
-               {/* --- Complications Checkboxes --- */}
-               <div className="p-4 border rounded">
-                 <Label className="mb-2 block">Medical Complications</Label>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {[
-                      {id:"0", label: "None"},
-                      {id:"1", label: "Emergency Signs"},
-                      {id:"2", label: "Very Weak"},
-                      {id:"3", label: "Edema Both Feet"},
-                      {id:"4", label: "Severe Pallor"},
-                      {id:"13", label: "Fever"},
-                      {id:"15", label: "TB"},
-                    ].map(comp => (
-                      <div key={comp.id} className="flex items-center space-x-2">
-                        <input 
-                          type="checkbox" 
-                          id={`comp-${comp.id}`} 
-                          checked={selectedComplications[comp.id] || false}
-                          onChange={(e) => handleComplicationChange(comp.id, e.target.checked)}
-                          className="rounded border-gray-300"
-                        />
-                        <label htmlFor={`comp-${comp.id}`} className="text-sm">{comp.label}</label>
+                  
+                  {showAshaFields && (
+                    <>
+                      <div>
+                        <Label>Name of Sahiya/Asha</Label>
+                        <Input name="referredByName" defaultValue={childData.referredByName || childData.parentName} placeholder="Enter Name" />
                       </div>
-                    ))}
-                 </div>
-               </div>
+                      <div>
+                        <Label>Sahiya/Asha Mobile</Label>
+                        <Input name="referredByMobile" defaultValue={childData.referredByMobile || childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" />
+                      </div>
+                    </>
+                  )}
+                  <div>
+                    <Label>Admission Date <span className="text-red-500">*</span></Label>
+                    <Input type="date" name="admissionDate" value={admissionDate} onChange={(e) => setAdmissionDate(e.target.value)} required />
+                  </div>
+                  <div>
+                    <Label>Admission Time <span className="text-red-500">*</span></Label>
+                    <div className="relative">
+                      <Input name="admissionTime" type="time" value={admissionTime} onChange={(e) => setAdmissionTime(e.target.value)} required className="pr-10" />
+                      <Clock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4 pointer-events-none" />
+                    </div>
+                  </div>
 
-              <div className="flex justify-end gap-4">
-                 <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
-                 <Button type="submit" disabled={loading} className="bg-teal-600">
-                   {loading ? "Saving..." : "Update Child"}
-                 </Button>
-              </div>
+                  {/* --- SAAMAR TRACKER LOGIC --- */}
+                  {showSamarTracker && (
+                    <div className="lg:col-span-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 flex flex-col md:flex-row gap-4 items-end animate-in fade-in zoom-in duration-200 mt-2">
+                      <div className="flex-1 w-full md:max-w-xs">
+                        <Label className="text-indigo-800">Registered in SAAMAR? <span className="text-red-500">*</span></Label>
+                        <Select name="isSamar" value={isSamar} onValueChange={(val: string) => { setIsSamar(val); if(val === "no") setSamarUuid(""); }} required={showSamarTracker}>
+                          <SelectTrigger className="bg-white"><SelectValue placeholder="Select" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="yes">Yes</SelectItem>
+                            <SelectItem value="no">No</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {isSamar === "yes" && (
+                        <div className="flex-1 w-full">
+                          <Label className="text-indigo-800">SAAMAR Child UUID <span className="text-red-500">*</span></Label>
+                          <Input name="samarUuid" value={samarUuid} onChange={(e) => setSamarUuid(e.target.value)} placeholder="Enter UUID" className="bg-white" required />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
-            </form>
-          </CardContent>
-        </Card>
+            {/* Personal Info */}
+            <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+              <CardContent className="p-6 sm:p-8">
+                <SectionTitle icon={Baby} title="Child & Guardian Information" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="lg:col-span-2">
+                    <Label>Child Full Name <span className="text-red-500">*</span></Label>
+                    <Input name="childName" defaultValue={childData.childName} required />
+                  </div>
+                  <div className="lg:col-span-2">
+                    <Label>Date of Birth</Label>
+                    <Input type="date" name="dateOfBirth" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label>Age (Years) <span className="text-red-500">*</span></Label>
+                    <Input type="number" min="0" value={ageYears} onChange={(e) => setAgeYears(e.target.value)} required />
+                  </div>
+                  <div>
+                    <Label>Age (Months) <span className="text-red-500">*</span></Label>
+                    <Input type="number" min="0" max="11" value={ageMonths} onChange={(e) => setAgeMonths(e.target.value)} required />
+                  </div>
+                  <div className="lg:col-span-2">
+                    <Label>Sex <span className="text-red-500">*</span></Label>
+                    <Select name="sex" value={sex} onValueChange={setSex} required>
+                      <SelectTrigger><SelectValue placeholder="Select Gender" /></SelectTrigger>
+                      <SelectContent>
+                        {masterData.sexes.map((s: DropdownItem) => (<SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="lg:col-span-2">
+                    <Label>Mother&apos;s Name <span className="text-red-500">*</span></Label>
+                    <Input name="motherName" defaultValue={childData.motherName} required />
+                  </div>
+                  <div className="lg:col-span-2">
+                    <Label>Name of Caretaker / Guardian <span className="text-red-500">*</span></Label>
+                    <Input name="parentName" defaultValue={childData.parentName} required />
+                  </div>
+                  <div>
+                    <Label>Relationship <span className="text-red-500">*</span></Label>
+                    <Select name="relationship" value={relationship} onValueChange={setRelationship} required>
+                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        {masterData.relationships.map((rel: DropdownItem) => (<SelectItem key={rel.id} value={rel.id.toString()}>{rel.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Mobile Number <span className="text-red-500">*</span></Label>
+                    <Input name="mobileNumber" defaultValue={childData.mobileNumber} type="tel" maxLength={10} pattern="[0-9]{10}" required />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Financial Details */}
+            <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+              <CardContent className="p-6 sm:p-8">
+                <SectionTitle icon={ShieldCheck} title="Identity & Financial Details" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div>
+                    <Label>Parent Aadhaar Number</Label>
+                    <Input name="aadhaarNumber" defaultValue={childData.aadhaarNumber} maxLength={12} pattern="[0-9]{12}" />
+                  </div>
+                  <div>
+                    <Label>BPL Number</Label>
+                    <Input name="bplNumber" defaultValue={childData.bplNumber} />
+                  </div>
+                  <div>
+                    <Label>Caste <span className="text-red-500">*</span></Label>
+                    <Select name="caste" value={caste} onValueChange={setCaste} required>
+                      <SelectTrigger><SelectValue placeholder="Select Caste" /></SelectTrigger>
+                      <SelectContent>
+                        {masterData.castes.map((c: DropdownItem) => (<SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="lg:col-span-4 mt-2">
+                    <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-4">
+                      <Landmark className="w-4 h-4 text-indigo-500" /> Bank Account Details
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 bg-slate-50 p-5 rounded-xl border border-slate-100">
+                      <div><Label>Bank Name</Label><Input name="bankName" defaultValue={childData.bankName} className="bg-white" /></div>
+                      <div><Label>Account Holder</Label><Input name="accountHolderName" defaultValue={childData.accountHolderName} className="bg-white" /></div>
+                      <div><Label>Account Number</Label><Input name="accountNumber" defaultValue={childData.accountNumber} className="bg-white" /></div>
+                      <div><Label>IFSC Code</Label><Input name="ifscCode" defaultValue={childData.ifscCode} className="bg-white" /></div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* DEPENDENT LOCATION DETAILS */}
+            <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+              <CardContent className="p-6 sm:p-8">
+                <SectionTitle icon={MapPin} title="Location Details" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-3">
+                    <Label>Full Address <span className="text-red-500">*</span></Label>
+                    <Textarea name="address" defaultValue={childData.address} rows={2} required />
+                  </div>
+                  <div>
+                    <Label>District <span className="text-red-500">*</span></Label>
+                    <Select 
+                      name="district" 
+                      value={district} 
+                      onValueChange={(val: string) => {
+                        setDistrict(val);
+                        setBlock(""); 
+                      }} 
+                      required
+                    >
+                      <SelectTrigger><SelectValue placeholder="Select District" /></SelectTrigger>
+                      <SelectContent>
+                        {masterData.districts.map((dist: DropdownItem) => (<SelectItem key={dist.id} value={dist.id.toString()}>{dist.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Block</Label>
+                    <Select 
+                      name="block" 
+                      value={block} 
+                      onValueChange={setBlock}
+                      disabled={!district} 
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={district ? "Select Block" : "Select District First"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredBlocks.map((b: DropdownItem) => (<SelectItem key={b.id} value={b.id.toString()}>{b.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Village</Label>
+                    <Input name="village" defaultValue={childData.village} />
+                  </div>
+                  <div>
+                    <Label>ICDS Project</Label>
+                    <Select name="icdsProject" value={icdsProject} onValueChange={setIcdsProject}>
+                      <SelectTrigger><SelectValue placeholder="Select Project" /></SelectTrigger>
+                      <SelectContent>
+                        {masterData.icdsProjects.map((project: DropdownItem) => (<SelectItem key={project.id} value={project.id.toString()}>{project.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="lg:col-span-2">
+                    <Label>Anganwadi Center</Label>
+                    <Select name="anganwadiCenter" value={anganwadiCenter} onValueChange={setAnganwadiCenter}>
+                      <SelectTrigger><SelectValue placeholder="Select Center" /></SelectTrigger>
+                      <SelectContent>
+                        {masterData.anganwadis.map((center: DropdownItem) => (<SelectItem key={center.id} value={center.id.toString()}>{center.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Anthropometry Details */}
+            <Card className="border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+              <CardContent className="p-6 sm:p-8">
+                <SectionTitle icon={Activity} title="Anthropometry & Feeding" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div>
+                    <Label>Admission Weight (kg) <span className="text-red-500">*</span></Label>
+                    <Input name="admissionWeight" type="number" step="0.1" value={admissionWeight} onChange={(e) => setAdmissionWeight(e.target.value)} required />
+                  </div>
+                  <div>
+                    <Label>Length/Height (cm) <span className="text-red-500">*</span></Label>
+                    <Input name="admissionHeight" type="number" step="0.1" value={admissionHeight} onChange={(e) => setAdmissionHeight(e.target.value)} required />
+                  </div>
+                  
+                  {/* ---> CONDITIONAL MUAC FIELD <--- */}
+                  {showMuac && (
+                    <div>
+                      <Label>MUAC (cm) <span className="text-red-500">*</span></Label>
+                      <Input name="admissionMuac" type="number" step="0.1" defaultValue={childData.admissionMuac} required />
+                    </div>
+                  )}
+
+                  <div>
+                    <Label>Z-Score (SD)</Label>
+                    <Input name="zScore" readOnly value={zScore} className={cn("font-semibold focus:ring-0 cursor-not-allowed", zScore === "Error" ? "bg-red-50 text-red-600" : "bg-slate-100 text-indigo-700")} />
+                  </div>
+                  <div>
+                    <Label>Admission Odema <span className="text-red-500">*</span></Label>
+                    <Select name="admissionOdema" value={admissionOdema} onValueChange={setAdmissionOdema} required>
+                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        {masterData.odemas.map((odema: DropdownItem) => (<SelectItem key={odema.id} value={odema.id.toString()}>{odema.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Breast Feeding <span className="text-red-500">*</span></Label>
+                    <Select name="breastFeeding" value={breastFeeding} onValueChange={setBreastFeeding} required>
+                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        {masterData.breastFeeding.map((bf: DropdownItem) => (<SelectItem key={bf.id} value={bf.id.toString()}>{bf.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Complementary Feeding <span className="text-red-500">*</span></Label>
+                    <Select name="complementaryFeeding" value={complementaryFeeding} onValueChange={setComplementaryFeeding} required>
+                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Yes</SelectItem><SelectItem value="2">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Appetite Test <span className="text-red-500">*</span></Label>
+                    <Select name="appetiteTest" value={appetiteTest} onValueChange={setAppetiteTest} required>
+                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        {masterData.appetiteTests.map((at: DropdownItem) => (<SelectItem key={at.id} value={at.id.toString()}>{at.name}</SelectItem>))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden border-0 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+              <CardContent className="p-6 sm:p-8">
+                <SectionTitle icon={Stethoscope} title="Medical Complications" />
+                <p className="text-sm font-semibold text-slate-700 mb-4 block">Select all present complications: <span className="text-red-500">*</span></p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6 bg-slate-50/50 p-6 rounded-xl border border-slate-200">
+                  {MEDICAL_COMPLICATIONS_LIST.map((comp) => (
+                    <label key={comp} className="flex items-start space-x-3 cursor-pointer group">
+                      <div className="flex items-center h-5">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/30 transition duration-150 ease-in-out cursor-pointer"
+                          checked={selectedComplications.includes(comp)}
+                          onChange={() => handleComplicationToggle(comp)}
+                        />
+                      </div>
+                      <span className="text-sm font-medium text-slate-600 leading-tight group-hover:text-slate-900 transition-colors">
+                        {comp}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+
+                {/* ---> DYNAMIC OTHERS TEXT BOX <--- */}
+                {selectedComplications.includes("OTHERS") && (
+                  <div className="mt-5 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100">
+                    <Label className="text-indigo-900">Please specify &apos;Others&apos; complication details <span className="text-red-500">*</span></Label>
+                    <Input 
+                      value={otherComplicationDetail}
+                      onChange={(e) => setOtherComplicationDetail(e.target.value)}
+                      placeholder="e.g., Asthma, Severe Jaundice..."
+                      className="mt-2 bg-white"
+                      required={selectedComplications.includes("OTHERS")}
+                    />
+                  </div>
+                )}
+
+              </CardContent>
+            </Card>
+
+          </div>
+
+          <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200 p-4 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-50 flex justify-end gap-4 sm:justify-center md:justify-end md:px-12">
+            <Button variant="ghost" onClick={() => router.push('/mtc-user/dashboard/child-registration')} type="button" className="min-w-40">Cancel</Button>
+            <Button type="submit" disabled={loading || zScore === "Error"} className="min-w-40">
+              {loading ? "Saving to Database..." : "Update Patient"}
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );
-};
+}

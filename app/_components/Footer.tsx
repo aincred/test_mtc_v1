@@ -145,7 +145,7 @@ export default function Footer() {
           <div className="flex items-center mb-4 md:mb-0">
             <p className="text-gray-400">
               Powered by{" "}
-              <span className="text-white font-semibold hover:text-yellow-400 transition-colors duration-300 cursor-pointer">Dhanush</span>
+              <span className="text-white font-semibold hover:text-yellow-400 transition-colors duration-300 cursor-pointer">DreamWork</span>
             </p>
           </div>
           <div className="flex items-center space-x-6">
