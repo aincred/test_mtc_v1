@@ -292,18 +292,18 @@ import {
 
 export default function MtcDashboard() {
   const cards = [
+    { title: "SAAMAR Referrals", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/dashboard/Samar/referred-children" },
     { title: "Child Registration", icon: <FileText size={28} />, color: "from-blue-500 to-blue-700", href: "/mtc-user/dashboard/child-registration" },
     { title: "Daily Weight Entry", icon: <Scale size={28} />, color: "from-purple-400 to-purple-600", href: "/mtc-user/dashboard/daily-weight" },
     { title: "Micronutrients & Antibiotics", icon: <Pill size={28} />, color: "from-cyan-600 to-green-600", href: "/mtc-user/dashboard/micronutrients" },
     { title: "Child Discharge", icon: <FileCheck size={28} />, color: "from-green-500 to-emerald-600", href: "/mtc-user/dashboard/discharge" },
     { title: "Follow-Up", icon: <ClipboardList size={28} />, color: "from-orange-400 to-yellow-500", href: "/mtc-user/dashboard/follow-up" },
-    { title: "Equipment Section", icon: <Wrench size={28} />, color: "from-teal-400 to-cyan-500", href: "/mtc-user/dashboard/equipment" },
+    { title: "Equipment Details", icon: <Wrench size={28} />, color: "from-teal-400 to-cyan-500", href: "/mtc-user/dashboard/equipment" },
     { title: "Staff Details", icon: <Users size={28} />, color: "from-blue-600 to-green-600", href: "/mtc-user/dashboard/staff" },
     { title: "Bed Occupancy", icon: <BedDouble size={28} />, color: "from-pink-500 to-rose-500", href: "/mtc-user/dashboard/bed-occupancy" },
     { title: "Child Records", icon: <BookOpen size={28} />, color: "from-orange-500 to-red-500", href: "/mtc-user/dashboard/child-records" },
     { title: "MPR / Follow-Up Report", icon: <Mail size={28} />, color: "from-red-500 to-pink-500", href: "/mtc-user/dashboard/mrp" },
     { title: "Maternal Nutrition", icon: <HeartPulse size={28} />, color: "from-pink-500 to-rose-600", href: "/mtc-user/dashboard/maternal-nutrition" },
-    { title: "Saamar", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/dashboard/Samar/referred-children" },
     { title: "Compensation", icon: <Banknote size={28} />, color: "from-blue-300 to-rose-500", href: "/mtc-user/dashboard/compensation" },
   ];
 
