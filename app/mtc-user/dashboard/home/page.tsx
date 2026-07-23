@@ -303,7 +303,7 @@ export default function MtcDashboard() {
     { title: "Child Records", icon: <BookOpen size={28} />, color: "from-orange-500 to-red-500", href: "/mtc-user/dashboard/child-records" },
     { title: "MPR / Follow-Up Report", icon: <Mail size={28} />, color: "from-red-500 to-pink-500", href: "/mtc-user/dashboard/mrp" },
     { title: "Maternal Nutrition", icon: <HeartPulse size={28} />, color: "from-pink-500 to-rose-600", href: "/mtc-user/dashboard/maternal-nutrition" },
-    { title: "Samar", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/dashboard/Samar/referred-children" },
+    { title: "Saamar", icon: <HeartPulse size={28} />, color: "from-blue-500 to-rose-600", href: "/mtc-user/dashboard/Samar/referred-children" },
     { title: "Compensation", icon: <Banknote size={28} />, color: "from-blue-300 to-rose-500", href: "/mtc-user/dashboard/compensation" },
   ];
 

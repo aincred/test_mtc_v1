@@ -33,7 +33,7 @@ const navigation: NavigationItem[] = [
   { name: "Child Records", href: "/mtc-user/dashboard/child-records", icon: BookOpen },
   { name: "MPR / Follow-Up Report", href: "/mtc-user/dashboard/mrp", icon: Mail },
   { name: "Maternal Nutrition", href: "/mtc-user/dashboard/maternal-nutrition", icon: HeartPulse },
-  { name: "Samar", href: "/mtc-user/dashboard/Samar/referred-children", icon: HeartPulse },
+  { name: "Saamar", href: "/mtc-user/dashboard/Samar/referred-children", icon: HeartPulse },
   { name: "Compensation", href: "/mtc-user/dashboard/compensation", icon: Banknote },
   { name: "Settings", href: "/mtc-user/dashboard/settings", icon: Settings },
 ];

@@ -503,6 +503,7 @@ export async function GET() {
     const blocks = await query('SELECT block_id AS id, block_name AS name, district_id AS "districtId" FROM mtc_block ORDER BY block_name ASC');
     const icdsProjects = await query('SELECT icds_id, icds_name FROM mtc_icds_project ORDER BY icds_name ASC');
     const anganwadis = await query('SELECT awd_id, awd_name FROM mtc_anganwadi ORDER BY awd_name ASC');
+    const outcomeIndicators = await query('SELECT * FROM public.outcome_indicators ORDER BY id ASC');
 
     return NextResponse.json({
       admissionTypes: formatLookupData(admissionTypes.rows),

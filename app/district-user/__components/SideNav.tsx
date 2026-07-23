@@ -354,7 +354,6 @@ const reportsNavigation = [
   { name: "Admission Dashboards", href: "/district-user/dashboard/reports/admission-dashboards", icon: LayoutDashboard },
   { name: "Bed Occupancy", href: "/district-user/dashboard/reports/bed-occupancy", icon: Bed },
   { name: "Child Case Sheet", href: "/district-user/dashboard/reports/child-case-sheet", icon: ClipboardList },
-  { name: "Children Discharged by District", href: "/district-user/dashboard/reports/discharged-district", icon: MapPin },
   { name: "Children Discharged by MTC", href: "/district-user/dashboard/reports/discharged-mtc", icon: Building2 },
   { name: "Download Children Records", href: "/district-user/dashboard/reports/download-records", icon: Download },
   { name: "Discharge Dashboards", href: "/district-user/dashboard/reports/discharge-dashboards", icon: PieChart },
