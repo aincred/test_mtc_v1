@@ -1614,7 +1614,15 @@ export default function MTCReferredChildListStandalone() {
       setStatusMessage("Syncing records from database...");
       setStatusType("");
 
-      const response = await fetch("/api/mtc-proxy", { method: "GET" });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 45000);
+
+      const response = await fetch("/api/mtc-proxy", { 
+        method: "GET",
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         let errorMsg = `HTTP ${response.status}`;
@@ -1627,19 +1635,33 @@ export default function MTCReferredChildListStandalone() {
         throw new Error(errorMsg);
       }
 
-      const text = await response.text();
-      let jsonText = text;
-      
-      const match = text.match(/<string[^>]*>([\s\S]*?)<\/string>/i);
-      if (match) {
-        jsonText = match[1].trim();
+      const rawXml = await response.text();
+
+      // 1. Decode HTML/XML entities (e.g., &quot; -> ")
+      const decodedText = rawXml
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&');
+
+      // 2. Extract JSON payload strictly between first '[' or '{' and last ']' or '}'
+      const firstBracket = decodedText.search(/[\[\{]/);
+      const lastBracket = Math.max(decodedText.lastIndexOf("]"), decodedText.lastIndexOf("}"));
+
+      if (firstBracket === -1 || lastBracket === -1 || lastBracket <= firstBracket) {
+        console.error("Unparseable RAW XML response:", rawXml);
+        throw new Error("No JSON array/object boundaries found in server response.");
       }
+
+      const jsonText = decodedText.substring(firstBracket, lastBracket + 1).trim();
 
       let json;
       try {
         json = JSON.parse(jsonText);
-      } catch {
-        throw new Error("Invalid JSON structure returned by server.");
+      } catch (parseErr) {
+        console.error("JSON Parsing failed on string:", jsonText);
+        throw new Error("Invalid or unparseable JSON payload returned by server.");
       }
 
       let rows: DataRow[];
@@ -1661,7 +1683,7 @@ export default function MTCReferredChildListStandalone() {
         return;
       }
 
-      // Dynamic Location-Based Filtering
+      // --- DYNAMIC LOCATION-BASED FILTERING ---
       const { district: userDistrict, mtcName: userMtcName } = getUserLocationContext();
 
       if (userDistrict || userMtcName) {
@@ -1718,9 +1740,16 @@ export default function MTCReferredChildListStandalone() {
       setFilteredRows(rows);
       setStatusMessage(`Successfully populated ${rows.length} records for current location.`);
       setStatusType("success");
-    } catch (err) {
+    } catch (err: unknown) {
       console.error(err);
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      let errorMessage = "Unknown error occurred";
+      if (err instanceof Error) {
+        if (err.name === 'AbortError') {
+          errorMessage = "Request timed out after 45 seconds. Remote government server is responding slowly.";
+        } else {
+          errorMessage = err.message;
+        }
+      }
       setError(errorMessage);
       setStatusMessage("Failed connection protocols.");
       setStatusType("error");
