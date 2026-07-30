@@ -2910,6 +2910,643 @@
 //   );
 // }
 
+// "use client";
+
+// import { useState, useEffect, useCallback } from "react";
+// import { useRouter } from "next/navigation";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { Card, CardHeader, CardContent } from "@/components/ui/card";
+// import { 
+//   Home, 
+//   Search, 
+//   Edit, 
+//   Calendar, 
+//   ChevronLeft, 
+//   ChevronRight, 
+//   Activity, 
+//   RotateCcw, 
+//   CheckCircle2,
+//   User,
+//   Hash,
+//   Scale
+// } from "lucide-react";
+// import toast, { Toaster } from "react-hot-toast";
+
+// // Type definitions
+// interface Child {
+//   id: string;
+//   recordNo: string;
+//   samNumber: string;
+//   childName: string;
+//   parentName: string;
+//   dateOfBirth: string;
+//   admissionWeight: string;
+//   admissionHeight: string;
+//   createdAt: string;
+//   isSamarRegistered: boolean;
+//   samarUuid: string;
+// }
+
+// interface SearchFilters {
+//   fromDate: string;
+//   toDate: string;
+//   childName: string;
+//   samNumber: string;
+//   recordId: string;
+// }
+
+// interface RawChildItem {
+//   registration_id?: string | number;
+//   id: string;
+//   sam_no?: string;
+//   samNumber?: string;
+//   child_full_name?: string;
+//   childName?: string;
+//   guardian_name?: string;
+//   parentName?: string;
+//   dob?: string;
+//   dateOfBirth?: string;
+//   admission_weight_kg?: string | number;
+//   admissionWeight?: string;
+//   length_height_cm?: string | number;
+//   admissionHeight?: string;
+//   admission_date?: string;
+//   createdAt?: string;
+//   is_samar_registered?: boolean;
+//   isSamarRegistered?: boolean;
+//   samar_uuid?: string;
+//   samarUuid?: string;
+// }
+
+// export default function AntibioticsMicronutrientsPage() {
+//   const router = useRouter();
+//   const [children, setChildren] = useState<Child[]>([]);
+//   const [filteredChildren, setFilteredChildren] = useState<Child[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [searching, setSearching] = useState(false);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+//   const [viewType, setViewType] = useState<"all" | "normal" | "samar">("all");
+  
+//   const [filters, setFilters] = useState<SearchFilters>({
+//     fromDate: "",
+//     toDate: "",
+//     childName: "",
+//     samNumber: "",
+//     recordId: ""
+//   });
+
+//   // Fetch children data from the API
+//   useEffect(() => {
+//     const fetchChildren = async () => {
+//       setLoading(true);
+//       try {
+//         const sessionData = sessionStorage.getItem("mtc_user");
+//         let queryParams = "";
+        
+//         if (sessionData) {
+//           try {
+//             const user = JSON.parse(sessionData) as { mtcId?: string | number };
+//             if (user.mtcId) {
+//               queryParams = `?mtcId=${user.mtcId}`;
+//             }
+//           } catch {
+//             console.error("Session parse error");
+//           }
+//         }
+
+//         const response = await fetch(`/api/child-registration${queryParams}`);
+//         if (!response.ok) throw new Error('Failed to fetch patients');
+        
+//         const dbChildren = await response.json() as RawChildItem[];
+        
+//         const mappedChildren: Child[] = dbChildren.map((item) => ({
+//           id: item.registration_id?.toString() || item.id,
+//           recordNo: item.registration_id?.toString() || "N/A", 
+//           samNumber: item.sam_no || item.samNumber || "",
+//           childName: item.child_full_name || item.childName || "Unknown",
+//           parentName: item.guardian_name || item.parentName || "",
+//           dateOfBirth: item.dob || item.dateOfBirth || "",
+//           admissionWeight: item.admission_weight_kg?.toString() || item.admissionWeight || "",
+//           admissionHeight: item.length_height_cm?.toString() || item.admissionHeight || "",
+//           createdAt: item.admission_date || item.createdAt || new Date().toISOString(),
+//           isSamarRegistered: item.is_samar_registered === true || item.isSamarRegistered === true,
+//           samarUuid: item.samar_uuid || item.samarUuid || "",
+//         }));
+
+//         setChildren(mappedChildren);
+//         setFilteredChildren(mappedChildren);
+//       } catch (error) {
+//         console.error("Error loading children data:", error);
+//         toast.error("Failed to load patient records from the server");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchChildren();
+//   }, []);
+
+//   const handleFilterChange = (field: keyof SearchFilters, value: string) => {
+//     setFilters(prev => ({
+//       ...prev,
+//       [field]: value
+//     }));
+//   };
+
+//   const applyFilters = useCallback(() => {
+//     setSearching(true);
+    
+//     setTimeout(() => {
+//       let filtered = [...children];
+      
+//       if (viewType === "normal") {
+//         filtered = filtered.filter(child => !child.isSamarRegistered);
+//       } else if (viewType === "samar") {
+//         filtered = filtered.filter(child => child.isSamarRegistered);
+//       }
+      
+//       if (filters.childName) {
+//         filtered = filtered.filter(child => 
+//           (child.childName || "").toLowerCase().includes(filters.childName.toLowerCase())
+//         );
+//       }
+      
+//       if (filters.samNumber) {
+//         filtered = filtered.filter(child => 
+//           (child.samNumber || "").toLowerCase().includes(filters.samNumber.toLowerCase())
+//         );
+//       }
+      
+//       if (filters.recordId) {
+//         filtered = filtered.filter(child => 
+//           (child.recordNo || "").toLowerCase().includes(filters.recordId.toLowerCase())
+//         );
+//       }
+
+//       if (filters.fromDate) {
+//         const fromTime = new Date(filters.fromDate).getTime();
+//         filtered = filtered.filter(child => new Date(child.createdAt).getTime() >= fromTime);
+//       }
+
+//       if (filters.toDate) {
+//         const endOfDay = new Date(filters.toDate).setHours(23, 59, 59, 999);
+//         filtered = filtered.filter(child => new Date(child.createdAt).getTime() <= endOfDay);
+//       }
+      
+//       setFilteredChildren(filtered);
+//       setCurrentPage(1);
+//       setSearching(false);
+//     }, 300);
+//   }, [children, filters, viewType]);
+
+//   useEffect(() => {
+//     applyFilters();
+//   }, [viewType, applyFilters]);
+
+//   const resetFilters = () => {
+//     setFilters({
+//       fromDate: "",
+//       toDate: "",
+//       childName: "",
+//       samNumber: "",
+//       recordId: ""
+//     });
+//     setViewType("all");
+//     setFilteredChildren(children);
+//     setCurrentPage(1);
+//   };
+
+//   const handleEdit = (childId: string) => {
+//     router.push(`/mtc-user/dashboard/micronutrients/edit-micronutrients/${childId}`);
+//   };
+
+//   const countAll = children.length;
+//   const countNormal = children.filter(d => !d.isSamarRegistered).length;
+//   const countSamar = children.filter(d => d.isSamarRegistered).length;
+
+//   const indexOfLastItem = currentPage * itemsPerPage;
+//   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+//   const currentItems = filteredChildren.slice(indexOfFirstItem, indexOfLastItem);
+//   const totalPages = Math.ceil(filteredChildren.length / itemsPerPage);
+
+//   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+//   if (loading) {
+//     return (
+//       <div className="min-h-screen bg-slate-50 flex justify-center items-center font-sans p-4">
+//         <div className="text-center bg-white p-8 rounded-2xl border border-slate-200 shadow-sm max-w-sm w-full">
+//           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+//           <p className="mt-4 text-sm text-slate-600 font-medium">Loading patient records...</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-slate-50 py-4 sm:py-6 lg:py-8 px-3 sm:px-6 lg:px-8 font-sans text-slate-900">
+//       <Toaster position="top-right" />
+
+//       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+        
+//         {/* Header Responsive Layout */}
+//         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm">
+//           <div className="flex items-center gap-3">
+//             <div className="bg-blue-100 p-2.5 sm:p-3 rounded-xl border border-blue-200 shadow-sm shrink-0">
+//               <Activity className="h-5 w-5 sm:h-6 sm:w-6 text-blue-700" />
+//             </div>
+//             <div>
+//               <h1 className="text-lg sm:text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight">
+//                 Antibiotics & Micronutrients
+//               </h1>
+//               <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">Manage and update patient treatment records</p>
+//             </div>
+//           </div>
+//           <Button
+//             onClick={() => router.push("/mtc-user/dashboard/home")}
+//             variant="outline"
+//             className="w-full sm:w-auto h-10 border-slate-200 text-slate-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-all shadow-sm font-semibold text-xs sm:text-sm"
+//           >
+//             <Home className="mr-2 h-4 w-4" /> 
+//             Back to Home
+//           </Button>
+//         </div>
+
+//         {/* Search Filters */}
+//         <Card className="shadow-sm border border-slate-200 rounded-2xl overflow-hidden bg-white">
+//           <CardHeader className="bg-slate-50/70 border-b border-slate-100 py-3 px-4 sm:px-6">
+//             <h2 className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2 uppercase tracking-wider">
+//               <Search className="h-4 w-4 text-blue-600" /> 
+//               Search Filters
+//             </h2>
+//           </CardHeader>
+//           <CardContent className="p-4 sm:p-6">
+//             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4">
+              
+//               <div className="space-y-1">
+//                 <label className="block text-xs font-semibold text-slate-700">From Date</label>
+//                 <div className="relative">
+//                   <Input
+//                     type="date"
+//                     value={filters.fromDate}
+//                     onChange={(e) => handleFilterChange("fromDate", e.target.value)}
+//                     className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-xs sm:text-sm pr-9 h-10"
+//                   />
+//                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+//                     <Calendar className="h-4 w-4 text-slate-400" />
+//                   </div>
+//                 </div>
+//               </div>
+
+//               <div className="space-y-1">
+//                 <label className="block text-xs font-semibold text-slate-700">To Date</label>
+//                 <div className="relative">
+//                   <Input
+//                     type="date"
+//                     value={filters.toDate}
+//                     onChange={(e) => handleFilterChange("toDate", e.target.value)}
+//                     className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-xs sm:text-sm pr-9 h-10"
+//                   />
+//                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+//                     <Calendar className="h-4 w-4 text-slate-400" />
+//                   </div>
+//                 </div>
+//               </div>
+
+//               <div className="space-y-1">
+//                 <label className="block text-xs font-semibold text-slate-700">Child Name</label>
+//                 <Input
+//                   value={filters.childName}
+//                   onChange={(e) => handleFilterChange("childName", e.target.value)}
+//                   placeholder="e.g. Rahul Kumar"
+//                   className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-xs sm:text-sm h-10"
+//                 />
+//               </div>
+
+//               <div className="space-y-1">
+//                 <label className="block text-xs font-semibold text-slate-700">SAM Number</label>
+//                 <Input
+//                   value={filters.samNumber}
+//                   onChange={(e) => handleFilterChange("samNumber", e.target.value)}
+//                   placeholder="SAM-001"
+//                   className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-xs sm:text-sm h-10"
+//                 />
+//               </div>
+
+//               <div className="space-y-1">
+//                 <label className="block text-xs font-semibold text-slate-700">Record ID</label>
+//                 <Input
+//                   value={filters.recordId}
+//                   onChange={(e) => handleFilterChange("recordId", e.target.value)}
+//                   placeholder="REC-001"
+//                   className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-xs sm:text-sm h-10"
+//                 />
+//               </div>
+
+//               <div className="flex items-end gap-2 pt-1 xl:pt-0">
+//                 <Button
+//                   onClick={applyFilters}
+//                   disabled={searching}
+//                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all h-10 text-xs sm:text-sm font-semibold"
+//                 >
+//                   {searching ? (
+//                     <>
+//                       <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2"></div>
+//                       Searching...
+//                     </>
+//                   ) : (
+//                     <>
+//                       <Search className="mr-2 h-4 w-4" />
+//                       Search
+//                     </>
+//                   )}
+//                 </Button>
+//                 <Button
+//                   onClick={resetFilters}
+//                   variant="outline"
+//                   size="icon"
+//                   className="border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 shrink-0 h-10 w-10"
+//                   title="Reset Filters"
+//                 >
+//                   <RotateCcw className="h-4 w-4" />
+//                 </Button>
+//               </div>
+//             </div>
+//           </CardContent>
+//         </Card>
+
+//         {/* Category Tabs */}
+//         <div className="overflow-x-auto pb-1 -mx-3 px-3 sm:mx-0 sm:px-0">
+//           <div className="flex gap-2 items-center bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm min-w-max">
+//             <button
+//               onClick={() => setViewType("all")}
+//               className={`px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all ${
+//                 viewType === "all" ? "bg-slate-800 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
+//               }`}
+//             >
+//               All Patients <span className="ml-1 text-[10px] sm:text-xs opacity-80">({countAll})</span>
+//             </button>
+//             <button
+//               onClick={() => setViewType("normal")}
+//               className={`px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all ${
+//                 viewType === "normal" ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
+//               }`}
+//             >
+//               Normal Registration <span className="ml-1 text-[10px] sm:text-xs opacity-80">({countNormal})</span>
+//             </button>
+//             <button
+//               onClick={() => setViewType("samar")}
+//               className={`px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center gap-1.5 ${
+//                 viewType === "samar" ? "bg-purple-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
+//               }`}
+//             >
+//               <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+//               SAAMAR Tracker <span className="ml-0.5 text-[10px] sm:text-xs opacity-80">({countSamar})</span>
+//             </button>
+//           </div>
+//         </div>
+
+//         {/* Results Roster Section */}
+//         <div className="space-y-3 sm:space-y-4">
+//           <div className="flex items-center justify-between px-1">
+//             <h2 className="text-base sm:text-lg font-bold text-slate-800">
+//               Patient Roster
+//             </h2>
+//             <div className="text-xs sm:text-sm font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 shadow-xs">
+//               {filteredChildren.length} Records
+//             </div>
+//           </div>
+
+//           <Card className="shadow-sm border border-slate-200 rounded-2xl overflow-hidden bg-white">
+//             {filteredChildren.length === 0 ? (
+//               <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4 text-center">
+//                 <div className="bg-slate-50 p-4 rounded-full mb-3 border border-slate-100">
+//                   <Search className="h-6 w-6 sm:h-8 sm:w-8 text-slate-400" />
+//                 </div>
+//                 <h3 className="text-base sm:text-lg font-bold text-slate-800">No patients found</h3>
+//                 <p className="text-slate-500 mt-1 max-w-md mx-auto text-xs sm:text-sm">
+//                   We couldn&apos;t find any children matching your current search criteria.
+//                 </p>
+//                 <Button
+//                   onClick={resetFilters}
+//                   variant="outline"
+//                   className="mt-5 border-slate-200 text-blue-600 hover:bg-blue-50 hover:border-blue-200 text-xs sm:text-sm font-semibold"
+//                 >
+//                   Clear All Filters
+//                 </Button>
+//               </div>
+//             ) : (
+//               <>
+//                 {/* Responsive View: Desktop & Tablet Table (>= 768px) */}
+//                 <div className="hidden md:block overflow-x-auto">
+//                   <table className="min-w-full text-xs sm:text-sm text-slate-700 border-collapse">
+//                     <thead>
+//                       <tr className="bg-slate-50/80 border-b border-slate-200 uppercase tracking-wider text-[11px] font-bold text-slate-500">
+//                         <th className="py-3.5 px-4 text-left">Record No</th>
+//                         <th className="py-3.5 px-4 text-left">SAM Number</th>
+//                         <th className="py-3.5 px-4 text-left">Child Name</th>
+//                         <th className="py-3.5 px-4 text-left">Registration Type</th>
+//                         <th className="py-3.5 px-4 text-left">Parent Name</th>
+//                         <th className="py-3.5 px-4 text-left hidden lg:table-cell">DOB</th>
+//                         <th className="py-3.5 px-4 text-left">Adm. Wt (kg)</th>
+//                         <th className="py-3.5 px-4 text-center">Action</th>
+//                       </tr>
+//                     </thead>
+//                     <tbody className="divide-y divide-slate-100">
+//                       {currentItems.map((child) => (
+//                         <tr
+//                           key={child.id}
+//                           className="bg-white hover:bg-blue-50/40 transition-colors group"
+//                         >
+//                           <td className="py-3.5 px-4 font-medium text-slate-900">{child.recordNo}</td>
+//                           <td className="py-3.5 px-4">
+//                             <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-semibold border border-slate-200 group-hover:border-blue-200 group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors inline-block">
+//                               {child.samNumber || "—"}
+//                             </span>
+//                           </td>
+//                           <td className="py-3.5 px-4 font-bold text-slate-800">{child.childName}</td>
+//                           <td className="py-3.5 px-4">
+//                             {child.isSamarRegistered ? (
+//                               <div className="flex flex-col">
+//                                 <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase bg-purple-100 text-purple-700 w-max border border-purple-200">
+//                                   SAAMAR
+//                                 </span>
+//                                 <span className="text-[10px] text-slate-400 mt-0.5 font-mono truncate max-w-[120px]" title={child.samarUuid}>
+//                                   {child.samarUuid || "No UUID"}
+//                                 </span>
+//                               </div>
+//                             ) : (
+//                               <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider uppercase bg-slate-100 text-slate-600 w-max border border-slate-200">
+//                                 Normal
+//                               </span>
+//                             )}
+//                           </td>
+//                           <td className="py-3.5 px-4 text-slate-600">{child.parentName || "—"}</td>
+//                           <td className="py-3.5 px-4 text-slate-500 hidden lg:table-cell">{child.dateOfBirth || "—"}</td>
+//                           <td className="py-3.5 px-4 text-slate-600">{child.admissionWeight || "—"}</td>
+//                           <td className="py-3.5 px-4 text-center">
+//                             <Button
+//                               onClick={() => handleEdit(child.id)}
+//                               size="sm"
+//                               className="bg-red-600 hover:bg-red-700 text-white shadow-xs transition-all h-8 px-3 text-xs font-medium"
+//                             >
+//                               <Edit className="h-3.5 w-3.5 mr-1.5" /> Update
+//                             </Button>
+//                           </td>
+//                         </tr>
+//                       ))}
+//                     </tbody>
+//                   </table>
+//                 </div>
+
+//                 {/* Responsive Mobile Layout (< 768px): Card-based layout for small viewports */}
+//                 <div className="block md:hidden divide-y divide-slate-100">
+//                   {currentItems.map((child) => (
+//                     <div key={child.id} className="p-4 space-y-3 bg-white">
+//                       <div className="flex items-start justify-between gap-2">
+//                         <div>
+//                           <div className="flex items-center gap-2">
+//                             <h3 className="font-bold text-slate-900 text-base">{child.childName}</h3>
+//                             {child.isSamarRegistered ? (
+//                               <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase bg-purple-100 text-purple-700 border border-purple-200">
+//                                 SAAMAR
+//                               </span>
+//                             ) : (
+//                               <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase bg-slate-100 text-slate-600 border border-slate-200">
+//                                 Normal
+//                               </span>
+//                             )}
+//                           </div>
+//                           <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+//                             <User className="w-3 h-3 text-slate-400" />
+//                             Parent: <span className="font-medium text-slate-700">{child.parentName || "—"}</span>
+//                           </p>
+//                         </div>
+//                         <Button
+//                           onClick={() => handleEdit(child.id)}
+//                           size="sm"
+//                           className="bg-red-600 hover:bg-red-700 text-white shadow-xs transition-all h-8 px-3 text-xs font-semibold shrink-0"
+//                         >
+//                           <Edit className="h-3.5 w-3.5 mr-1" /> Update
+//                         </Button>
+//                       </div>
+
+//                       <div className="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs">
+//                         <div>
+//                           <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider flex items-center gap-1">
+//                             <Hash className="w-2.5 h-2.5" /> Record No
+//                           </span>
+//                           <span className="font-semibold text-slate-800">{child.recordNo}</span>
+//                         </div>
+//                         <div>
+//                           <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">
+//                             SAM Number
+//                           </span>
+//                           <span className="font-semibold text-slate-800">{child.samNumber || "—"}</span>
+//                         </div>
+//                         <div>
+//                           <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider flex items-center gap-1">
+//                             <Scale className="w-2.5 h-2.5" /> Adm. Weight
+//                           </span>
+//                           <span className="font-semibold text-slate-800">{child.admissionWeight ? `${child.admissionWeight} kg` : "—"}</span>
+//                         </div>
+//                         <div>
+//                           <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider flex items-center gap-1">
+//                             <Calendar className="w-2.5 h-2.5" /> DOB
+//                           </span>
+//                           <span className="font-semibold text-slate-800">{child.dateOfBirth || "—"}</span>
+//                         </div>
+//                       </div>
+//                     </div>
+//                   ))}
+//                 </div>
+
+//                 {/* Pagination Controls */}
+//                 <div className="bg-slate-50/70 border-t border-slate-200 p-3 sm:p-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+//                   <div className="text-xs sm:text-sm text-slate-500 font-medium text-center sm:text-left">
+//                     Showing <span className="text-slate-900 font-bold">{indexOfFirstItem + 1}</span> to <span className="text-slate-900 font-bold">{Math.min(indexOfLastItem, filteredChildren.length)}</span> of <span className="text-blue-600 font-bold">{filteredChildren.length}</span> entries
+//                   </div>
+                  
+//                   <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3">
+//                     <div className="flex items-center gap-1.5">
+//                       <span className="text-xs text-slate-500 font-medium">Show</span>
+//                       <select
+//                         value={itemsPerPage}
+//                         onChange={(e) => {
+//                           setItemsPerPage(Number(e.target.value));
+//                           setCurrentPage(1);
+//                         }}
+//                         className="text-xs border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-xs font-semibold cursor-pointer"
+//                       >
+//                         <option value={10}>10</option>
+//                         <option value={25}>25</option>
+//                         <option value={50}>50</option>
+//                         <option value={100}>100</option>
+//                       </select>
+//                     </div>
+
+//                     <div className="flex bg-white rounded-xl border border-slate-200 p-0.5 shadow-xs">
+//                       <Button
+//                         onClick={() => paginate(currentPage - 1)}
+//                         disabled={currentPage === 1}
+//                         variant="ghost"
+//                         size="icon"
+//                         className="h-8 w-8 text-slate-600 hover:text-blue-700 hover:bg-blue-50 disabled:opacity-40"
+//                       >
+//                         <ChevronLeft className="h-4 w-4" />
+//                       </Button>
+                      
+//                       {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+//                         let pageNum;
+//                         if (totalPages <= 5) {
+//                           pageNum = i + 1;
+//                         } else if (currentPage <= 3) {
+//                           pageNum = i + 1;
+//                         } else if (currentPage >= totalPages - 2) {
+//                           pageNum = totalPages - 4 + i;
+//                         } else {
+//                           pageNum = currentPage - 2 + i;
+//                         }
+                        
+//                         return (
+//                           <Button
+//                             key={pageNum}
+//                             onClick={() => paginate(pageNum)}
+//                             variant={currentPage === pageNum ? "default" : "ghost"}
+//                             className={`h-8 w-8 p-0 text-xs font-bold rounded-lg ${
+//                               currentPage === pageNum
+//                                 ? "bg-blue-600 text-white hover:bg-blue-700"
+//                                 : "text-slate-600 hover:bg-blue-50 hover:text-blue-700"
+//                             }`}
+//                           >
+//                             {pageNum}
+//                           </Button>
+//                         );
+//                       })}
+                      
+//                       <Button
+//                         onClick={() => paginate(currentPage + 1)}
+//                         disabled={currentPage === totalPages || totalPages === 0}
+//                         variant="ghost"
+//                         size="icon"
+//                         className="h-8 w-8 text-slate-600 hover:text-blue-700 hover:bg-blue-50 disabled:opacity-40"
+//                       >
+//                         <ChevronRight className="h-4 w-4" />
+//                       </Button>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </>
+//             )}
+//           </Card>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -2929,7 +3566,10 @@ import {
   CheckCircle2,
   User,
   Hash,
-  Scale
+  Scale,
+  Filter,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -2987,6 +3627,7 @@ export default function AntibioticsMicronutrientsPage() {
   const [searching, setSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(true);
   
   const [viewType, setViewType] = useState<"all" | "normal" | "samar">("all");
   
@@ -2997,6 +3638,9 @@ export default function AntibioticsMicronutrientsPage() {
     samNumber: "",
     recordId: ""
   });
+
+  // Calculate active filters count for the badge
+  const activeFiltersCount = Object.values(filters).filter(val => val !== "").length;
 
   // Fetch children data from the API
   useEffect(() => {
@@ -3174,107 +3818,134 @@ export default function AntibioticsMicronutrientsPage() {
           </Button>
         </div>
 
-        {/* Search Filters */}
-        <Card className="shadow-sm border border-slate-200 rounded-2xl overflow-hidden bg-white">
-          <CardHeader className="bg-slate-50/70 border-b border-slate-100 py-3 px-4 sm:px-6">
-            <h2 className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2 uppercase tracking-wider">
-              <Search className="h-4 w-4 text-blue-600" /> 
-              Search Filters
-            </h2>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4">
-              
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">From Date</label>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    value={filters.fromDate}
-                    onChange={(e) => handleFilterChange("fromDate", e.target.value)}
-                    className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-xs sm:text-sm pr-9 h-10"
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <Calendar className="h-4 w-4 text-slate-400" />
-                  </div>
-                </div>
+        {/* Redesigned Search Filters */}
+        <Card className="shadow-sm border border-slate-200 rounded-2xl overflow-hidden bg-white transition-all duration-200">
+          <CardHeader 
+            className="bg-slate-50/70 border-b border-slate-100 py-3 px-4 sm:px-6 cursor-pointer hover:bg-slate-100/50 transition-colors"
+            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-blue-600" /> 
+                <h2 className="text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wider">
+                  Search & Filter Records
+                </h2>
+                {activeFiltersCount > 0 && (
+                  <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full ml-2">
+                    {activeFiltersCount} Active
+                  </span>
+                )}
               </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">To Date</label>
-                <div className="relative">
-                  <Input
-                    type="date"
-                    value={filters.toDate}
-                    onChange={(e) => handleFilterChange("toDate", e.target.value)}
-                    className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-xs sm:text-sm pr-9 h-10"
-                  />
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <Calendar className="h-4 w-4 text-slate-400" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">Child Name</label>
-                <Input
-                  value={filters.childName}
-                  onChange={(e) => handleFilterChange("childName", e.target.value)}
-                  placeholder="e.g. Rahul Kumar"
-                  className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-xs sm:text-sm h-10"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">SAM Number</label>
-                <Input
-                  value={filters.samNumber}
-                  onChange={(e) => handleFilterChange("samNumber", e.target.value)}
-                  placeholder="SAM-001"
-                  className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-xs sm:text-sm h-10"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">Record ID</label>
-                <Input
-                  value={filters.recordId}
-                  onChange={(e) => handleFilterChange("recordId", e.target.value)}
-                  placeholder="REC-001"
-                  className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-xs sm:text-sm h-10"
-                />
-              </div>
-
-              <div className="flex items-end gap-2 pt-1 xl:pt-0">
-                <Button
-                  onClick={applyFilters}
-                  disabled={searching}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all h-10 text-xs sm:text-sm font-semibold"
-                >
-                  {searching ? (
-                    <>
-                      <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white mr-2"></div>
-                      Searching...
-                    </>
-                  ) : (
-                    <>
-                      <Search className="mr-2 h-4 w-4" />
-                      Search
-                    </>
-                  )}
-                </Button>
-                <Button
-                  onClick={resetFilters}
-                  variant="outline"
-                  size="icon"
-                  className="border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-700 shrink-0 h-10 w-10"
-                  title="Reset Filters"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </Button>
-              </div>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500">
+                {isFiltersOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
             </div>
-          </CardContent>
+          </CardHeader>
+          
+          {isFiltersOpen && (
+            <CardContent className="p-4 sm:p-6 bg-white space-y-5 animate-in slide-in-from-top-2 fade-in duration-200">
+              
+              {/* Top Row: Text Search Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5 text-slate-400" /> Child Name
+                  </label>
+                  <Input
+                    value={filters.childName}
+                    onChange={(e) => handleFilterChange("childName", e.target.value)}
+                    placeholder="e.g. Rahul Kumar"
+                    className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-sm h-10"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                    <Hash className="h-3.5 w-3.5 text-slate-400" /> SAM Number
+                  </label>
+                  <Input
+                    value={filters.samNumber}
+                    onChange={(e) => handleFilterChange("samNumber", e.target.value)}
+                    placeholder="SAM-001"
+                    className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-sm h-10"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                    <Activity className="h-3.5 w-3.5 text-slate-400" /> Record ID
+                  </label>
+                  <Input
+                    value={filters.recordId}
+                    onChange={(e) => handleFilterChange("recordId", e.target.value)}
+                    placeholder="REC-001"
+                    className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 focus-visible:border-blue-500 text-sm h-10"
+                  />
+                </div>
+              </div>
+
+              <hr className="border-slate-100" />
+
+              {/* Bottom Row: Date Range & Actions */}
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                
+                <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                  <div className="space-y-1.5 w-full sm:w-48">
+                    <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5 text-slate-400" /> From Date
+                    </label>
+                    <Input
+                      type="date"
+                      value={filters.fromDate}
+                      onChange={(e) => handleFilterChange("fromDate", e.target.value)}
+                      className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 text-sm h-10 w-full"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5 w-full sm:w-48">
+                    <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5 text-slate-400" /> To Date
+                    </label>
+                    <Input
+                      type="date"
+                      value={filters.toDate}
+                      onChange={(e) => handleFilterChange("toDate", e.target.value)}
+                      className="bg-slate-50 border-slate-200 focus-visible:ring-blue-500 text-sm h-10 w-full"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 w-full md:w-auto mt-2 md:mt-0">
+                  <Button
+                    onClick={resetFilters}
+                    variant="outline"
+                    className="flex-1 md:flex-none border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 h-10 font-semibold"
+                  >
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Reset
+                  </Button>
+                  <Button
+                    onClick={applyFilters}
+                    disabled={searching}
+                    className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all h-10 font-semibold md:min-w-[120px]"
+                  >
+                    {searching ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Searching...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="mr-2 h-4 w-4" />
+                        Search Records
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+              </div>
+            </CardContent>
+          )}
         </Card>
 
         {/* Category Tabs */}
