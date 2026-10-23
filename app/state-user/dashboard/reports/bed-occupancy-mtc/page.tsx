@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { Calendar, Search as SearchIcon, ChevronDown } from "lucide-react";
+import React, { useState } from "react";
+import { Calendar, Search as SearchIcon, Download, RefreshCw, AlertCircle } from "lucide-react";
 
 // Data Constants
 const YEARS = Array.from({ length: 26 }, (_, i) => (2001 + i).toString());
@@ -13,117 +13,121 @@ const MONTHS = [
   { id: "10", name: "October" }, { id: "11", name: "November" }, { id: "12", name: "December" },
 ];
 
-const DISTRICTS = [
-  { id: "1", name: "BOKARO" }, { id: "2", name: "CHATRA" }, { id: "16", name: "DEOGHAR" },
-  { id: "4", name: "DHANBAD" }, { id: "17", name: "DUMKA" }, { id: "22", name: "EAST SINGHBHUM" },
-  { id: "14", name: "GARHWA" }, { id: "3", name: "GIRIDIH" }, { id: "18", name: "GODDA" },
-  { id: "9", name: "GUMLA" }, { id: "6", name: "HAZARIBAGH" }, { id: "19", name: "JAMTARA" },
-  { id: "10", name: "KHUNTI" }, { id: "7", name: "KODERMA" }, { id: "15", name: "LATEHAR" },
-  { id: "11", name: "LOHARDAGA" }, { id: "20", name: "PAKUR" }, { id: "13", name: "PALAMU" },
-  { id: "5", name: "RAMGARH" }, { id: "8", name: "RANCHI" }, { id: "21", name: "SAHIBGANJ" },
-  { id: "23", name: "SERAIKELA" }, { id: "12", name: "SIMDEGA" }, { id: "24", name: "WEST SINGHBHUM" },
+const QUARTERS = [
+  { id: "Q1", name: "Quarter 1 (Jan - Mar)" },
+  { id: "Q2", name: "Quarter 2 (Apr - Jun)" },
+  { id: "Q3", name: "Quarter 3 (Jul - Sep)" },
+  { id: "Q4", name: "Quarter 4 (Oct - Dec)" },
 ];
 
-export default function BedOccupancyMtcReport() {
-  // Report Type State
-  const [reportType, setReportType] = useState<"Daily" | "Monthly">("Monthly");
+interface MTCReportRow {
+  id: string;
+  districtName?: string;
+  mtcName?: string;
+  totalAvailableBeds?: number;
+  bedsOccupied?: number;
+  occupancyRate?: number;
+}
 
-  // Form Field State
+export default function BedOccupancyMTCReport() {
+  // Filter States
+  const [reportType, setReportType] = useState<"Daily" | "Monthly" | "Quarterly">("Monthly");
+  const [district, setDistrict] = useState<string>("");
   const [fromDate, setFromDate] = useState<string>("2026-04-11");
-  const [year, setYear] = useState<string>("");
-  const [month, setMonth] = useState<string>("");
+  const [year, setYear] = useState<string>("2026");
+  const [month, setMonth] = useState<string>("4");
+  const [quarter, setQuarter] = useState<string>("Q2");
 
-  // District Selection State
-  const [selectedDistricts, setSelectedDistricts] = useState<string[]>([]);
-  const [isDistrictOpen, setIsDistrictOpen] = useState(false);
-  const [districtSearch, setDistrictSearch] = useState("");
+  // API Data & Loading States
+  const [reportData, setReportData] = useState<MTCReportRow[] | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [appliedPayload, setAppliedPayload] = useState<string>("");
 
-  // MTC Selection State
-  const [mtcOptions, setMtcOptions] = useState<{id: string, name: string}[]>([]);
-  const [selectedMtcs, setSelectedMtcs] = useState<string[]>([]);
-  const [isMtcOpen, setIsMtcOpen] = useState(false);
-  const [mtcSearch, setMtcSearch] = useState("");
+  const handleSearch = async () => {
+    setIsLoading(true);
+    setError(null);
 
-  // Refs for handling outside clicks
-  const districtRef = useRef<HTMLDivElement>(null);
-  const mtcRef = useRef<HTMLDivElement>(null);
+    let summaryText = "";
+    const params = new URLSearchParams();
 
-  // Handle outside clicks to close dropdowns
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (districtRef.current && !districtRef.current.contains(event.target as Node)) {
-        setIsDistrictOpen(false);
-      }
-      if (mtcRef.current && !mtcRef.current.contains(event.target as Node)) {
-        setIsMtcOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Mock dependent dropdown loading: when districts change, update MTC options
-  useEffect(() => {
-    if (selectedDistricts.length === 0) {
-      setMtcOptions([]);
-      setSelectedMtcs([]);
-      return;
+    if (district) {
+      params.append("district", district);
     }
-    // Simulate fetching MTCs based on selected districts
-    const mockMtcs = selectedDistricts.flatMap(dId => [
-      { id: `${dId}_1`, name: `MTC Center A (Dist ${dId})` },
-      { id: `${dId}_2`, name: `MTC Center B (Dist ${dId})` }
-    ]);
-    setMtcOptions(mockMtcs);
-    // Remove selected MTCs that are no longer in the options list
-    setSelectedMtcs(prev => prev.filter(mId => mockMtcs.some(m => m.id === mId)));
-  }, [selectedDistricts]);
 
-  // Filtered lists based on search
-  const filteredDistricts = DISTRICTS.filter(d => d.name.toLowerCase().includes(districtSearch.toLowerCase()));
-  const filteredMtcs = mtcOptions.filter(m => m.name.toLowerCase().includes(mtcSearch.toLowerCase()));
+    if (reportType === "Daily") {
+      params.append("type", "Daily");
+      params.append("fromDate", fromDate);
+      summaryText = `Daily Report for ${fromDate}`;
+    } else if (reportType === "Monthly") {
+      const monthObj = MONTHS.find((m) => m.id === month);
+      params.append("type", "Monthly");
+      if (year) params.append("year", year);
+      if (month) params.append("month", month);
+      summaryText = `Monthly Report for ${monthObj ? monthObj.name : "All Months"} ${year}`;
+    } else {
+      const qtrObj = QUARTERS.find((q) => q.id === quarter);
+      params.append("type", "Quarterly");
+      if (year) params.append("year", year);
+      if (quarter) params.append("quarter", quarter);
+      summaryText = `Quarterly Report for ${qtrObj ? qtrObj.name : quarter} ${year}`;
+    }
 
-  // Dropdown Toggles
-  const toggleDistrict = (id: string) => {
-    setSelectedDistricts(prev => prev.includes(id) ? prev.filter(dId => dId !== id) : [...prev, id]);
+    if (district) {
+      summaryText += ` (${district} District)`;
+    }
+
+    try {
+      const res = await fetch(`/api/mtc-state-report/bed-occupancy-mtc?${params.toString()}`);
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || json.details || `Failed to fetch data (Status ${res.status})`);
+      }
+
+      setReportData(json.data || []);
+      setAppliedPayload(summaryText);
+    } catch (err: any) {
+      console.error("Fetch Error:", err);
+      setError(err.message || "An error occurred while loading the MTC report.");
+      setReportData(null);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const toggleAllDistricts = () => {
-    if (selectedDistricts.length === DISTRICTS.length) setSelectedDistricts([]);
-    else setSelectedDistricts(DISTRICTS.map(d => d.id));
+  const handleExportCSV = () => {
+    if (!reportData || reportData.length === 0) return;
+
+    const headers = ["#,District Name,MTC Name,Total Available Beds,Beds Occupied,Bed Occupancy Rate (%)"];
+    const rows = reportData.map((row, index) => {
+      const available = Number(row.totalAvailableBeds) || 0;
+      const occupied = Number(row.bedsOccupied) || 0;
+      const rate = Number(row.occupancyRate) || 0;
+      return `${index + 1},"${row.districtName || "-"}","${row.mtcName || "- "}",${available},${occupied},${rate.toFixed(2)}%`;
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `MTC_Bed_Occupancy_${reportType}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const toggleMtc = (id: string) => {
-    setSelectedMtcs(prev => prev.includes(id) ? prev.filter(mId => mId !== id) : [...prev, id]);
-  };
-
-  const toggleAllMtcs = () => {
-    if (selectedMtcs.length === mtcOptions.length) setSelectedMtcs([]);
-    else setSelectedMtcs(mtcOptions.map(m => m.id));
-  };
-
-  // Helper to get button text
-  const getButtonText = (selectedCount: number, totalCount: number) => {
-    if (selectedCount === 0) return "None selected";
-    if (selectedCount === totalCount && totalCount > 0) return `All selected (${totalCount})`;
-    return `${selectedCount} selected`;
-  };
-
-  const handleSearch = () => {
-    const payload = reportType === "Daily" 
-      ? { type: "Daily", date: fromDate, districts: selectedDistricts, mtcs: selectedMtcs }
-      : { type: "Monthly", year, month, districts: selectedDistricts, mtcs: selectedMtcs };
-      
-    console.log("Generating Bed Occupancy Report By MTC for:", payload);
-  };
+  // Safe State Totals Calculation
+  const totalAvailableBeds = reportData?.reduce((acc, row) => acc + (Number(row.totalAvailableBeds) || 0), 0) || 0;
+  const totalOccupiedBeds = reportData?.reduce((acc, row) => acc + (Number(row.bedsOccupied) || 0), 0) || 0;
+  const avgOccupancyRate = totalAvailableBeds > 0 ? ((totalOccupiedBeds / totalAvailableBeds) * 100).toFixed(2) : "0.00";
 
   return (
     <div className="w-full mt-8 relative">
-      {/* Outer Card with Shadow */}
       <div className="bg-white rounded-xl shadow-md border border-gray-200">
         
         {/* Card Header */}
-        <div className="bg-gray-50 border-b border-gray-200 px-6 py-4 rounded-t-xl">
+        <div className="bg-gray-50 border-b border-gray-200 px-6 py-4 rounded-t-xl flex justify-between items-center">
           <h5 className="text-[1.25rem] font-medium m-0" style={{ color: "#0B918C" }}>
             Bed Occupancy Report By MTC
           </h5>
@@ -132,7 +136,7 @@ export default function BedOccupancyMtcReport() {
         {/* Card Body */}
         <div className="p-4 md:p-6 text-sm">
           
-          {/* Radio Buttons for Report Type */}
+          {/* Report Type Selector */}
           <div className="flex items-center gap-6 mb-6 px-1">
             <label className="flex items-center gap-2 cursor-pointer group">
               <input 
@@ -157,14 +161,25 @@ export default function BedOccupancyMtcReport() {
               />
               <span className="text-gray-700 font-medium group-hover:text-gray-900 transition-colors">Monthly</span>
             </label>
+
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input 
+                type="radio" 
+                name="reportType" 
+                value="Quarterly"
+                checked={reportType === "Quarterly"}
+                onChange={() => setReportType("Quarterly")}
+                className="w-4 h-4 text-[#0B918C] border-gray-300 focus:ring-[#0B918C] cursor-pointer"
+              />
+              <span className="text-gray-700 font-medium group-hover:text-gray-900 transition-colors">Quarterly</span>
+            </label>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
             
-            {/* Conditional Rendering based on Report Type */}
-            {reportType === "Daily" ? (
-              // Daily View: Shows Date input
-              <div className="lg:col-span-2 flex flex-col gap-1 animate-in fade-in zoom-in duration-200">
+            {/* Daily View */}
+            {reportType === "Daily" && (
+              <div className="lg:col-span-2 flex flex-col gap-1">
                 <label htmlFor="txt_FromDate" className="font-medium text-gray-700">Date</label>
                 <div className="relative">
                   <input
@@ -172,17 +187,19 @@ export default function BedOccupancyMtcReport() {
                     type="date"
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
-                    className="w-full pl-3 pr-10 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0B918C] focus:border-[#0B918C] h-[38px]"
+                    className="w-full pl-3 pr-10 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0B918C] h-[38px]"
                   />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
                     <Calendar size={16} />
                   </div>
                 </div>
               </div>
-            ) : (
-              // Monthly View: Shows Year and Month selects
+            )}
+
+            {/* Monthly View */}
+            {reportType === "Monthly" && (
               <>
-                <div className="lg:col-span-2 flex flex-col gap-1 animate-in fade-in zoom-in duration-200">
+                <div className="lg:col-span-2 flex flex-col gap-1">
                   <label htmlFor="dd_Year" className="font-medium text-gray-700">Year</label>
                   <select
                     id="dd_Year"
@@ -197,7 +214,7 @@ export default function BedOccupancyMtcReport() {
                   </select>
                 </div>
 
-                <div className="lg:col-span-2 flex flex-col gap-1 animate-in fade-in zoom-in duration-200">
+                <div className="lg:col-span-2 flex flex-col gap-1">
                   <label htmlFor="dd_Month" className="font-medium text-gray-700">Month</label>
                   <select
                     id="dd_Month"
@@ -214,135 +231,164 @@ export default function BedOccupancyMtcReport() {
               </>
             )}
 
-            {/* District Multi-select (lg:col-span-3) */}
-            <div className="lg:col-span-3 relative" ref={districtRef}>
-              <label className="block font-medium text-gray-700 mb-1">District</label>
-              <button
-                type="button"
-                onClick={() => setIsDistrictOpen(!isDistrictOpen)}
-                className="w-full bg-white border border-gray-300 rounded-md py-1.5 px-3 text-left focus:outline-none focus:ring-2 focus:ring-[#0B918C] h-[38px] flex items-center justify-between transition-shadow"
-              >
-                <span className="truncate text-gray-700">
-                  {getButtonText(selectedDistricts.length, DISTRICTS.length)}
-                </span>
-                <ChevronDown size={16} className={`ml-2 
-                    
-                     text-gray-400 transition-transform ${isDistrictOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {isDistrictOpen && (
-                <div className="absolute z-10 mt-1 w-full sm:w-64 bg-white border border-gray-200 rounded-md shadow-lg flex flex-col">
-                  <div className="p-2 border-b border-gray-100 relative bg-gray-50 rounded-t-md">
-                    <SearchIcon size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="search"
-                      className="w-full pl-8 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#0B918C]"
-                      placeholder="Search District..."
-                      value={districtSearch}
-                      onChange={(e) => setDistrictSearch(e.target.value)}
-                    />
-                  </div>
-                  <div className="max-h-60 overflow-y-auto p-1 custom-scrollbar">
-                    {!districtSearch && (
-                      <label className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition-colors font-semibold border-b border-gray-100 mb-1">
-                        <input
-                          type="checkbox"
-                          checked={selectedDistricts.length === DISTRICTS.length && DISTRICTS.length > 0}
-                          onChange={toggleAllDistricts}
-                          className="w-4 h-4 rounded border-gray-300 text-[#0B918C] focus:ring-[#0B918C] cursor-pointer"
-                        />
-                        <span className="text-gray-900 select-none">Select all</span>
-                      </label>
-                    )}
-                    {filteredDistricts.map((district) => (
-                      <label key={district.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={selectedDistricts.includes(district.id)}
-                          onChange={() => toggleDistrict(district.id)}
-                          className="w-4 h-4 rounded border-gray-300 text-[#0B918C] focus:ring-[#0B918C] cursor-pointer"
-                        />
-                        <span className="text-gray-700 select-none">{district.name}</span>
-                      </label>
+            {/* Quarterly View */}
+            {reportType === "Quarterly" && (
+              <>
+                <div className="lg:col-span-2 flex flex-col gap-1">
+                  <label htmlFor="dd_Year_Qtr" className="font-medium text-gray-700">Year</label>
+                  <select
+                    id="dd_Year_Qtr"
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    className="w-full bg-white border border-gray-300 rounded-md py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#0B918C] h-[38px]"
+                  >
+                    <option value="">Select Year</option>
+                    {YEARS.map((yr) => (
+                      <option key={yr} value={yr}>{yr}</option>
                     ))}
-                  </div>
+                  </select>
                 </div>
-              )}
-            </div>
 
-            {/* MTC Multi-select (lg:col-span-3) */}
-            <div className="lg:col-span-3 relative" ref={mtcRef}>
-              <label className="block font-medium text-gray-700 mb-1">MTC</label>
-              <button
-                type="button"
-                disabled={mtcOptions.length === 0}
-                onClick={() => setIsMtcOpen(!isMtcOpen)}
-                className="w-full bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed border border-gray-300 rounded-md py-1.5 px-3 text-left focus:outline-none focus:ring-2 focus:ring-[#0B918C] h-[38px] flex items-center justify-between transition-shadow"
-              >
-                <span className="truncate text-gray-700">
-                  {getButtonText(selectedMtcs.length, mtcOptions.length)}
-                </span>
-                <ChevronDown size={16} className={`ml-2 flex-shrink-0 transition-transform ${isMtcOpen ? 'rotate-180' : ''} ${mtcOptions.length === 0 ? 'text-gray-300' : 'text-gray-400'}`} />
-              </button>
-
-              {isMtcOpen && mtcOptions.length > 0 && (
-                <div className="absolute z-10 mt-1 w-full sm:w-64 bg-white border border-gray-200 rounded-md shadow-lg flex flex-col right-0">
-                  <div className="p-2 border-b border-gray-100 relative bg-gray-50 rounded-t-md">
-                    <SearchIcon size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input
-                      type="search"
-                      className="w-full pl-8 pr-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#0B918C]"
-                      placeholder="Search MTC..."
-                      value={mtcSearch}
-                      onChange={(e) => setMtcSearch(e.target.value)}
-                    />
-                  </div>
-                  <div className="max-h-60 overflow-y-auto p-1 custom-scrollbar">
-                    {!mtcSearch && (
-                      <label className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition-colors font-semibold border-b border-gray-100 mb-1">
-                        <input
-                          type="checkbox"
-                          checked={selectedMtcs.length === mtcOptions.length && mtcOptions.length > 0}
-                          onChange={toggleAllMtcs}
-                          className="w-4 h-4 rounded border-gray-300 text-[#0B918C] focus:ring-[#0B918C] cursor-pointer"
-                        />
-                        <span className="text-gray-900 select-none">Select all</span>
-                      </label>
-                    )}
-                    {filteredMtcs.map((mtc) => (
-                      <label key={mtc.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={selectedMtcs.includes(mtc.id)}
-                          onChange={() => toggleMtc(mtc.id)}
-                          className="w-4 h-4 rounded border-gray-300 text-[#0B918C] focus:ring-[#0B918C] cursor-pointer"
-                        />
-                        <span className="text-gray-700 select-none">{mtc.name}</span>
-                      </label>
+                <div className="lg:col-span-2 flex flex-col gap-1">
+                  <label htmlFor="dd_Quarter" className="font-medium text-gray-700">Quarter</label>
+                  <select
+                    id="dd_Quarter"
+                    value={quarter}
+                    onChange={(e) => setQuarter(e.target.value)}
+                    className="w-full bg-white border border-gray-300 rounded-md py-1.5 px-3 focus:outline-none focus:ring-2 focus:ring-[#0B918C] h-[38px]"
+                  >
+                    <option value="">Select Quarter</option>
+                    {QUARTERS.map((q) => (
+                      <option key={q.id} value={q.id}>{q.name}</option>
                     ))}
-                  </div>
+                  </select>
                 </div>
-              )}
-            </div>
+              </>
+            )}
 
-            {/* Search Button (lg:col-span-2) */}
-            <div className="lg:col-span-2 lg:pt-0 pt-2">
+            {/* Search Button */}
+            <div className="lg:col-span-2 lg:pt-0 pt-2 flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleSearch}
-                className="w-full lg:w-auto h-[38px] inline-flex justify-center items-center gap-2 px-6 py-2 border border-[#0B918C] text-sm font-medium rounded-md text-[#0B918C] bg-white hover:bg-emerald-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#0B918C]"
+                disabled={isLoading}
+                className="w-full lg:w-auto h-[38px] inline-flex justify-center items-center gap-2 px-6 py-2 border border-[#0B918C] text-sm font-medium rounded-md text-[#0B918C] bg-white hover:bg-teal-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#0B918C] disabled:opacity-50"
               >
-                <SearchIcon size={16} />
+                {isLoading ? (
+                  <RefreshCw size={16} className="animate-spin" />
+                ) : (
+                  <SearchIcon size={16} />
+                )}
                 Search
               </button>
             </div>
 
           </div>
 
-          {/* Report Output Section */}
-          <div className="mt-8 flex justify-center border-t border-gray-100 pt-6">
-            <div id="div_Report" className="w-full text-center text-gray-500 pt-2">
-              {/* The table or data result will be rendered here */}
+          {/* Output Display */}
+          <div className="mt-8 border-t border-gray-200 pt-6">
+            <div id="div_Report" className="w-full">
+              
+              {!reportData && !isLoading && !error && (
+                <p className="text-center text-gray-500 py-6">
+                  Select report filters and click <strong>Search</strong> to generate the MTC-level bed occupancy report.
+                </p>
+              )}
+
+              {isLoading && (
+                <div className="text-center py-8 text-[#0B918C] flex flex-col items-center gap-2">
+                  <RefreshCw size={24} className="animate-spin" />
+                  <span>Loading report data...</span>
+                </div>
+              )}
+
+              {error && (
+                <div className="p-4 rounded-md bg-red-50 border border-red-200 text-red-700 flex items-center gap-3">
+                  <AlertCircle size={20} className="shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              {reportData && !isLoading && !error && (
+                <div className="space-y-4">
+                  
+                  {/* Action Bar */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-teal-50/60 p-3 rounded-lg border border-teal-100">
+                    <div>
+                      <span className="font-semibold text-gray-800">Showing Results: </span>
+                      <span className="text-[#0B918C] font-medium">{appliedPayload}</span>
+                    </div>
+                    <button 
+                      onClick={handleExportCSV}
+                      className="inline-flex items-center gap-1.5 text-xs text-[#0B918C] border border-[#0B918C] bg-white px-3 py-1.5 rounded hover:bg-teal-50 transition-colors font-medium"
+                    >
+                      <Download size={14} />
+                      Export Report
+                    </button>
+                  </div>
+
+                  {/* MTC Level Data Table */}
+                  <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-gray-100 text-gray-700 text-xs uppercase font-semibold border-b border-gray-200">
+                          <th className="py-3 px-4 w-12">#</th>
+                          <th className="py-3 px-4">District Name</th>
+                          <th className="py-3 px-4">MTC Name</th>
+                          <th className="py-3 px-4 text-right">Total Available Beds</th>
+                          <th className="py-3 px-4 text-right">Beds Occupied</th>
+                          <th className="py-3 px-4 text-right">Bed Occupancy Rate (%)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 text-gray-700">
+                        {reportData.length === 0 ? (
+                          <tr>
+                            <td colSpan={6} className="text-center py-6 text-gray-500">
+                              No records found for the selected filter.
+                            </td>
+                          </tr>
+                        ) : (
+                          reportData.map((row, index) => {
+                            const available = Number(row.totalAvailableBeds) || 0;
+                            const occupied = Number(row.bedsOccupied) || 0;
+                            const rate = Number(row.occupancyRate) || 0;
+
+                            return (
+                              <tr key={row.id || index} className="hover:bg-gray-50 transition-colors">
+                                <td className="py-3 px-4 font-medium text-gray-400">{index + 1}</td>
+                                <td className="py-3 px-4 text-gray-600">{row.districtName || "-"}</td>
+                                <td className="py-3 px-4 font-semibold text-gray-900">{row.mtcName || "-"}</td>
+                                <td className="py-3 px-4 text-right font-medium">{available.toLocaleString()}</td>
+                                <td className="py-3 px-4 text-right font-medium">{occupied.toLocaleString()}</td>
+                                <td className="py-3 px-4 text-right font-semibold">
+                                  <span className={`inline-block px-2.5 py-0.5 rounded text-xs ${
+                                    rate > 75 
+                                      ? "bg-amber-100 text-amber-800" 
+                                      : "bg-emerald-100 text-emerald-800"
+                                  }`}>
+                                    {rate.toFixed(2)}%
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                      {reportData.length > 0 && (
+                        <tfoot>
+                          <tr className="bg-gray-100 font-bold text-gray-800 border-t-2 border-gray-300">
+                            <td className="py-3 px-4" colSpan={3}>Total</td>
+                            <td className="py-3 px-4 text-right">{totalAvailableBeds.toLocaleString()}</td>
+                            <td className="py-3 px-4 text-right">{totalOccupiedBeds.toLocaleString()}</td>
+                            <td className="py-3 px-4 text-right text-[#0B918C]">{avgOccupancyRate}%</td>
+                          </tr>
+                        </tfoot>
+                      )}
+                    </table>
+                  </div>
+
+                </div>
+              )}
             </div>
           </div>
           

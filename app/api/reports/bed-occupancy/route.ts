@@ -137,6 +137,8 @@
 //   }
 // }
 
+
+// app\api\reports\bed-occupancy
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 

@@ -77,6 +77,7 @@
 //     return NextResponse.json({ success: false, error: 'Database update failed' }, { status: 500 });
 //   }
 // }
+
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 

@@ -3,6 +3,7 @@
 @import "@heroui/styles";
 @import "shadcn/tailwind.css";
 
+
 @custom-variant8 dark (&:is(.dark *));  
 
 @theme inline {
@@ -127,5 +128,46 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 20px 50px rgba(37, 99, 235, 0.12), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.ambient-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.captcha-bg {
+  background-color: #f8fafc;
+  background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px), radial-gradient(#cbd5e1 1.2px, #f8fafc 1.2px);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+}
+
+.ecg-line {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: dash 3s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
   }
 }

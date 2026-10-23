@@ -2264,7 +2264,7 @@ function Hero() {
                 <Activity className="w-6 h-6 text-white" />
               </div>
               <div className="pr-2">
-                <p className="text-2xl font-black text-sky-900 leading-none">90+</p>
+                <p className="text-2xl font-black text-sky-900 leading-none">100+</p>
                 <p className="text-xs text-sky-600 font-semibold uppercase mt-1">Active Centers</p>
               </div>
             </motion.div>
