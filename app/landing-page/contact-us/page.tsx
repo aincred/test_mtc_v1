@@ -700,7 +700,7 @@ export default function ContactPage() {
                   <div>
                     <p className="text-xs text-sky-500 uppercase tracking-widest font-bold mb-1">Email Us</p>
                     <a href="mailto:chjharkand2@gmail.com" className="text-sky-900 hover:text-blue-600 transition-colors font-semibold break-all">
-                      chjharkand2@gmail.com
+                      chjharkand2(at)gmail(dot)com
                     </a>
                   </div>
                 </div>
