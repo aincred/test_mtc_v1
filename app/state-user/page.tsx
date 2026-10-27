@@ -310,6 +310,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useEndSessionOnLoginPage } from "@/app/_components/session";
 import {
   User,
   Lock,
@@ -332,6 +333,7 @@ import {
 
 export default function StateUserLogin() {
   const router = useRouter();
+  useEndSessionOnLoginPage("state"); // returning to the main page kills the session
 
   // Form States
   const [username, setUsername] = useState("");

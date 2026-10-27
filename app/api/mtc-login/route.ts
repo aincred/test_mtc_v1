@@ -45,7 +45,8 @@
 // }
 
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db'; 
+import { query } from '@/lib/db';
+import { createSession, cookieName, cookieOptions } from '@/lib/session'; 
 
 export async function POST(request: Request) {
   try {
@@ -77,7 +78,8 @@ export async function POST(request: Request) {
 
     const user = result.rows[0];
 
-    return NextResponse.json({ 
+    const sid = await createSession('mtc', user.user_id);
+    const res = NextResponse.json({ 
       success: true, 
       message: 'Login successful',
       user: {
@@ -89,6 +91,8 @@ export async function POST(request: Request) {
         mtcCode: user.mtc_code  
       }
     }, { status: 200 });
+    res.cookies.set(cookieName('mtc'), sid, cookieOptions);
+    return res;
 
   } catch (error) {
     console.error('Login Route Server Error:', error);

@@ -239,6 +239,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { endSession } from "@/app/_components/session";
 import {
   Home,
   Settings,
@@ -317,8 +318,8 @@ export default function AdminSideNav({ setSidebarOpen }: SideNavProps) {
     if (pathname.includes("/sms")) setOpenMenus((p) => ({ ...p, sms: true }));
   }, [pathname]);
 
-  const handleLogout = () => {
-    localStorage.clear();
+  const handleLogout = async () => {
+    await endSession("admin"); // kills the server session + cookie
     router.push("/");
   };
 

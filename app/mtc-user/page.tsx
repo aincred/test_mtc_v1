@@ -457,6 +457,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useEndSessionOnLoginPage } from "@/app/_components/session";
 import toast, { Toaster } from "react-hot-toast";
 import {
   Hospital,
@@ -479,6 +480,7 @@ import {
 
 export default function MtcUserLogin() {
   const router = useRouter();
+  useEndSessionOnLoginPage("mtc"); // returning to the main page kills the session
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

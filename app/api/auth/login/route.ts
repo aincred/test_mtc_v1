@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { createSession, cookieName, cookieOptions } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +41,9 @@ export async function POST(request: Request) {
     };
 
     // 5. Return Admin Session Payload
-    return NextResponse.json(
+    // One session per account: this replaces any previous login.
+    const sid = await createSession('admin', user.id);
+    const res = NextResponse.json(
       {
         success: true,
         user: {
@@ -51,6 +54,8 @@ export async function POST(request: Request) {
       },
       { status: 200 }
     );
+    res.cookies.set(cookieName('admin'), sid, cookieOptions);
+    return res;
   } catch (error) {
     console.error('Admin Login Error:', error);
     return NextResponse.json(

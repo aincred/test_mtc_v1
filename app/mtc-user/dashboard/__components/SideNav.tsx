@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { endSession } from "@/app/_components/session";
 import {
   Home, Users, Settings, X, LogOut, User, FileText, Scale, Pill,
   FileCheck, ClipboardList, Wrench, BedDouble, BookOpen, Mail, HeartPulse, Banknote
@@ -58,10 +59,8 @@ export default function SideNav({ setSidebarOpen }: SideNavProps) {
     }
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    sessionStorage.removeItem("userSession");
-    sessionStorage.removeItem("mtc_user");
+  const handleLogout = async () => {
+    await endSession("mtc"); // kills the server session + cookie
     router.push("/");
   };
 

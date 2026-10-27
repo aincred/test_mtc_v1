@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SessionGuard } from "@/app/_components/session";
 import SideNav from "@/app/state-user/__components/SideNav";
 import Header from "@/app/state-user/__components/Header";
 
@@ -8,6 +9,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
+    <SessionGuard role="state">
     <div className="h-screen flex overflow-hidden bg-gray-100">
       {/* Mobile overlay */}
       {sidebarOpen && (
@@ -44,5 +46,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
       </div>
     </div>
+    </SessionGuard>
   );
 }

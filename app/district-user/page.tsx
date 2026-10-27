@@ -243,6 +243,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useEndSessionOnLoginPage } from "@/app/_components/session";
 import toast, { Toaster } from "react-hot-toast";
 import {
   Building2,
@@ -265,6 +266,7 @@ import {
 
 export default function DistrictUserLogin() {
   const router = useRouter();
+  useEndSessionOnLoginPage("district"); // returning to the main page kills the session
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

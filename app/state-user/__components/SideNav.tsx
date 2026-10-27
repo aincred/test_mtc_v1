@@ -352,6 +352,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { endSession } from "@/app/_components/session";
 import {
   Home,
   Settings,
@@ -501,9 +502,8 @@ export default function SideNav({ setSidebarOpen }: SideNavProps) {
     }
   }, [pathname]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    sessionStorage.removeItem("userSession");
+  const handleLogout = async () => {
+    await endSession("state"); // kills the server session + cookie
     router.push("/");
   };
 

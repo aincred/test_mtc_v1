@@ -476,6 +476,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEndSessionOnLoginPage } from "@/app/_components/session";
 import {
   ShieldCheck,
   User,
@@ -497,6 +498,7 @@ import {
 
 export default function MTCPage() {
   const router = useRouter();
+  useEndSessionOnLoginPage("admin"); // returning to the main page kills the session
 
   // State management (initialized with empty strings to remove automatic fill)
   const [username, setUsername] = useState('');

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { createSession, cookieName, cookieOptions } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,7 +42,8 @@ export async function POST(request: Request) {
     };
 
     // 5. Return Session Payload
-    return NextResponse.json({
+    const sid = await createSession('district', user.id);
+    const res = NextResponse.json({
       success: true,
       user: {
         districtId: user.id.toString(),
@@ -50,6 +52,8 @@ export async function POST(request: Request) {
         role: 'district_admin'
       }
     }, { status: 200 });
+    res.cookies.set(cookieName('district'), sid, cookieOptions);
+    return res;
 
   } catch (error) {
     console.error('District Login Error:', error);

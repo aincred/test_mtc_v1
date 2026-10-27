@@ -44,6 +44,7 @@
 
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { createSession, cookieName, cookieOptions } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,10 +59,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { username, password } = body;
 
-    console.log("--> [LOGIN ATTEMPT]:", { 
-      receivedUser: username, 
-      receivedPass: password 
-    });
+    console.log("--> [LOGIN ATTEMPT]:", { receivedUser: username });
 
     if (!username || !password) {
       return NextResponse.json(
@@ -95,7 +93,6 @@ export async function POST(request: Request) {
 
     console.log("--> [DB MATCH]:", {
       dbUser: user.username,
-      dbPass: user.password,
       passwordsMatch: String(user.password).trim() === cleanPassword
     });
 
@@ -107,7 +104,8 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({
+    const sid = await createSession('state', user.id);
+    const res = NextResponse.json({
       success: true,
       message: 'Login successful',
       user: {
@@ -115,6 +113,8 @@ export async function POST(request: Request) {
         username: user.username,
       }
     });
+    res.cookies.set(cookieName('state'), sid, cookieOptions);
+    return res;
 
   } catch (error: any) {
     console.error('State User Login Route Server Error:', error);
