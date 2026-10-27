@@ -88,3 +88,15 @@ export function SessionGuard({ role, children }: { role: SessionRole; children: 
 
   return <>{children}</>;
 }
+
+/**
+ * Spread onto the username / password inputs of a login page so their contents
+ * cannot be copied or cut (keyboard, context menu, or drag-out).
+ * Paste is left enabled so password managers keep working.
+ */
+export const noCopyProps = {
+  onCopy: (e: React.ClipboardEvent) => e.preventDefault(),
+  onCut: (e: React.ClipboardEvent) => e.preventDefault(),
+  onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
+  onDragStart: (e: React.DragEvent) => e.preventDefault(),
+};

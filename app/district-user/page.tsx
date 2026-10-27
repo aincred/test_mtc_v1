@@ -243,7 +243,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useEndSessionOnLoginPage } from "@/app/_components/session";
+import { useEndSessionOnLoginPage, noCopyProps } from "@/app/_components/session";
 import toast, { Toaster } from "react-hot-toast";
 import {
   Building2,
@@ -632,6 +632,7 @@ export default function DistrictUserLogin() {
                       <User className="w-4 h-4" />
                     </div>
                     <input
+                      {...noCopyProps}
                       type="text"
                       required
                       placeholder="District User ID"
@@ -653,6 +654,7 @@ export default function DistrictUserLogin() {
                       <Lock className="w-4 h-4" />
                     </div>
                     <input
+                      {...noCopyProps}
                       type={showPassword ? "text" : "password"}
                       required
                       placeholder="Enter Password"

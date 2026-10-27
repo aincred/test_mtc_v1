@@ -476,7 +476,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEndSessionOnLoginPage } from "@/app/_components/session";
+import { useEndSessionOnLoginPage, noCopyProps } from "@/app/_components/session";
 import {
   ShieldCheck,
   User,
@@ -841,6 +841,7 @@ export default function MTCPage() {
                       <User className="w-4 h-4" />
                     </div>
                     <input
+                      {...noCopyProps}
                       type="text"
                       name="username"
                       autoComplete="off"
@@ -860,6 +861,7 @@ export default function MTCPage() {
                       <Lock className="w-4 h-4" />
                     </div>
                     <input
+                      {...noCopyProps}
                       type={showPassword ? 'text' : 'password'}
                       name="password"
                       autoComplete="new-password"

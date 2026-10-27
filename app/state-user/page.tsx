@@ -310,7 +310,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useEndSessionOnLoginPage } from "@/app/_components/session";
+import { useEndSessionOnLoginPage, noCopyProps } from "@/app/_components/session";
 import {
   User,
   Lock,
@@ -731,6 +731,7 @@ export default function StateUserLogin() {
                       <User className="w-4 h-4" />
                     </div>
                     <input
+                      {...noCopyProps}
                       type="text"
                       required
                       placeholder="Enter State User ID"
@@ -751,6 +752,7 @@ export default function StateUserLogin() {
                       <Lock className="w-4 h-4" />
                     </div>
                     <input
+                      {...noCopyProps}
                       type={showPassword ? "text" : "password"}
                       required
                       placeholder="Enter Password"
