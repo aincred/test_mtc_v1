@@ -78,7 +78,7 @@ export async function POST(request: Request) {
 
     const user = result.rows[0];
 
-    const sid = await createSession('mtc', user.user_id);
+    const sid = await createSession('mtc', String(user.user_id));
     const res = NextResponse.json({ 
       success: true, 
       message: 'Login successful',

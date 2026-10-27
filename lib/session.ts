@@ -44,7 +44,7 @@ function ensureTable() {
 }
 
 /** Creates the one-and-only session for this account (replacing any older one). */
-export async function createSession(role: SessionRole, userKey: string | number) {
+export async function createSession(role: SessionRole, userKey: unknown) {
   await ensureTable();
   const sid = randomBytes(32).toString('hex');
   await query(
